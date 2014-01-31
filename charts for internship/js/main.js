@@ -172,7 +172,9 @@ console.log(chart.w,chart.h)
               }
 
               chart.base
-                .classed('Barchart', true);
+                .classed('Barchart', true)
+                .attr('width',chart.w-2)
+                .attr('height',chart.h+2*chart.margins.top+5);
               chart.base = chart.base.append("svg:g")
                           .attr("transform", "translate(0," + 1.5*chart.margins.top+ ")");
 
@@ -222,8 +224,7 @@ console.log(chart.w,chart.h)
               chart.areas.lines = chart.base.append('g')
                 .classed('lines', true)
                 .attr('width', chart.w-2)
-                .attr('height', chart.h+2*chart.margins.top+5)
-                .attr('transform', 'translate(0,'+(1.5*chart.margins.top)+')');
+                .attr('height', chart.h+2*chart.margins.top+5);
 
               chart.areas.ylabelsRight = d3.select("#y-axis-right").append("svg:svg")                
                 .attr('width',  chart.margins.left-10)
@@ -261,6 +262,12 @@ console.log(chart.w,chart.h)
                 .style("font-size", "20px" )
                 .style("fill","#34495e");
 
+              chart.areas.circles = chart.base.append("circle")
+                .style("fill", "transparent")
+                .attr("r", 8)
+                .style("stroke-width",3)     
+                .style("opacity","0")
+
               function topRoundedRect(x, y, width, height, radius) {
                 return "M" + (x + radius) + "," + y
                      + "h" + (width - (radius * 2))
@@ -270,7 +277,7 @@ console.log(chart.w,chart.h)
                      + "v" + (0-(height-radius))
                      + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + -radius
                      + "z";
-              } 
+              }; 
               chart.layer('bars1', chart.areas.bars1, {
                 dataBind: function(data) {
 
@@ -313,29 +320,6 @@ console.log(chart.w,chart.h)
                                 .attr("stroke-width","0.5")
                                 .call(yAxisRight);
 
-                      function rectinfo1(){   
-                            var x0 = chart.x.invert(d3.mouse(this)[0]).toFixed(0);
-                            for(var i=0;i<data.length-1;i++){
-                              if(x0==i+1){
-                                var y=parseFloat(data[i].max_temp);
-                                var x1=data[i].time;
-                              }
-                            }   
-                            var circle1 = chart.areas.bars.selectAll("circle2")
-                              .data([x1,y])
-                              .enter()
-                              .append("circle")
-                              .style("fill", "transparent")
-                              .attr("r", 8)
-                              .style("stroke-width",3)     
-                              .style("opacity","0")
-                              .attr("cy", chart.h-chart.y0(y))
-                              .attr("cx", chart.x(x0))
-                            chart.div2.style("opacity", .9);
-                            chart.div2 .html("Max temp: "+ y + "<br/>" + "Day: "+ chart.formatTime(x1)) 
-                                .style("left", (d3.event.pageX)+"px" )  
-                                .style("top", (d3.event.pageY-60)+"px");
-                          }
                       // chart.areas.bars
                       //           .on("mouseover", rectinfo1)
                       //           .on("mouseout",function() {
@@ -363,27 +347,6 @@ console.log(chart.w,chart.h)
               });
               chart.layer('bars2', chart.areas.bars2, {
                 dataBind: function(data) {
-                      function rectinfo2(){   
-                              var x0 = chart.x.invert(d3.mouse(this)[0]).toFixed(0);                  
-                              for(var i=0;i<data.length;i++){
-                                if(x0==i+1){
-                                  var y=parseFloat(data[i].min_temp);  var x1=data[i].time;}
-                              } 
-                              var circle1 = chart.areas.bars.selectAll("circle2")
-                                      .data([x1,y])
-                                      .enter()
-                                      .append("circle")
-                                      .style("fill", "transparent")
-                                      .attr("r", 8)
-                                      .style("stroke-width",3)     
-                                      .style("opacity","0")
-                                      .attr("cy", chart.h-chart.y0(y))
-                                      .attr("cx", chart.x(x0))
-                              chart.div2.style("opacity", .9);
-                              chart.div2 .html("Min temp: "+ chart.y + "<br/>" + "Day: "+ chart.formatTime(x1))
-                                      .style("left", (d3.event.pageX)+"px" )  
-                                      .style("top", (d3.event.pageY-60)+"px");  
-                          };
                     // chart.areas.bars
                     //             .on("mouseover", rectinfo2)
                     //             .on("mouseout",function() {
@@ -392,7 +355,6 @@ console.log(chart.w,chart.h)
                     //                                     .style("opacity", 0);
                     //               })
                     //             .on("click",tempchart);
-                    console.log(data);
                     return this.selectAll("rect2")
                              .data(data);
                 },
@@ -410,11 +372,14 @@ console.log(chart.w,chart.h)
 
               chart.layer("lines", chart.areas.lines, {
                       dataBind: function(data) {
+                        console.log(data)
                           return this.selectAll("path").data([data]);
                       },
                       insert: function() {
                          return this.append("path")
-                                  .datum(data);
+                                  .datum(data)
+                                  .attr('class','path1')
+                                  .attr("d", chart.line(data));
                       }
                     });
             },
