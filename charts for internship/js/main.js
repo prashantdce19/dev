@@ -139,12 +139,12 @@ function chart(colors){
 
               chart.w = chart.w-3*chart.margins.left;
               chart.h = chart.h-3*chart.margins.top;
-console.log(chart.w,chart.h)
+
               chart.div1= d3.select("body").append("div") 
               .attr("class", "tooltip")       
               .style("opacity", 0);
 
-               chart.div2= d3.select("body").append("div") 
+              chart.div2= d3.select("body").append("div") 
               .attr("class", "tooltip")       
               .style("opacity", 0);
 
@@ -153,8 +153,10 @@ console.log(chart.w,chart.h)
               chart.y0 = d3.scale.linear().range([chart.h, 0]);
               chart.y1 = d3.scale.linear().range([chart.h, 0]);
 
+              chart.bisectTime = d3.bisector(function(d) {return d.max_temp; }).right
+
               chart.line = d3.svg.line()
-                                .x(function(d,i){console.log(d);return chart.x(i+1.25);})
+                                .x(function(d,i){return chart.x(i+1.25);})
                                 .y(function(d) {return chart.y1(d.ppt);})
 
               function make_x_axis() {   
@@ -302,6 +304,15 @@ console.log(chart.w,chart.h)
                        if(d==319)  return ("November")
                        if(d==350)  return ("December")
                       });
+                      chart.div2.style("opacity", .9);
+                      chart.div2 .html(function(d){
+                                                  console.log(d)
+                                                  // var x0 = chart.bisectTime(data, chart.x.invert(d3.mouse(this)[0]).toFixed(0));
+                                                  // console.log(x0);
+                                                  //return "Max temp: "+ data[x0].min_temp + "<br/>" + "Day: "+ data[x0].time;
+                                                }) 
+                                  //.style("left", (d3.event.pageX)+"px" )  
+                                  //.style("top", (d3.event.pageY-60)+"px");
 
                       chart.areas.xlabels.call(xAxis);
 
@@ -320,55 +331,55 @@ console.log(chart.w,chart.h)
                                 .attr("stroke-width","0.5")
                                 .call(yAxisRight);
 
-                      // chart.areas.bars
-                      //           .on("mouseover", rectinfo1)
-                      //           .on("mouseout",function() {
-                      //                         chart.div2.transition()    
-                      //                                   .duration(500)    
-                      //                                   .style("opacity", 0);
-                      //             })
-                      //           .on("click",tempchart);
-
                       return this.selectAll("rect1")
                              .data(data);        
                 },
                 insert: function() {
-                    var barWidth = 5;
-                    var barpadding = 2;
                     return this.append("path")
                       .classed('bar', true)
-                      .attr("fill", "#1ABC9C")
-                      .attr("d", function(datum, index) { 
-                                return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding),chart.h-chart.y0(datum.max_temp),5);
-                        });
+                      
+                      // .on('mouseover',function(d){
+                      //                         var x0 = chart.bisectTime(data, chart.x.invert(d3.mouse(this)[0]).toFixed(0))
+                      //                         console.log(x0);
+                      //                         chart.div2.style('display','block');
+                      //                         chart.div2 .html( "Max temp: "+ data[x0].min_temp + "<br/>" + "Day: "+ data[x0].time);
+                      //                       })
+                      // .on('mouseout',function(){
+                      //                         chart.div2.style('display','none');});
                 },
-                // setup an enter event for the data as it comes in:
 
               });
+              var onEnterBar1 = function(){
+                    var barWidth = 5;
+                    var barpadding = 2;
+                    return this.attr("fill", "#1ABC9C")
+                          .attr("d", function(datum, index) { 
+                                    return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding),chart.h-chart.y0(datum.max_temp),5);
+                            })
+              };
+              chart.layer('bars1').on('enter', onEnterBar1);
+              chart.layer('bars1').on('update', onEnterBar1);
+
               chart.layer('bars2', chart.areas.bars2, {
                 dataBind: function(data) {
-                    // chart.areas.bars
-                    //             .on("mouseover", rectinfo2)
-                    //             .on("mouseout",function() {
-                    //                           chart.div2.transition()    
-                    //                                     .duration(500)    
-                    //                                     .style("opacity", 0);
-                    //               })
-                    //             .on("click",tempchart);
                     return this.selectAll("rect2")
                              .data(data);
                 },
                 insert: function() {
-                      var barWidth = 5;
-                      var barpadding = 2;
                       return this.append("path")
                               .classed('bar', true)
-                              .attr("fill", "#34495e")
-                              .attr("d", function(datum, index) { 
-                                        return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding),chart.h-chart.y0(datum.min_temp),5);
-                                });
                 }
               });
+              var onEnterBar2 = function(){
+                    var barWidth = 5;
+                    var barpadding = 2;
+                    return this.attr("fill", "#34495e")
+                                  .attr("d", function(datum, index) { 
+                                            return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding),chart.h-chart.y0(datum.min_temp),5);
+                                    });
+              };
+              chart.layer('bars2').on('enter', onEnterBar2);
+              chart.layer('bars2').on('update', onEnterBar2);
 
               chart.layer("lines", chart.areas.lines, {
                       dataBind: function(data) {
