@@ -153,7 +153,7 @@ function chart(colors){
               chart.y0 = d3.scale.linear().range([chart.h, 0]);
               chart.y1 = d3.scale.linear().range([chart.h, 0]);
 
-              chart.bisectTime = d3.bisector(function(d) {return d.max_temp; }).right
+              chart.bisectTime = d3.bisector(function(d) {return d.time; }).right
 
               chart.line = d3.svg.line()
                                 .x(function(d,i){return chart.x(i+1.25);})
@@ -211,16 +211,16 @@ function chart(colors){
                 .attr("stroke-width","0.5");
 
               chart.areas.bars1 = chart.base.append('g')
-                .classed('bars', true)
-                .attr('width', chart.w-2)
-                .attr('height', chart.h+2*chart.margins.top+5)
+             //   .classed('bars1', true)
+                //.attr('width', chart.w-2)
+                //.attr('height', chart.h+2*chart.margins.top+5)
                 // .append("svg:g")
                 // .attr('transform', 'translate(0,'+(1.5*chart.margins.top)+')');
 
               chart.areas.bars2 = chart.base.append('g')
-                .classed('bars', true)
-                .attr('width', chart.w-2)
-                .attr('height', chart.h+2*chart.margins.top+5)
+               // .classed('bars2', true)
+                //.attr('width', chart.w-2)
+                //.attr('height', chart.h+2*chart.margins.top+5)
                 // .attr('transform', 'translate(0,'+(1.5*chart.margins.top)+')');
 
               chart.areas.lines = chart.base.append('g')
@@ -264,11 +264,7 @@ function chart(colors){
                 .style("font-size", "20px" )
                 .style("fill","#34495e");
 
-              chart.areas.circles = chart.base.append("circle")
-                .style("fill", "transparent")
-                .attr("r", 8)
-                .style("stroke-width",3)     
-                .style("opacity","0")
+              chart.areas.circles = chart.base.append("g")
 
               function topRoundedRect(x, y, width, height, radius) {
                 return "M" + (x + radius) + "," + y
@@ -280,11 +276,12 @@ function chart(colors){
                      + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + -radius
                      + "z";
               }; 
+
               chart.layer('bars1', chart.areas.bars1, {
                 dataBind: function(data) {
 
                       // update the domain of the x,y0 and y1 Scales since it depends on the data
-                      
+                      //var x0 = d3.mouse(this)[0];
                       chart.x.domain([0.5,data.length]);
                       chart.y0.domain([0,d3.max(data.map(function(datum){return +datum.max_temp;}))]);
                       chart.y1.domain([0,d3.max(data.map(function(datum){return +datum.ppt;}))]);
@@ -304,15 +301,6 @@ function chart(colors){
                        if(d==319)  return ("November")
                        if(d==350)  return ("December")
                       });
-                      chart.div2.style("opacity", .9);
-                      chart.div2 .html(function(d){
-                                                  console.log(d)
-                                                  // var x0 = chart.bisectTime(data, chart.x.invert(d3.mouse(this)[0]).toFixed(0));
-                                                  // console.log(x0);
-                                                  //return "Max temp: "+ data[x0].min_temp + "<br/>" + "Day: "+ data[x0].time;
-                                                }) 
-                                  //.style("left", (d3.event.pageX)+"px" )  
-                                  //.style("top", (d3.event.pageY-60)+"px");
 
                       chart.areas.xlabels.call(xAxis);
 
@@ -336,16 +324,7 @@ function chart(colors){
                 },
                 insert: function() {
                     return this.append("path")
-                      .classed('bar', true)
-                      
-                      // .on('mouseover',function(d){
-                      //                         var x0 = chart.bisectTime(data, chart.x.invert(d3.mouse(this)[0]).toFixed(0))
-                      //                         console.log(x0);
-                      //                         chart.div2.style('display','block');
-                      //                         chart.div2 .html( "Max temp: "+ data[x0].min_temp + "<br/>" + "Day: "+ data[x0].time);
-                      //                       })
-                      // .on('mouseout',function(){
-                      //                         chart.div2.style('display','none');});
+                      .classed('bar1', true)
                 },
 
               });
@@ -356,19 +335,45 @@ function chart(colors){
                           .attr("d", function(datum, index) { 
                                     return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding),chart.h-chart.y0(datum.max_temp),5);
                             })
+                          .on('mousemove',mouseoverOnBar)
+                          .on('mouseout',del);
               };
+
+              var mouseoverOnBar = function(){
+
+                    var x0 = chart.x.invert(d3.mouse(this)[0]).toFixed(0);
+                    if(this.className.baseVal === 'bar1'){
+                        var y=parseFloat(data[x0-1].max_temp);
+                        var tempVar = 'Max temp';
+                    }else{
+                        var y=parseFloat(data[x0-1].min_temp);
+                        var tempVar = 'Min temp';
+                    }
+                    var x1=data[x0-1].time;
+                    chart.div2 .html(tempVar+": "+ y + "<br/>" + "Day: "+ chart.formatTime(x1)) 
+                            .style("left", (d3.event.pageX)+"px" )  
+                            .style("top", (d3.event.pageY-60)+"px")
+                            .style("opacity", 0.9); 
+              };
+
+              var del =function(){
+                      chart.div2.transition()    
+                        .duration(500)    
+                        .style("opacity", 0);
+              };
+
               chart.layer('bars1').on('enter', onEnterBar1);
               chart.layer('bars1').on('update', onEnterBar1);
 
               chart.layer('bars2', chart.areas.bars2, {
-                dataBind: function(data) {
-                    return this.selectAll("rect2")
-                             .data(data);
-                },
-                insert: function() {
-                      return this.append("path")
-                              .classed('bar', true)
-                }
+                          dataBind: function(data) {
+                              return this.selectAll("rect2")
+                                       .data(data);
+                          },
+                          insert: function() {
+                                return this.append("path")
+                                        .classed('bar2', true)
+                          }
               });
               var onEnterBar2 = function(){
                     var barWidth = 5;
@@ -376,22 +381,59 @@ function chart(colors){
                     return this.attr("fill", "#34495e")
                                   .attr("d", function(datum, index) { 
                                             return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding),chart.h-chart.y0(datum.min_temp),5);
-                                    });
+                                    })                          
+                                  .on('mousemove',mouseoverOnBar)
+                                  .on('mouseout',del);
               };
               chart.layer('bars2').on('enter', onEnterBar2);
               chart.layer('bars2').on('update', onEnterBar2);
 
               chart.layer("lines", chart.areas.lines, {
+
                       dataBind: function(data) {
-                        console.log(data)
+
                           return this.selectAll("path").data([data]);
                       },
                       insert: function() {
                          return this.append("path")
                                   .datum(data)
                                   .attr('class','path1')
-                                  .attr("d", chart.line(data));
+                                  .attr("d", chart.line(data))                                  
                       }
+                    });
+
+              chart.layer("circles", chart.areas.circles, {
+
+                      dataBind: function(data) {
+
+                          return this.selectAll("circle")
+                                    .data(data);
+                      },
+                      insert: function() {
+                         return this.append("circle")
+                                  .classed('circle',true)                                
+                      },
+                      events: {
+                              enter: function() {
+
+                                var chart = this.chart();
+                                return this.attr("cy", function(d){return chart.y1(d.ppt);})
+                                          .attr("cx", function(d,i){return chart.x(i+1.25);})
+                                          .style("fill", "transparent")
+                                          .attr("r", 8)
+                                          .style("stroke-width",3)
+                                          .on("mouseover",function(d){
+                                                chart.div1.style("opacity", .9);
+                                                chart.div1 .html("Avg Ppt: "+ d.ppt + "<br/>" + "Day: " + chart.formatTime(d.time))  
+                                                                .style("left", (d3.event.pageX) + "px")   
+                                                                .style("top", (d3.event.pageY-60) + "px");
+                                              })
+                                          .on("mouseout", function(d){ 
+                                                  chart.div1.transition()    
+                                                  .duration(100)    
+                                                  .style("opacity", 0);
+                                             });
+                              }}
                     });
             },
             
@@ -424,7 +466,7 @@ function chart(colors){
       .attr('height', 500)
       .attr('width', 4500)
       .chart('internsBarChart');
-
+      data.pop();
       getInternShipChart.draw(data);
 
      

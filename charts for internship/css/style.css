@@ -98,14 +98,13 @@ div#axis{
       background:#1ABC9C;
 		}
 
-     .bars{
+     .bar1,.bar2{
       opacity:0.7;
     }
-     .bars:hover { 
+     .bar1:hover,.bar2:hover { 
       stroke:gray;stroke-width:2;
       opacity:1;
     }
-		
 		.axis {
 			shape-rendering: crispEdges;
 		}
