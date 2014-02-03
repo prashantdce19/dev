@@ -3,101 +3,74 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="css/style.css">
     <link href='http://fonts.googleapis.com/css?family=Cantata+One' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.3.0/pure-min.css">
-    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.3.0/grids-min.css">
+    <link rel="stylesheet" href="css/pure-min.css">
+    <link rel="stylesheet" href="css/grids-min.css">
     <script type="text/javascript" src="js/main.js"></script>
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript" src="js/d3.v3.min.js"></script>
     <script type="text/javascript" src="js/d3.chart.min.js"></script>
   </head>
-  <body width="100%"> 
-    <div class="pure-g-r">
+    <body width="100%"> 
+        <div class="pure-g-r">
             <div class="pure-u-2-3">
-            <div class="l-box">
-              <input type="file" class="button green" id="files" style="margin-left:100px;margin-top:20px">
-              <span class="readBytesButtons">
-              <button class="blue" style="margin-left:5%" onclick="clickcount(count);">Upload</button>
-              </span> 
-            </div>
+                <div class="l-box">
+                    <input type="file" class="button green" id="files" style="margin-left:100px;margin-top:20px">
+                    <span class="readBytesButtons">
+                        <button class="blue" style="margin-left:5%">Upload</button>
+                    </span> 
+                </div>
             </div>
             <div class="pure-u-1-3">
-            <div class="l-box toggle">
-            <label for="one" class="switch-container">
-              <input type="checkbox" id="one" name="one" value="1" class="switch-input">
-              <div class="switch">
-                <span class="switch-label" id="ppt">Precipitation</span>
-                <span class="switch-label" id="temp">Temperature</span>
-                <span class="switch-handle"></span>
-              </div>
-            </label>
-            </div>
+                <div class="l-box toggle">
+                    <label for="one" class="switch-container">
+                        <input type="checkbox" id="one" name="one" value="1" class="switch-input">
+                        <div class="switch">
+                            <span class="switch-label" id="ppt">Precipitation</span>
+                            <span class="switch-label" id="temp">Temperature</span>
+                            <span class="switch-handle"></span>
+                        </div>
+                    </label>
+                </div>
             </div> 
-    </div>
-    
-    <div class="pure-g-r" style="margin-top:3%">
+        </div>
+        
+        <div class="pure-g-r" style="margin-top:3%">
             <div class="pure-u-2-3">
-            <div class="l-box chart">
-              <div id="axis"></div>
-              <div id="graph" class="aGraph"></div>
-              <div id="y-axis-right"></div>
-            </div>  
-            <div class="l-box labelschart"style="height:35px">
-              <div id="x-axis"></div>
-            </div>
+                <div class="l-box chart">
+                    <div id="axis"></div>
+                    <div id='graph' class='aGraph' ></div>
+                    <div id="y-axis-right"></div>
+                </div>  
+                <div class="l-box labelschart"style="height:35px">
+                    <div id="x-axis"></div>
+                </div>
             </div>
             <div class="pure-u-1-3">
-            <div class="l-box pie"> 
-            <div id="pieppt" class="aGraph" align="center"></div>
-            <div id="pietemp" class="aGraph" align="center"></div>
-            </div>
-            <div class="l-box labelpie"style="height:35px"> 
-              <div id="label"></div>
+                <div class="l-box pie"> 
+                    <div id="piechart" class="aGraph" align="center">
+                        <svg class = "pieChartSvg">
+                          <g>
+                          </g>
+                        </svg>
+                    </div>
+                </div>
+                <div class="l-box labelpie"style="height:35px"> 
+                    <div id="label"></div>
+                </div>
             </div>
         </div>
-    </div>
-    
-    
-    <script>
-    var average_ppt=[],avg_temp=[],avg_ppt=[];
-    var radius = 125,count=0,                            
-    colors = ["#014453","#025f74","#027a96","#0288a7","#03a3c8","#04bee9","#04ccfa","#24d3fc","#56ddfc","#89e7fd","#aaeefe","#ccf5fe"],colors1 = ["#EC1B00","#FC4400","#F3A158","#ff9a00","#ffa940","#fff340","#fff673","#fdfbe5","#d2fefc","#94e6fc","#66c5fd","#42a8f2"];  
-    var pie_chart=new Array(12);
-  for (var i = 0; i < 12; i++) {
-    pie_chart[i] = new Array(3);
-  };
- 
-chart(colors);
-$(document).ready(function() { 
-$(".switch").on("click",function(e){
-    if (($('#pieppt').length!= 0)&&($('#pietemp').length!= 0)) {
-        pptchart();
-
-    }
-    else if ($('#pieppt').length== 0){
-      pptchart();
-      $(".switch-handle").parent().css({position: 'relative'});
-      $(".switch-handle").css({left:120, position:'absolute'});
-       }
-    else if ($('#pietemp').length== 0){
-      tempchart();
-      $(".switch-handle").parent().css({position: 'relative'});
-      $(".switch-handle").css({left:0, position:'absolute'});
-    }
-  }); 
-$("#graph").on("click",function(e){
-    if (($('#pieppt').length== 0)&&($('#pietemp').length!= 0)){
-      $(".switch-handle").parent().css({position: 'relative'});
-      $(".switch-handle").css({left:0, position:'absolute'});
-    }
-    else if (($('#pietemp').length== 0)&&($('#pieppt').length!= 0)){
-      $(".switch-handle").parent().css({position: 'relative'});
-      $(".switch-handle").css({left:120, position:'absolute'});
-    }
-  })
-
-  })
-
-</script>
-
-</body>
+        
+        
+        <script>
+          var average_ppt=[],
+              avg_temp=[],
+              avg_ppt=[];
+          var radius = 125,
+              count=0,                            
+              colors = ["#014453","#025f74","#027a96","#0288a7","#03a3c8","#04bee9","#04ccfa","#24d3fc","#56ddfc","#89e7fd","#aaeefe","#ccf5fe"],
+              colors1 = ["#EC1B00","#FC4400","#F3A158","#ff9a00","#ffa940","#fff340","#fff673","#fdfbe5","#d2fefc","#94e6fc","#66c5fd","#42a8f2"];
+          //call chart function to render chart
+          chart(colors);
+        </script>
+    </body>
 </html>
