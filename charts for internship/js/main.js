@@ -311,7 +311,8 @@ function chart(colors){
                 var onEnterBar1 = function(){
                       var barWidth = 5;
                       var barpadding = 2;
-                      return this.attr("fill", "#1ABC9C")
+                      return this
+                            .attr("fill", "#1ABC9C")
                             .attr("d", function(datum, index) { 
                                       return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding),chart.h-chart.y0(datum.max_temp),5);
                               })
@@ -323,7 +324,7 @@ function chart(colors){
                   tempchart();//call tempchart function while mouse click on the bar
                   document.getElementById('one').checked = false;//make checkbox false while mouse click on the bar
                  };
-                var mouseoverOnBar = function(){
+                var mouseoverOnBar = function(d,i){
 
                       var x0 = chart.x.invert(d3.mouse(this)[0]).toFixed(0);
                       if(this.className.baseVal === 'bar1'){
@@ -334,6 +335,13 @@ function chart(colors){
                           var tempVar = 'Min temp';
                       }
                       var x1=data[x0-1].time;
+                      var monthsId=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
+                      d3.select('#sliceId'+monthsId[d.time.getMonth()])
+                            .style('opacity',0.7)
+                            .style('stroke-width',3)
+                            .style('stroke','gray');
+                      //function(d,i){console.log(d,i);return 'sliceId'+monthsId[i];}
+                      console.log(monthsId[d.time.getMonth()]);
                       //make tooltip when mouseover on bar
                       chart.div2 .html(tempVar+": "+ y + "<br/>" + "Day: "+ chart.formatTime(x1)) 
                               .style("left", (d3.event.pageX)+"px" )  
@@ -341,7 +349,14 @@ function chart(colors){
                               .style("opacity", 0.9); 
                 };
                 //delete tooltip when mouseout of the bar
-                var del =function(){
+                var del =function(d){
+
+                      var monthsId=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
+                      d3.select('#sliceId'+monthsId[d.time.getMonth()])
+                            .style('opacity',1)
+                            .style('stroke-width',1.5)
+                            .style('stroke','#ffffff');
+
                         chart.div2.transition()    
                           .duration(500)    
                           .style("opacity", 0);
@@ -423,7 +438,7 @@ function chart(colors){
                                                                   .style("top", (d3.event.pageY-60) + "px");//place tooltip based on mouse's y current point
                                                 })
                                             .on("mouseout", function(d){ 
-                                                    chart.div1.transition()    
+                                                    chart.div1.transition()
                                                     .duration(100)    
                                                     .style("opacity", 0);
                                                });
@@ -542,7 +557,7 @@ function chart(colors){
                 avg_ppt[11]=(avgppt[11])/31;
                 avg_temp[11]=(avgtemp[11])/(31*2);   }
           }
-          var months=["Jan","Feb","Mar","Apr","May","June","July","Aug","Sept","Oct","Nov","Dec"]
+          var months=["Jan","Feb","Mar","Apr","May","June","July","Aug","Sept","Oct","Nov","Dec"];
           if(average_ppt.length==0){
               for (var i = 0; i < 12; i++) {
                   average_ppt.push({
@@ -609,6 +624,7 @@ function pptchart(){
               chart.w = +chart.base.attr('width') || 200;
               chart.h = +chart.base.attr('height') || 150;
               chart.arc = d3.svg.arc().outerRadius(radius);
+              var monthsId=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
               //have empty areas object to put Precipitation pie chart elements
               this.areas = {};
               chart.areas.piechartppt = chart.base.append('svg')
@@ -636,6 +652,7 @@ function pptchart(){
                       //enter event for pie chart while data enter into the early created element
                       enter:function(){
                         var arcs = this.attr("class", "slice")
+                                        .attr('id',function(d,i){console.log(d,i);return 'sliceId'+monthsId[i];})
                                         .style("stroke-width",1.5)
                                         .style("stroke","#ffffff");
                             //make line path for each pie element
@@ -644,12 +661,12 @@ function pptchart(){
                                         .attr("d", chart.arc);
                             //make text element and text for each pie element
                             arcs.append("svg:text")                                     
-                                        .attr("transform", function(d) {                    
+                                        .attr("transform", function(d) {
                                                 d.innerRadius = 1.5*radius;
                                                 d.outerRadius = radius*2;
                                                 return "translate(" + (chart.arc.centroid(d)) + ")";        
                                         })
-                                        .attr("text-anchor", "middle")                          
+                                        .attr("text-anchor", "middle")
                                         .text(function(d, i) { return d.data.month; })
                                         .style("font-family","Tahoma")
                                         .style("stroke","#34495e")
@@ -726,6 +743,7 @@ function tempchart(){
                         chart.w = +chart.base.attr('width');
                         chart.h = +chart.base.attr('height');
                         chart.arc = d3.svg.arc().outerRadius(radius);
+                        var monthsId=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
                         
                         this.areas = {};
                         chart.areas.piecharttemp = chart.base.append('svg')
@@ -752,6 +770,7 @@ function tempchart(){
                                 //enter event for pie chart while data enter into the early created element
                                 enter:function(){
                                   var arcs = this.attr("class", "slice2")
+                                              .attr('id',function(d,i){console.log(d,i);return 'sliceId'+monthsId[i];})
                                               .style("stroke-width",1.5)
                                               .style("stroke","#ffffff")
                                       //make line path for each pie element
