@@ -114,9 +114,20 @@ div#axis{
 			shape-rendering: crispEdges;
 		}
 
-		.x.axis line {
+		.x.axis .tick text {
 			stroke: gray;
 		}
+
+    .x.axis.f text {
+      font-family: Tahoma;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .brush rect.extent {
+    fill: steelblue;
+    fill-opacity: .125;
+    }
 
 		.x.axis .minor {
 			stroke-opacity: .5;

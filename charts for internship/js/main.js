@@ -125,6 +125,10 @@ function chart(colors){
 
                 chart.w = chart.w-3*chart.margins.left;
                 chart.h = chart.h-3*chart.margins.top;
+
+                chart.wf = 700;
+                chart.hf = 100;
+
                 //select dom element for bar's tooltip
                 chart.div1= d3.select("body").append("div") 
                 .attr("class", "tooltip")       
@@ -140,6 +144,14 @@ function chart(colors){
                 chart.x = d3.scale.linear().range([0, chart.w]);
                 chart.y0 = d3.scale.linear().range([chart.h, 0]);
                 chart.y1 = d3.scale.linear().range([chart.h, 0]);
+
+                chart.xf = d3.scale.linear().range([0, chart.wf]);
+                chart.y0f = d3.scale.linear().range([chart.hf, 0]);
+                chart.y1f = d3.scale.linear().range([chart.hf, 0]);
+
+                chart.brush = d3.svg.brush()
+                                  .x(chart.xf)
+                                  .on("brush", brushed);
                 //construct line function 
                 chart.line = d3.svg.line()
                                   .x(function(d,i){return chart.x(i+1.25);})
@@ -199,9 +211,9 @@ function chart(colors){
                 chart.areas.bars1 = chart.base.append('g')
                 chart.areas.bars2 = chart.base.append('g')
                 chart.areas.lines = chart.base.append('g')
-                  .classed('lines', true)
-                  .attr('width', chart.w-2)
-                  .attr('height', chart.h+2*chart.margins.top+5);
+                                        .classed('lines', true)
+                                        .attr('width', chart.w-2)
+                                        .attr('height', chart.h+2*chart.margins.top+5);
                 //make dom element for right y label
                 chart.areas.ylabelsRight = d3.select("#y-axis-right").append("svg:svg")                
                   .attr('width',  chart.margins.left-10)
@@ -210,6 +222,60 @@ function chart(colors){
                   .attr('transform', 'translate(0,'+(1.5*chart.margins.top)+')')
                   .append("svg:g")
                   .classed('y axis right', true);
+
+                chart.areas.chartFullBar = d3.select("#entire-data-chart").append("svg:svg")                
+                  .attr('width',chart.wf+70)
+                  .attr('height', chart.hf+20)
+                  .append("svg:g")
+                  .attr('transform', 'translate(70,0)')
+                  .append('g');
+                chart.areas.barClippath = chart.areas.chartFullBar.append('defs')
+                chart.areas.barClippath = chart.areas.barClippath.append('clipPath')
+                                              .attr('id','clipFull')
+                                              .append('rect')
+                                              .attr('width',100)
+                                              .attr('height',chart.hf)
+                                              .attr('x',0);
+
+                chart.areas.brush = chart.areas.chartFullBar.append('g')
+                                                .classed('brush',true)
+                                                .style('pointer-events','all')
+                                                .style('-webkit-tap-highlight-color', 'rgba(0, 0, 0, 0)');
+
+                chart.areas.brush.append('rect')
+                                    .classed('background',true)
+                                    .attr('width',chart.wf)
+                                    .attr('height',chart.hf)
+                                    .attr('x',0)
+                                    .style('visibility','hidden')
+                                    .style('cursor','crosshair');
+
+                chart.areas.brush.append('rect')
+                                    .classed('extent',true)
+                                    .attr('width',100)
+                                    .attr('height',chart.hf)
+                                    .attr('x',0)
+                                    .style('cursor','move');
+
+
+                function brushed() {
+                          x.domain(chart.brush.empty() ? chart.x2.domain() : chart.brush.extent());
+                          focus.select(".area").attr("d", area);
+                          focus.select(".x.axis").call(xAxis);
+                        }
+
+                chart.areas.xlabelsFull = chart.areas.chartFullBar.append('g')
+                  .classed('x axis f', true)
+                  .attr('width', chart.wf-2)
+                  .attr('height', chart.hf)
+                  .attr('transform', 'translate(0,'+(chart.hf)+')')
+                  .attr("stroke","#848484")
+                  .attr("stroke-width","0.5");
+
+                chart.areas.chartFullBar1 =chart.areas.chartFullBar.append('g')
+                chart.areas.chartFullBar2 =chart.areas.chartFullBar.append('g')
+                                              .attr('clip-path','url(#clipFull)');
+
                 //make left y axis label
                 chart.areas.y0Text = chart.areas.ylabelsLeft.append("text")
                   .classed('y text 1', true)
@@ -297,6 +363,8 @@ function chart(colors){
                                   .attr("stroke-width","0.5")
                                   .call(yAxisRight);
                         //select dom element to construct bars
+                        //console.log(data,_.pluck(data,'max_temp'));
+                        //var datai = _.pluck(data,'max_temp')
                         return this.selectAll("rect1")
                                .data(data);        
                   },
@@ -313,7 +381,7 @@ function chart(colors){
                       var barpadding = 2;
                       return this
                             .attr("fill", "#1ABC9C")
-                            .attr("d", function(datum, index) { 
+                            .attr("d", function(datum, index) { console.log(datum);
                                       return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding),chart.h-chart.y0(datum.max_temp),5);
                               })
                             .on('mousemove',mouseoverOnBar) //call mouseoverOnBar function while mouseover on bar
@@ -341,7 +409,6 @@ function chart(colors){
                             .style('stroke-width',3)
                             .style('stroke','gray');
                       //function(d,i){console.log(d,i);return 'sliceId'+monthsId[i];}
-                      console.log(monthsId[d.time.getMonth()]);
                       //make tooltip when mouseover on bar
                       chart.div2 .html(tempVar+": "+ y + "<br/>" + "Day: "+ chart.formatTime(x1)) 
                               .style("left", (d3.event.pageX)+"px" )  
@@ -419,7 +486,7 @@ function chart(colors){
                         },
                         insert: function() {
                            return this.append("circle")
-                                    .classed('circle',true)                                
+                                    .classed('circle',true)
                         },
                         events: {
                                 //on data enter make the circles
@@ -444,6 +511,63 @@ function chart(colors){
                                                });
                                 }}
                       });
+                chart.layer('fullChartBar1', chart.areas.chartFullBar1, {
+                            dataBind: function(data) {
+                                chart.xf.domain([0.5,data.length]);
+                                chart.y0f.domain([0,d3.max(data.map(function(datum){return +datum.max_temp;}))]);
+                                chart.y1f.domain([0,d3.max(data.map(function(datum){return +datum.ppt;}))]);
+                                var xAxis = d3.svg.axis().scale(chart.xf).tickValues([16,45,75,105,136,166,197,228,258,289,319,350]).orient("bottom").tickFormat(d3.format("d"));
+                                xAxis.tickFormat(function(d, i){
+                                       if(d==16)  return ("January")
+                                       if(d==45)  return ("February")
+                                       if(d==75)  return ("March")
+                                       if(d==105)  return ("April")
+                                       if(d==136)  return ("May")
+                                       if(d==166)  return ("June")
+                                       if(d==197)  return ("July")
+                                       if(d==228)  return ("August")
+                                       if(d==258)  return ("September")
+                                       if(d==289)  return ("October")
+                                       if(d==319)  return ("November")
+                                       if(d==350)  return ("December")
+                                });
+                                //call x axis 
+                                chart.areas.xlabelsFull.call(xAxis);
+                                return this.selectAll("rect3")
+                                         .data(data);
+                            },
+                            insert: function() {
+                                  return this.append("path")
+                                          .classed('barFull1', true)
+                                          .attr("fill", "#ccc")
+                            }
+                });
+                var onEnterBar1Full = function(){
+                      var barWidth = .1;
+                      var barpadding = .2;
+                      return this.attr("d", function(datum, index) { 
+                                              return topRoundedRect(chart.xf(index+1)-barWidth/2, chart.y0f(datum.min_temp),(chart.wf / data.length- barpadding),chart.hf-chart.y0f(datum.min_temp),1);
+                                      })
+                                    .on('mousemove',mouseoverOnBar)//call mouseoverOnBar function while mouseover on bar
+                                    .on('mouseout',del)// call del function while mouseout of the bar
+                                    .on("click",mouseClickOnBar);//call mouseClickOnBar function while mouse click on the bar
+                };
+                chart.layer('fullChartBar1').on('enter', onEnterBar1Full);
+                chart.layer('fullChartBar1').on('update', onEnterBar1Full);
+
+                chart.layer('fullChartBar2', chart.areas.chartFullBar2, {
+                            dataBind: function(data) {
+                                return this.selectAll("rect4")
+                                         .data(data);
+                            },
+                            insert: function() {
+                                  return this.append("path")
+                                          .classed('barFull2', true)
+                                          .attr("fill", "steelblue");
+                            }
+                });
+                chart.layer('fullChartBar2').on('enter', onEnterBar1Full);
+                chart.layer('fullChartBar2').on('update', onEnterBar1Full);
               },
             
               // configures the width of the chart.
@@ -482,7 +606,6 @@ function chart(colors){
         //calculate avg ppt and avg temp from entier data
         var avgppt=[0,0,0,0,0,0,0,0,0,0,0,0],
             avgtemp=[0,0,0,0,0,0,0,0,0,0,0,0];
-            console.log(data);
          for(i=0;i<data.length;i++){
               if(i<31)
               { 
@@ -652,7 +775,7 @@ function pptchart(){
                       //enter event for pie chart while data enter into the early created element
                       enter:function(){
                         var arcs = this.attr("class", "slice")
-                                        .attr('id',function(d,i){console.log(d,i);return 'sliceId'+monthsId[i];})
+                                        .attr('id',function(d,i){return 'sliceId'+monthsId[i];})
                                         .style("stroke-width",1.5)
                                         .style("stroke","#ffffff");
                             //make line path for each pie element
@@ -770,7 +893,7 @@ function tempchart(){
                                 //enter event for pie chart while data enter into the early created element
                                 enter:function(){
                                   var arcs = this.attr("class", "slice2")
-                                              .attr('id',function(d,i){console.log(d,i);return 'sliceId'+monthsId[i];})
+                                              .attr('id',function(d,i){return 'sliceId'+monthsId[i];})
                                               .style("stroke-width",1.5)
                                               .style("stroke","#ffffff")
                                       //make line path for each pie element
