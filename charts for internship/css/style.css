@@ -12,7 +12,6 @@
   #graph{
     left:0px;
     width:75%;
-    overflow-x:scroll; 
     position:relative; 
     height:500px;
     margin-right:0;
@@ -25,7 +24,14 @@
     /*background: -ms-linear-gradient(top, #000fff 0%,#000fff 50%,#ffff00 50%,#ffff00 100%); /* IE10+ */
     /*background: linear-gradient(top, #000fff 0%,#000fff 50%,#ffff00 50%,#ffff00 100%); /* W3C */
 }
-
+.handle {
+    fill: #eee;
+    stroke: #666;
+}
+.brush rect.extent {
+    fill: steelblue;
+    fill-opacity: .225;
+}
 div#axis{
   float:left;
   position:relative;

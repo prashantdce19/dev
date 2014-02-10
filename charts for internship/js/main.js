@@ -257,10 +257,32 @@ function chart(colors){
                                               .attr('height',chart.hf)
                                               .attr('x',0);
 
+                function resizePath(d) {
+                  var e = +(d == "e"),
+                      x = e ? 1 : -1,
+                      y = chart.hf / 3;
+                  return "M" + (.5 * x) + "," + y
+                      + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6)
+                      + "V" + (2 * y - 6)
+                      + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y)
+                      + "Z"
+                      + "M" + (2.5 * x) + "," + (y + 8)
+                      + "V" + (2 * y - 8)
+                      + "M" + (4.5 * x) + "," + (y + 8)
+                      + "V" + (2 * y - 8);
+                }
+
                 function brushed() {
+                         var barWidth = 2;
+                         var barpadding = .2;
                           chart.x.domain(chart.brush.empty() ? chart.xf.domain() : chart.brush.extent());
-                          chart.areas.bars1.select(".bar1").attr("d", barPath);
-                          chart.areas.bars2.select(".bar2").attr("d", barPath);
+                          chart.areas.bars1.selectAll(".bar1")                            
+                                        .attr("d", function(datum, index) { 
+                                              return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+3),chart.h-chart.y0(datum.max_temp),5);
+                                        });
+                          chart.areas.bars2.selectAll(".bar2").attr("d", function(datum, index) { 
+                                            return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+3),chart.h-chart.y0(datum.min_temp),5);
+                                    });
                           chart.areas.lines.select(".path1").attr("d",chart.line(data));
                           d3.select('.x.axis').remove();
                           chart.areas.xlabels = chart.base.append('g')
@@ -273,7 +295,9 @@ function chart(colors){
                                     .call(xAxis);
                           chart.areas.circles.selectAll('.circle')
                                             .attr("cx", function(d,i){return chart.x(i+1.25);});
-                        }
+                          d3.selectAll(".handle").attr("d", resizePath);  
+                          console.log(d3.selectAll(".handle"));        
+                        };
 
                 chart.areas.xlabelsFull = chart.areas.chartFullBar.append('g')
                   .classed('x axis', true)
@@ -289,7 +313,8 @@ function chart(colors){
                                                  .classed('lines', true);
 
                 chart.areas.barBrush = chart.areas.chartFullBar.append('g')
-                                              .attr("class", "x brush")
+                                              .attr("class", "x brush");
+                     
                 //make left y axis label
                 chart.areas.y0Text = chart.areas.ylabelsLeft.append("text")
                   .classed('y text 1', true)
@@ -394,7 +419,7 @@ function chart(colors){
                           datai[i] = +datai[i];
                         };
                         return this.selectAll("rect1")
-                               .data([datai]);        
+                               .data(data);        
                   },
                   insert: function() {
                       //append tag element for bars
@@ -405,12 +430,16 @@ function chart(colors){
                 });
                 //on data enter make the line for bars
                 var onEnterBar1 = function(){
+                      var barWidth = 2;
+                      var barpadding = .2;
                       return this
                             .attr("fill", "#1ABC9C")
-                            .attr("d", barPath)
-                            // .on('mousemove',mouseoverOnBar) //call mouseoverOnBar function while mouseover on bar
-                            // .on('mouseout',del)// call del function while mouseout of the bar
-                            // .on("click",mouseClickOnBar); //call mouseClickOnBar function while mousemove of the bar
+                            .attr("d", function(datum, index) { 
+                                      return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+3),chart.h-chart.y0(datum.max_temp),5);
+                              })
+                            .on('mousemove',mouseoverOnBar) //call mouseoverOnBar function while mouseover on bar
+                            .on('mouseout',del)// call del function while mouseout of the bar
+                            .on("click",mouseClickOnBar); //call mouseClickOnBar function while mousemove of the bar
                 };
                 var mouseClickOnBar = function(){
                   tempchart();//call tempchart function while mouse click on the bar
@@ -463,7 +492,7 @@ function chart(colors){
                                   datai[i] = +datai[i];
                                 };
                                 return this.selectAll("rect2")
-                                         .data([datai]);
+                                         .data(data);
                             },
                             insert: function() {
                                   return this.append("path")
@@ -472,13 +501,15 @@ function chart(colors){
                 });
                 //on data enter make the line for bars
                 var onEnterBar2 = function(){
-                      // var barWidth = 5;
-                      // var barpadding = 2;
+                      var barWidth = 5;
+                      var barpadding = 2;
                       return this.attr("fill", "#34495e")
-                                    .attr("d", barPath)                          
-                                    // .on('mousemove',mouseoverOnBar)//call mouseoverOnBar function while mouseover on bar
-                                    // .on('mouseout',del)// call del function while mouseout of the bar
-                                    // .on("click",mouseClickOnBar);//call mouseClickOnBar function while mouse click on the bar
+                                    .attr("d", function(datum, index) { 
+                                            return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+3),chart.h-chart.y0(datum.min_temp),5);
+                                    })                         
+                                    .on('mousemove',mouseoverOnBar)//call mouseoverOnBar function while mouseover on bar
+                                    .on('mouseout',del)// call del function while mouseout of the bar
+                                    .on("click",mouseClickOnBar);//call mouseClickOnBar function while mouse click on the bar
                 };
                 chart.layer('bars2').on('enter', onEnterBar2);
                 chart.layer('bars2').on('update', onEnterBar2);
@@ -565,6 +596,9 @@ function chart(colors){
                                         .selectAll("rect")
                                         .attr("y", -6)
                                         .attr("height", chart.hf + 7);
+                                chart.areas.barBrush.selectAll('.resize')
+                                        .append('path')
+                                        .classed('handle',true);
                                 var datai = _.pluck(data,'max_temp');
                                 for(var i=0;i<datai.length;i++){
                                   datai[i] = +datai[i];
