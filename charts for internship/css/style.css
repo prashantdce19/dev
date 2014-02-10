@@ -91,7 +91,7 @@ div#axis{
     font-weight: 600;
     }
     
-    .path1 {
+    .path1,.pathFull {
 			stroke:  #c0392b;
 			stroke-width: 4;
 			fill: none;
@@ -118,7 +118,7 @@ div#axis{
 			stroke: gray;
 		}
 
-    .x.axis.f text {
+    .x.axis text {
       font-family: Tahoma;
       font-weight: 600;
       font-size: 12px;

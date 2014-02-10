@@ -156,6 +156,10 @@ function chart(colors){
                 chart.line = d3.svg.line()
                                   .x(function(d,i){return chart.x(i+1.25);})
                                   .y(function(d) {return chart.y1(d.ppt);})
+
+                chart.lineFull = d3.svg.line()
+                                  .x(function(d,i){return chart.xf(i+1.25);})
+                                  .y(function(d) {return chart.y1f(d.ppt);})
                 //make x and y axis function for grids
                 function make_x_axis() {   
                   return d3.svg.axis()
@@ -253,14 +257,22 @@ function chart(colors){
                                               .attr('height',chart.hf)
                                               .attr('x',0);
 
-                chart.areas.barBrush = chart.areas.chartFullBar.append('g')
-                                              .attr("class", "x brush")
-
                 function brushed() {
                           chart.x.domain(chart.brush.empty() ? chart.xf.domain() : chart.brush.extent());
                           chart.areas.bars1.select(".bar1").attr("d", barPath);
                           chart.areas.bars2.select(".bar2").attr("d", barPath);
-                          chart.areas.xlabels.select(".x.axis").call(xAxis);
+                          chart.areas.lines.select(".path1").attr("d",chart.line(data));
+                          d3.select('.x.axis').remove();
+                          chart.areas.xlabels = chart.base.append('g')
+                                    .classed('x axis', true)
+                                    .attr('width', chart.w-2)
+                                    .attr('height', chart.h+2*chart.margins.top+5)
+                                    .attr('transform', 'translate(0,'+(chart.h)+')')
+                                    .attr("stroke","#848484")
+                                    .attr("stroke-width","0.5")
+                                    .call(xAxis);
+                          chart.areas.circles.selectAll('.circle')
+                                            .attr("cx", function(d,i){return chart.x(i+1.25);});
                         }
 
                 chart.areas.xlabelsFull = chart.areas.chartFullBar.append('g')
@@ -271,8 +283,13 @@ function chart(colors){
                   .attr("stroke","#848484")
                   .attr("stroke-width","0.5");
 
-                chart.areas.chartFullBar1 =chart.areas.chartFullBar
+                chart.areas.chartFullBar1 =chart.areas.chartFullBar.append('g');
+                chart.areas.chartFullBar2 =chart.areas.chartFullBar.append('g');
+                chart.areas.chartFullLine =chart.areas.chartFullBar.append('g')
+                                                 .classed('lines', true);
 
+                chart.areas.barBrush = chart.areas.chartFullBar.append('g')
+                                              .attr("class", "x brush")
                 //make left y axis label
                 chart.areas.y0Text = chart.areas.ylabelsLeft.append("text")
                   .classed('y text 1', true)
@@ -325,12 +342,10 @@ function chart(colors){
                         i = -1,
                         n = groups.length,
                         d;
-                        console.log(chart.w, groups.length)
                     while (++i < n) {
                       d = groups[i];
-                      path.push(topRoundedRect(chart.x(i+1)-barWidth/2, chart.y0(d),(chart.w / groups.length- barpadding+5),chart.h-chart.y0(d),2));
+                      path.push(topRoundedRect(chart.x(i+1)-barWidth/2, chart.y0(d),(chart.w / groups.length- barpadding+3),chart.h-chart.y0(d),2));
                     };
-                     console.log(path)
                     return path.join("");
                   };
                 function barPathFull(groups) {
@@ -550,7 +565,7 @@ function chart(colors){
                                         .selectAll("rect")
                                         .attr("y", -6)
                                         .attr("height", chart.hf + 7);
-                                var datai = _.pluck(data,'min_temp');
+                                var datai = _.pluck(data,'max_temp');
                                 for(var i=0;i<datai.length;i++){
                                   datai[i] = +datai[i];
                                 };
@@ -560,17 +575,64 @@ function chart(colors){
                             insert: function() {
                                   return this.append("path")
                                           .classed('barFull1', true)
-                                          .attr("fill", "#ccc")
                             }
                 });
                 var onEnterBar1Full = function(){
-                      return this.attr("d", barPathFull)
+                      return this.attr("fill", "#1ABC9C")
+                                    .attr("d", barPathFull)
                                     // .on('mousemove',mouseoverOnBar)//call mouseoverOnBar function while mouseover on bar
                                     // .on('mouseout',del)// call del function while mouseout of the bar
                                     // .on("click",mouseClickOnBar);//call mouseClickOnBar function while mouse click on the bar
                 };
                 chart.layer('fullChartBar1').on('enter', onEnterBar1Full);
                 chart.layer('fullChartBar1').on('update', onEnterBar1Full);
+
+                chart.layer('fullChartBar2', chart.areas.chartFullBar2, {
+                            dataBind: function(data) {
+                                chart.areas.barBrush
+                                          .call(chart.brush)
+                                        .selectAll("rect")
+                                        .attr("y", -6)
+                                        .attr("height", chart.hf + 7);
+                                var datai = _.pluck(data,'min_temp');
+                                for(var i=0;i<datai.length;i++){
+                                  datai[i] = +datai[i];
+                                };
+                                return this.selectAll("rect4")
+                                         .data([datai]);
+                            },
+                            insert: function() {
+                                  return this.append("path")
+                                          .classed('barFull2', true)
+                                          .attr("fill", "#34495e")
+                            }
+                });
+                var onEnterBar2Full = function(){
+                      return this.attr("fill", "#34495e")
+                                    .attr("d", barPathFull)
+                                    // .on('mousemove',mouseoverOnBar)//call mouseoverOnBar function while mouseover on bar
+                                    // .on('mouseout',del)// call del function while mouseout of the bar
+                                    // .on("click",mouseClickOnBar);//call mouseClickOnBar function while mouse click on the bar
+                };
+                chart.layer('fullChartBar2').on('enter', onEnterBar2Full);
+                chart.layer('fullChartBar2').on('update', onEnterBar2Full);
+
+                                //have third layer for line
+                chart.layer("linesFull", chart.areas.chartFullLine, {
+
+                        dataBind: function(data) {
+                            //select dom element to make line
+                            return this.selectAll("path").data([data]);
+                        },
+                        insert: function() {
+                           return this.append("path")
+                                    .datum(data)
+                                    .attr('class','pathFull')
+                                    .attr("d", chart.lineFull(data)) //call line function to make line with data
+                                   // .on("click",mouseClickOnLine)//call mouseClickOnLine function while mouse click on the line
+                        }
+                      });
+
               },
             
               // configures the width of the chart.
