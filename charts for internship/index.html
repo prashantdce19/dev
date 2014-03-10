@@ -63,11 +63,19 @@
         
         
         <script>
-          var average_ppt=[],
+        var average_ppt=[],
               avg_temp=[],
               avg_ppt=[];
-          var radius = 125,
-              count=0,                            
+        var  w = window,
+                d = document,
+                e = d.documentElement,
+                g = d.getElementsByTagName('body')[0],
+                x = w.innerWidth || e.clientWidth || g.clientWidth,
+                y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+        var circleRadi = Math.sqrt((x*x)+(y*y));
+        var radius;
+        radius = ((125/1520.14) * circleRadi);
+        var count=0,                            
               colors = ["#014453","#025f74","#027a96","#0288a7","#03a3c8","#04bee9","#04ccfa","#24d3fc","#56ddfc","#89e7fd","#aaeefe","#ccf5fe"],
               colors1 = ["#EC1B00","#FC4400","#F3A158","#ff9a00","#ffa940","#fff340","#fff673","#fdfbe5","#d2fefc","#94e6fc","#66c5fd","#42a8f2"];
           //call chart function to render chart
