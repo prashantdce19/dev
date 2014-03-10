@@ -11,11 +11,11 @@
     }*/
   #graph{
     left:0px;
-    width:75%;
-    position:relative; 
-    height:500px;
+    width:77.6%;
+    position:relative;
+    height:68.9%;
     margin-right:0;
-    display:inline-block;    
+    display:inline-block;
     /*background: #000fff; /* Old browsers */
     /*background: -moz-linear-gradient(top, #ffffff 0%,#ffffff 8%,#ffff00 8%,#ffff00 92%,#ffffff 92%,#ffffff 100%); /* FF3.6+ */
     /*background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#000fff), color-stop(92%,#000fff), color-stop(92%,#ffff00), color-stop(100%,#ffff00)); /* Chrome,Safari4+ */
@@ -79,7 +79,7 @@ div#axis{
 }
     circle:hover {
     stroke:#ff7f0e;
-    stroke-width:3;
+    stroke-width:2;
     opacity:0.6;
    }
    .pure-button-active{
@@ -87,8 +87,6 @@ div#axis{
    }
     #pieppt,#pietemp{
       float:left;
-    
-
     }
     
     .slice text,.slice2 text {

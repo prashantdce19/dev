@@ -104,6 +104,13 @@ function chart(colors){
             	data[i].time=parseDate(data[i].time);
 
             }
+            var  w = window,
+                d = document,
+                e = d.documentElement,
+                g = d.getElementsByTagName('body')[0],
+                x = w.innerWidth || e.clientWidth || g.clientWidth,
+                y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+
             //use d3.chart function to build charts
             d3.chart("internsBarChart", {
               //initalize variables inside d3.charts function
@@ -117,29 +124,28 @@ function chart(colors){
 
                 // chart margins to account for labels.
                 chart.margins = {
-                  left : 80,
-                  top : 40
+                  left : 0.0585*x,//80
+                  top : 0.0299*y//20
                 };
                 //convert the given data's time to date format
                 chart.formatTime = d3.time.format("%m/%d/%Y");
 
-                chart.w = chart.w-3*chart.margins.left;
-                chart.h = chart.h-3*chart.margins.top;
+                chart.wf = chart.w;
+                chart.hf = 0.1049*y;//70;
 
-                chart.wf = 700;
-                chart.hf = 100;
+                chart.h = chart.h-(3*chart.margins.top);
 
-                //select dom element for bar's tooltip
+                //select dom element for circle's tooltip
                 chart.div1= d3.select("body").append("div") 
                 .attr("class", "tooltip")       
                 .style("opacity", 0);
-                //select dom element for circle's tooltip
+                //select dom element for bar's tooltip
                 chart.div2= d3.select("body").append("div") 
                 .attr("class", "tooltip")       
-                .style("opacity", 0);
+                .style("opacity", 0);                
                 //select dom element for background abd apply linear gradient to it
                 d3.select('#graph')
-                      .style('background','-webkit-linear-gradient(top, #ffffff 12%,#ffffff 12%,#dbdbdb 13%,#dbdbdb 88%,#ffffff 88%,#ffffff 100%)');
+                      .style('background','-webkit-linear-gradient(top,  #ffffff 0%, #ffffff 5%,#dbdbdb 5%,#dbdbdb 96%,#ffffff 96%,#ffffff 100%)');
                 //construct range for x,y0 and y1
                 chart.x = d3.scale.linear().range([0, chart.w]);
                 chart.y0 = d3.scale.linear().range([chart.h, 0]);
@@ -154,14 +160,14 @@ function chart(colors){
                                   .on("brush", brushed);
                 //construct line function 
                 chart.line = d3.svg.line()
-                                  .x(function(d,i){return chart.x(i+1.25);})
+                                  .x(function(d,i){return chart.x(i+1);})
                                   .y(function(d) {return chart.y1(d.ppt);})
 
                 chart.lineFull = d3.svg.line()
-                                  .x(function(d,i){return chart.xf(i+1.25);})
+                                  .x(function(d,i){return chart.xf(i+1);})
                                   .y(function(d) {return chart.y1f(d.ppt);})
                 //make x and y axis function for grids
-                function make_x_axis() {   
+                function make_x_axis() {
                   return d3.svg.axis()
                   .scale(chart.x)
                   .orient("bottom")
@@ -193,10 +199,14 @@ function chart(colors){
                 //make width and height for barchart
                 chart.base
                   .classed('Barchart', true)
-                  .attr('width',chart.w-2)
-                  .attr('height',chart.h+2*chart.margins.top+5);
+                  .attr('id','BarChartId')
+                  .attr('width',chart.w)
+                  .attr('height',chart.h+(2*chart.margins.top))
+                  .attr('viewBox',"0 0 "+chart.w+" "+(chart.h+(2*chart.margins.top)))
+                  .attr('preserveAspectRatio',"xMidYMid");
+
                 chart.base = chart.base.append("svg:g")
-                            .attr("transform", "translate(0," + 1.5*chart.margins.top+ ")");
+                            .attr("transform", "translate(0," + chart.margins.top+ ")");
                 //construct x and y grids and use transform for x grid
                 chart.base.append("g")      
                   .attr("class", "x grid")
@@ -215,15 +225,19 @@ function chart(colors){
                 this.areas = {};
                 //make dom element for left y label
                 chart.areas.ylabelsLeft = d3.select("#axis").append("svg:svg")
-                  .attr('width', chart.margins.left-10)
-                  .attr('height', chart.h+2*chart.margins.top+5)
+                  .attr("id",'yLeftLabelID')
+                  .attr('width', chart.margins.left)
+                  .attr('height', chart.h+(2*chart.margins.top))
+                  .attr('viewBox',"0 0 "+chart.margins.left+" "+(chart.h+(2*chart.margins.top)))
+                  .attr('preserveAspectRatio',"xMidYMid")
                   .append("svg:g")
-                  .attr('transform', 'translate(0,'+(1.5*chart.margins.top)+')');
+                  .attr('transform', 'translate(0,'+(chart.margins.top)+')');
+
                 //make dom element for x label
                 chart.areas.xlabels = chart.base.append('g')
                   .classed('x axis', true)
-                  .attr('width', chart.w-2)
-                  .attr('height', chart.h+2*chart.margins.top+5)
+                  .attr('width', chart.w)
+                  .attr('height', chart.h+(2*chart.margins.top)) // 5 of 667
                   .attr('transform', 'translate(0,'+(chart.h)+')')
                   .attr("stroke","#848484")
                   .attr("stroke-width","0.5");
@@ -232,28 +246,34 @@ function chart(colors){
                 chart.areas.bars2 = chart.base.append('g')
                 chart.areas.lines = chart.base.append('g')
                                         .classed('lines', true)
-                                        .attr('width', chart.w-2)
-                                        .attr('height', chart.h+2*chart.margins.top+5);
+                                        .attr('width', chart.w)
+                                        .attr('height', chart.h);
                 //make dom element for right y label
-                chart.areas.ylabelsRight = d3.select("#y-axis-right").append("svg:svg")                
-                  .attr('width',  chart.margins.left-10)
-                  .attr('height', chart.h+2*chart.margins.top+5)
+                chart.areas.ylabelsRight = d3.select("#y-axis-right").append("svg:svg") 
+                  .attr('id','yRightLabelID')               
+                  .attr('width',  chart.margins.left)
+                  .attr('height', chart.h+(2*chart.margins.top))
+                  .attr('viewBox',"0 0 "+chart.margins.left+" "+(chart.h+(2*chart.margins.top)))
+                  .attr('preserveAspectRatio',"xMidYMid")
                   .append("svg:g")
-                  .attr('transform', 'translate(0,'+(1.5*chart.margins.top)+')')
+                  .attr('transform', 'translate(0,'+(chart.margins.top)+')')
                   .append("svg:g")
                   .classed('y axis right', true);
 
-                chart.areas.chartFullBar = d3.select("#entire-data-chart").append("svg:svg")                
-                  .attr('width',chart.wf+70)
-                  .attr('height', chart.hf+20)
+                chart.areas.chartFullBar = d3.select("#entire-data-chart").append("svg:svg")
+                  .attr('id','fullChartID')               
+                  .attr('width',chart.wf+chart.margins.left) 
+                  .attr('height', chart.hf+(0.0299*y)) 
+                  // .attr('viewBox',"0 0 "+(chart.wf)+" "+(chart.hf+(0.0299*y)))
+                  // .attr('preserveAspectRatio',"xMidYMid")
                   .append("svg:g")
-                  .attr('transform', 'translate(70,0)')
+                  .attr('transform', 'translate('+chart.margins.left+',0)')
                   .append('g');
                 chart.areas.barClippath = chart.areas.chartFullBar.append('defs')
                 chart.areas.barClippath = chart.areas.barClippath.append('clipPath')
                                               .attr('id','clipFull')
                                               .append('rect')
-                                              .attr('width',100)
+                                              .attr('width',chart.margins.left)
                                               .attr('height',chart.hf)
                                               .attr('x',0);
 
@@ -273,35 +293,34 @@ function chart(colors){
                 }
 
                 function brushed() {
-                         var barWidth = 2;
-                         var barpadding = .2;
+                         var barWidth = (0.00146*x);  // 2 of 1366
+                         var barpadding = (0.000146*x); //.2 of 1366
                           chart.x.domain(chart.brush.empty() ? chart.xf.domain() : chart.brush.extent());
                           chart.areas.bars1.selectAll(".bar1")                            
                                         .attr("d", function(datum, index) { 
-                                              return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+3),chart.h-chart.y0(datum.max_temp),5);
+                                              return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.max_temp),5);
                                         });
                           chart.areas.bars2.selectAll(".bar2").attr("d", function(datum, index) { 
-                                            return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+3),chart.h-chart.y0(datum.min_temp),5);
+                                            return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.min_temp),5);
                                     });
                           chart.areas.lines.select(".path1").attr("d",chart.line(data));
                           d3.select('.x.axis').remove();
                           chart.areas.xlabels = chart.base.append('g')
                                     .classed('x axis', true)
-                                    .attr('width', chart.w-2)
-                                    .attr('height', chart.h+2*chart.margins.top+5)
+                                    .attr('width', chart.w) // 2 of 1366
+                                    .attr('height', chart.h+(2*chart.margins.top)) //5 of 667
                                     .attr('transform', 'translate(0,'+(chart.h)+')')
                                     .attr("stroke","#848484")
                                     .attr("stroke-width","0.5")
                                     .call(xAxis);
                           chart.areas.circles.selectAll('.circle')
-                                            .attr("cx", function(d,i){return chart.x(i+1.25);});
-                          d3.selectAll(".handle").attr("d", resizePath);  
-                          console.log(d3.selectAll(".handle"));        
+                                            .attr("cx", function(d,i){return chart.x(i+1);});
+                          d3.selectAll(".handle").attr("d", resizePath);      
                         };
 
                 chart.areas.xlabelsFull = chart.areas.chartFullBar.append('g')
                   .classed('x axis', true)
-                  .attr('width', chart.wf-2)
+                  .attr('width', chart.wf)
                   .attr('height', chart.hf)
                   .attr('transform', 'translate(0,'+(chart.hf)+')')
                   .attr("stroke","#848484")
@@ -320,7 +339,7 @@ function chart(colors){
                   .classed('y text 1', true)
                   .attr("transform", "rotate(-90)")
                   .attr("y", 0.2*chart.margins.left)
-                  .attr("x", 0-(chart.h/2))
+                  .attr("x", -(chart.h/2))
                   .attr("dy", "1em")
                   .style("text-anchor", "middle")
                   .style("float","left")
@@ -333,7 +352,7 @@ function chart(colors){
                 chart.areas.yText = chart.areas.ylabelsRight.append("text")
                   .classed('y text 2', true)
                   .attr("transform", "rotate(90)")
-                  .attr("y", -60)
+                  .attr("y", -(0.0899*y))//60 of 667
                   .attr("x", (chart.h/2))
                   .attr("dy", "1em")
                   .style("text-anchor", "middle")
@@ -369,7 +388,7 @@ function chart(colors){
                         d;
                     while (++i < n) {
                       d = groups[i];
-                      path.push(topRoundedRect(chart.x(i+1)-barWidth/2, chart.y0(d),(chart.w / groups.length- barpadding+3),chart.h-chart.y0(d),2));
+                      path.push(topRoundedRect(chart.x(i+1)-barWidth/2, chart.y0(d),(chart.w / groups.length- barpadding+(0.00366*x)),chart.h-chart.y0(d),2));
                     };
                     return path.join("");
                   };
@@ -404,7 +423,7 @@ function chart(colors){
                                   .classed('y axis', true)
                                   .attr("stroke","#848484")
                                   .attr("stroke-width","0.5")
-                                  .attr("transform", "translate(" + (chart.margins.left-10) + ",0)")
+                                  .attr("transform", "translate(" + (chart.margins.left) + ",0)")
                                   .call(yAxisLeft);
                         //call right y axis and render it in chart
                         var yAxisRight = d3.svg.axis().scale(chart.y1).ticks(10).orient("right");
@@ -413,7 +432,6 @@ function chart(colors){
                                   .attr("stroke-width","0.5")
                                   .call(yAxisRight);
                         //select dom element to construct bars
-                        //console.log(data,_.pluck(data,'max_temp'));
                         var datai = _.pluck(data,'max_temp')
                         for(var i=0;i<datai.length;i++){
                           datai[i] = +datai[i];
@@ -430,12 +448,12 @@ function chart(colors){
                 });
                 //on data enter make the line for bars
                 var onEnterBar1 = function(){
-                      var barWidth = 2;
-                      var barpadding = .2;
+                      var barWidth = (0.00146*x);
+                      var barpadding = (0.000146*x);
                       return this
                             .attr("fill", "#1ABC9C")
                             .attr("d", function(datum, index) { 
-                                      return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+3),chart.h-chart.y0(datum.max_temp),5);
+                                      return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.max_temp),5);
                               })
                             .on('mousemove',mouseoverOnBar) //call mouseoverOnBar function while mouseover on bar
                             .on('mouseout',del)// call del function while mouseout of the bar
@@ -456,28 +474,51 @@ function chart(colors){
                           var tempVar = 'Min temp';
                       }
                       var x1=data[x0-1].time;
-                      var monthsId=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
-                      d3.select('#sliceId'+monthsId[d.time.getMonth()])
-                            .style('opacity',0.7)
-                            .style('stroke-width',3)
-                            .style('stroke','gray');
-                      //function(d,i){console.log(d,i);return 'sliceId'+monthsId[i];}
+                      var monthsId=["January","February","March","April","May","June","July","August","September","October","November","December"];
+                      for(var iterator1=0;iterator1<monthsId.length;iterator1++)
+                      {
+                        if(iterator1 !== d.time.getMonth()){
+                            d3.select('#sliceId'+monthsId[iterator1])
+                                .style('opacity',0.3);
+                                // .style('stroke-width',3)
+                                // .style('stroke','gray');
+                            d3.select('#pieTextValue'+monthsId[iterator1])
+                                .style("display",'none');
+
+                            d3.select('#pieLine'+monthsId[iterator1])
+                                .style("display",'none');
+                          }
+                          else{
+                            d3.select('#pieTextValue'+monthsId[iterator1])
+                              .style("display",'block');
+
+                            d3.select('#pieLine'+monthsId[iterator1])
+                              .style("display",'block');
+                          }
+                      }
                       //make tooltip when mouseover on bar
                       chart.div2 .html(tempVar+": "+ y + "<br/>" + "Day: "+ chart.formatTime(x1)) 
                               .style("left", (d3.event.pageX)+"px" )  
-                              .style("top", (d3.event.pageY-60)+"px")
+                              .style("top", (d3.event.pageY-(0.0899*y))+"px")
                               .style("opacity", 0.9); 
                 };
                 //delete tooltip when mouseout of the bar
                 var del =function(d){
 
-                      var monthsId=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
-                      d3.select('#sliceId'+monthsId[d.time.getMonth()])
+                      var monthsId=["January","February","March","April","May","June","July","August","September","October","November","December"];
+                      for(var iterator2=0;iterator2<monthsId.length;iterator2++)
+                      {
+                        d3.select('#sliceId'+monthsId[iterator2])
                             .style('opacity',1)
-                            .style('stroke-width',1.5)
-                            .style('stroke','#ffffff');
+                            // .style('stroke-width',1.5)
+                            // .style('stroke','#ffffff');
+                        d3.select('#pieTextValue'+monthsId[iterator2])
+                            .style("display",'none');
 
-                        chart.div2.transition()    
+                        d3.select('#pieLine'+monthsId[iterator2])
+                            .style("display",'none');
+                      }
+                      chart.div2.transition()    
                           .duration(500)    
                           .style("opacity", 0);
                 };
@@ -501,11 +542,11 @@ function chart(colors){
                 });
                 //on data enter make the line for bars
                 var onEnterBar2 = function(){
-                      var barWidth = 5;
-                      var barpadding = 2;
+                      var barWidth = (0.00366*x);
+                      var barpadding = (0.00146*x);
                       return this.attr("fill", "#34495e")
                                     .attr("d", function(datum, index) { 
-                                            return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+3),chart.h-chart.y0(datum.min_temp),5);
+                                            return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.min_temp),5);
                                     })                         
                                     .on('mousemove',mouseoverOnBar)//call mouseoverOnBar function while mouseover on bar
                                     .on('mouseout',del)// call del function while mouseout of the bar
@@ -551,21 +592,22 @@ function chart(colors){
 
                                   var chart = this.chart();
                                   return this.attr("cy", function(d){return chart.y1(d.ppt);})
-                                            .attr("cx", function(d,i){return chart.x(i+1.25);})
+                                            .attr("cx", function(d,i){return chart.x(i+1);})
                                             .style("fill", "transparent")
                                             .attr("r", 8)
                                             .style("stroke-width",3)
-                                            .on("mouseover",function(d){
-                                                  chart.div1.style("opacity", .9);
-                                                  chart.div1 .html("Avg Ppt: "+ d.ppt + "<br/>" + "Day: " + chart.formatTime(d.time))  
-                                                                  .style("left", (d3.event.pageX) + "px")//place tooltip based on mouse's x current point
-                                                                  .style("top", (d3.event.pageY-60) + "px");//place tooltip based on mouse's y current point
+                                            .on("mousemove",function(d){
+                                                  chart.div2 .html("Avg Ppt: "+ d.ppt + "<br/>" + "Day: " + chart.formatTime(d.time))  
+                                                                  .style("left", (d3.event.pageX)+"px" )//place tooltip based on mouse's x current point
+                                                                  .style("top", (d3.event.pageY-(0.0899*y))+"px")//place tooltip based on mouse's y current point
+                                                                  .style("opacity", 0.9);
                                                 })
                                             .on("mouseout", function(d){ 
-                                                    chart.div1.transition()
-                                                    .duration(100)    
+                                                    chart.div2.transition()
+                                                    .duration(500)    
                                                     .style("opacity", 0);
-                                               });
+                                               })
+                                            .on("click",mouseClickOnLine);
                                 }}
                       });
                 chart.layer('fullChartBar1', chart.areas.chartFullBar1, {
@@ -594,8 +636,8 @@ function chart(colors){
                                 chart.areas.barBrush
                                           .call(chart.brush)
                                         .selectAll("rect")
-                                        .attr("y", -6)
-                                        .attr("height", chart.hf + 7);
+                                        .attr("y", -(0.00899*y))
+                                        .attr("height", chart.hf + (0.01049*y));
                                 chart.areas.barBrush.selectAll('.resize')
                                         .append('path')
                                         .classed('handle',true);
@@ -626,8 +668,8 @@ function chart(colors){
                                 chart.areas.barBrush
                                           .call(chart.brush)
                                         .selectAll("rect")
-                                        .attr("y", -6)
-                                        .attr("height", chart.hf + 7);
+                                        .attr("y", -(0.00899*y))
+                                        .attr("height", chart.hf + (0.01049*y));
                                 var datai = _.pluck(data,'min_temp');
                                 for(var i=0;i<datai.length;i++){
                                   datai[i] = +datai[i];
@@ -695,13 +737,28 @@ function chart(colors){
        
         var getInternShipChart = d3.select('#graph')
                     .append('svg')
-                    .attr('height', 500)
-                    .attr('width', 915)
+                    .attr('height', (0.7196*y)) //480 of 667
+                    .attr('width', (0.5124*x)) //700 of 1366
                     .chart('internsBarChart');
                     data.pop();
         //call d3.chart function with data
         getInternShipChart.draw(data);
+        function reSizeSvg(chartID){
+          var chart1 = $(chartID),
+            aspect = chart1.width() / chart1.height(),
+            container = chart1.parent();
+            $(window).on("resize", function() {
 
+                var targetWidth = container.width();
+                console.log(chart1,container.width(),chart1.width());
+                chart1.attr("width", targetWidth);
+                chart1.attr("height", Math.round(targetWidth / aspect));
+            }).trigger("resize");
+        }
+        reSizeSvg("#BarChartId");
+        reSizeSvg("#yLeftLabelID");
+        reSizeSvg("#yRightLabelID");
+        reSizeSvg("#fullChartID");  
         //calculate avg ppt and avg temp from entier data
         var avgppt=[0,0,0,0,0,0,0,0,0,0,0,0],
             avgtemp=[0,0,0,0,0,0,0,0,0,0,0,0];
@@ -779,7 +836,7 @@ function chart(colors){
                 avg_ppt[11]=(avgppt[11])/31;
                 avg_temp[11]=(avgtemp[11])/(31*2);   }
           }
-          var months=["Jan","Feb","Mar","Apr","May","June","July","Aug","Sept","Oct","Nov","Dec"];
+          var months=["January","February","March","April","May","June","July","August","September","October","November","December"];
           if(average_ppt.length==0){
               for (var i = 0; i < 12; i++) {
                   average_ppt.push({
@@ -845,14 +902,19 @@ function pptchart(){
               //calulate width and height for Precipitation pie chart
               chart.w = +chart.base.attr('width') || 200;
               chart.h = +chart.base.attr('height') || 150;
+              var textOffset = 65;
               chart.arc = d3.svg.arc().outerRadius(radius);
-              var monthsId=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
+              var monthsId=["January","February","March","April","May","June","July","August","September","October","November","December"];
               //have empty areas object to put Precipitation pie chart elements
               this.areas = {};
               chart.areas.piechartppt = chart.base.append('svg')
                                     .classed('pieChartSvg',true)
+                                    .attr('id','piePptChartID')
                                     .attr("width", chart.w)
                                     .attr("height", chart.h)
+                                    .attr('viewBox',"0 0 "+chart.w+" "+chart.h+"")
+                                    .attr('preserveAspectRatio',"xMidYMid");
+
                //make a layer for Precipitation pie chart elements
                chart.layer('pie1Layer', chart.areas.piechartppt,{
                   dataBind: function(data) {
@@ -861,7 +923,7 @@ function pptchart(){
                     var chat = chart.areas.piechartppt.data([data]) 
                                 .append('g')
                                 .attr("class","pieppt")
-                                .attr("transform", "translate(" + 1.75*radius + "," + 2*radius+ ")")  
+                                .attr("transform", "translate(" + 1.75*radius + "," + 2*radius+ ")")
                     //select slice class element to make pie chart
                     return chat.selectAll(".slice")
                               .data(pie);
@@ -879,10 +941,12 @@ function pptchart(){
                                         .style("stroke","#ffffff");
                             //make line path for each pie element
                             arcs.append("svg:path")
-                                        .attr("fill", function(d, i) { return color[i]; } ) 
-                                        .attr("d", chart.arc);
+                                        .attr("fill", function(d, i) { return color[i]; }) 
+                                        .attr("d", chart.arc)
+                                        .on('mouseover',mouseoverOnPie)
+                                        .on('mouseout',mouseoutOfPie);
                             //make text element and text for each pie element
-                            arcs.append("svg:text")                                     
+                            var monthLabels = arcs.append("svg:text")                                     
                                         .attr("transform", function(d) {
                                                 d.innerRadius = 1.5*radius;
                                                 d.outerRadius = radius*2;
@@ -893,30 +957,154 @@ function pptchart(){
                                         .style("font-family","Tahoma")
                                         .style("stroke","#34495e")
                                         .style("stroke-width",0); 
+                            var prev;
+                            function callLabel(d,i,this1){
+                                if(i > 0) {
+                                    var thisbb = this1.getBoundingClientRect(),
+                                        prevbb = prev.getBoundingClientRect();
+                                    // move if they overlap
+                                    if(!(thisbb.right < prevbb.left || 
+                                            thisbb.left > prevbb.right || 
+                                            thisbb.bottom < prevbb.top || 
+                                            thisbb.top > prevbb.bottom)) {
+                                        var ctx = thisbb.left + (thisbb.right - thisbb.left)/2,
+                                            cty = thisbb.top + (thisbb.bottom - thisbb.top)/2,
+                                            cpx = prevbb.left + (prevbb.right - prevbb.left)/2,
+                                            cpy = prevbb.top + (prevbb.bottom - prevbb.top)/2,
+                                            off = Math.sqrt(Math.pow(ctx - cpx, 2) + Math.pow(cty - cpy, 2))/2;
+                                            console.log(d);
+                                        d3.select(this1).attr("transform",
+                                            "translate(" + Math.cos(((d.startAngle + d.endAngle - Math.PI) / 2)) * (radius + textOffset + off) + "," + Math.sin((d.startAngle + d.endAngle - Math.PI) / 2) * (radius + textOffset + off) + ")");
+                                    }
+                                }
+                                prev = this1;
+                            };
+                            monthLabels.each(function(d,i){callLabel(d,i,this);});
+                            monthLabels.each(function(d,i){callLabel(d,i,this);});
                               //make number in the form of text for each pie element
-                              arcs.append("svg:text")                                     
-                                        .attr("transform", function(d) {                    
-                                                d.innerRadius = radius/2;
-                                                d.outerRadius = radius*2;
-                                              return "translate(" + (chart.arc.centroid(d)) + ")";        
+                              // arcs.append("svg:text")   
+                              //           .attr('id',function(d,i) { return 'pieTextValue'+monthsId[i]; })                                
+                              //           .attr("transform", function(d) {                    
+                              //                   d.innerRadius = radius;
+                              //                   d.outerRadius = radius;
+                              //                 return "translate(" + (chart.arc.centroid(d)) + ")";        
+                              //           })
+                              //           .attr("text-anchor", "middle")                       
+                              //           .text(function(d, i) { return d.data.value.toFixed(2); })
+                              //           .style("font-family","Tahoma")
+                              //           .style("fill","#34495e")
+                              //           .style("stroke-width",0)
+                              //           .style("display","none");
+
+                              arcs.append("svg:text")   
+                                        .attr('id',function(d,i) { return 'pieTextValue'+monthsId[i]; })                                         
+                                        .attr("x", function(d) {
+                                          var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
+                                          d.cx = Math.cos(a) * (radius/2+((radius/2)/2));
+                                          return d.x = /*(Math.cos(a) * (radius + 60))*/chart.arc.centroid(d)[0]>0?chart.arc.centroid(d)[0]+10:chart.arc.centroid(d)[0]-9;
                                         })
-                                        .attr("text-anchor", "middle")                       
-                                        .text(function(d, i) { return d.data.value.toFixed(2); })
+                                        .attr("y", function(d) {
+                                          var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
+                                          d.cy = Math.sin(a) * (radius/2+((radius/2)/2));
+                                          return d.y = /*(Math.sin(a) * (radius + 80))*/chart.arc.centroid(d)[1]+25;
+                                        })
+                                        .text(function(d) {
+                                          return d.data.value.toFixed(2); 
+                                        })
+                                        .each(function(d) {
+                                          var bbox = this.getBBox();
+                                          d.sx = d.x - bbox.width/2 - 2;
+                                          d.ox = d.x + bbox.width/2 + 2;
+                                          d.sy = d.oy = d.y + 5;
+                                        })
                                         .style("font-family","Tahoma")
                                         .style("fill","#34495e")
-                                        .style("stroke-width",0);
+                                        .style("stroke-width",0)
+                                        .style("display","none")
+                                        .attr("text-anchor", "middle");
+
+                              arcs.append("path")
+                                        .attr('id',function(d,i) { return 'pieLine'+monthsId[i]; })
+                                        .attr("class", "pointer")
+                                        .style("fill", "none")
+                                        .style("stroke", "black")
+                                       // .attr("marker-end", "url(#circ)")
+                                        .attr("d", function(d) {
+                                              if(d.cx > d.ox) {
+                                                return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
+                                              } else {
+                                                return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
+                                              }
+                                            })
+                                        .style("display",'none');
                               return arcs;
                       }
                   }
-               })
+                });
+                function mouseoverOnPie(d,i){
+                  for(var iterator5=0;iterator5<monthsId.length;iterator5++)
+                  {
+                    if(monthsId[iterator5] !== d.data.month){
+                        d3.select('#sliceId'+monthsId[iterator5])
+                            .style('opacity',0.3);
+                            // .style('stroke-width',3)
+                            // .style('stroke','gray');
+                        d3.select('#pieTextValue'+monthsId[iterator5])
+                            .style("display",'none');
+
+                        d3.select('#pieLine'+monthsId[iterator5])
+                            .style("display",'none');
+                      }
+                      else{
+                        d3.select('#pieTextValue'+monthsId[iterator5])
+                          .style("display",'block');
+
+                        d3.select('#pieLine'+monthsId[iterator5])
+                          .style("display",'block');
+                      }
+                  };
+                };
+                function mouseoutOfPie(d,i){
+                  for(var iterator6=0;iterator6<monthsId.length;iterator6++)
+                  {
+                    d3.select('#sliceId'+monthsId[iterator6])
+                        .style('opacity',1)
+                        // .style('stroke-width',1.5)
+                        // .style('stroke','#ffffff');
+                    d3.select('#pieTextValue'+monthsId[iterator6])
+                        .style("display",'none');
+
+                    d3.select('#pieLine'+monthsId[iterator6])
+                        .style("display",'none');
+                  };
+                };
         }
       });
+        var  w = window,
+                d = document,
+                e = d.documentElement,
+                g = d.getElementsByTagName('body')[0],
+                x = w.innerWidth || e.clientWidth || g.clientWidth,
+                y = w.innerHeight|| e.clientHeight|| g.clientHeight;
       //call ppt chart 
       var chart1 = d3.select("#piechart")
-                      .attr('height', 500)
-                      .attr('width', 420)
+                      .attr('height', (0.7496*y)) //500 of 667
+                      .attr('width', (0.3074*x)) //420 of 1366
                       .chart('piePptChart');
       chart1.draw(average_ppt);
+      function reSizeSvg(chartID){
+          var chart1 = $(chartID),
+            aspect = chart1.width() / chart1.height(),
+            container = chart1.parent();
+            $(window).on("resize", function() {
+
+                var targetWidth = container.width();
+                console.log(chart1,container.width(),chart1.width());
+                chart1.attr("width", targetWidth);
+                chart1.attr("height", Math.round(targetWidth / aspect));
+            }).trigger("resize");
+        }
+        reSizeSvg("#piePptChartID");
     };
 
 //function for temp chart 
@@ -965,13 +1153,16 @@ function tempchart(){
                         chart.w = +chart.base.attr('width');
                         chart.h = +chart.base.attr('height');
                         chart.arc = d3.svg.arc().outerRadius(radius);
-                        var monthsId=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
+                        var monthsId=["January","February","March","April","May","June","July","August","September","October","November","December"];
                         
                         this.areas = {};
                         chart.areas.piecharttemp = chart.base.append('svg')
                                               .classed('pieChartSvg',true)
+                                              .attr('id','pieTempChartID')
                                               .attr("width", chart.w)
                                               .attr("height", chart.h)
+                                              .attr('viewBox',"0 0 "+chart.w+" "+chart.h+"")
+                                              .attr('preserveAspectRatio',"xMidYMid");
                          chart.layer('pie2Layer', chart.areas.piecharttemp,{
                             dataBind: function(data) {
                               //make pie element for pie chart
@@ -998,11 +1189,13 @@ function tempchart(){
                                       //make line path for each pie element
                                       arcs.append("svg:path")
                                               .attr("fill", function(d, i) { return color[i]; } ) 
-                                              .attr("d", chart.arc);
+                                              .attr("d", chart.arc)
+                                              .on('mouseover',mouseoverOnPie)
+                                              .on('mouseout',mouseoutOfPie);
                                     //make text element and text for each pie element
                                       arcs.append("svg:text")                                     
                                             .attr("transform", function(d) {                    
-                                            d.innerRadius = 1.5*radius;
+                                            d.innerRadius = 1.7*radius;
                                             d.outerRadius = radius*2;
                                             return "translate(" + (chart.arc.centroid(d)) + ")";        
                                           })
@@ -1012,27 +1205,115 @@ function tempchart(){
                                             .style("stroke","#34495e")
                                             .style("stroke-width",0); 
                                       //make number in the form of text for each pie element
-                                      arcs.append("svg:text")                                     
-                                            .attr("transform", function(d) {                    
-                                            d.innerRadius = radius/2;
-                                            d.outerRadius = radius*2;
-                                            return "translate(" + (chart.arc.centroid(d)) + ")";        
-                                          })
-                                            .attr("text-anchor", "middle")                       
-                                            .text(function(d, i) { return d.data.temp.toFixed(2); })
+                                      arcs.append("svg:text")   
+                                            .attr('id',function(d,i) { return 'pieTextValue'+monthsId[i]; })                                         
+                                            .attr("x", function(d) {
+                                              var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
+                                              d.cx = Math.cos(a) * (radius/2+((radius/2)/2));
+                                              return d.x = /*(Math.cos(a) * (radius + 60))*/chart.arc.centroid(d)[0]-5;
+                                            })
+                                            .attr("y", function(d) {
+                                              var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
+                                              d.cy = Math.sin(a) * (radius/2+((radius/2)/2));
+                                              return d.y = /*(Math.sin(a) * (radius + 70))*/chart.arc.centroid(d)[1]+25;
+                                            })
+                                            .text(function(d) {
+                                              return d.data.value.toFixed(2); 
+                                            })
+                                            .each(function(d) {
+                                              var bbox = this.getBBox();
+                                              d.sx = d.x - bbox.width/2 - 2;
+                                              d.ox = d.x + bbox.width/2 + 2;
+                                              d.sy = d.oy = d.y + 5;
+                                            })
                                             .style("font-family","Tahoma")
                                             .style("fill","#34495e")
-                                            .style("stroke-width",0);
+                                            .style("stroke-width",0)
+                                            .style("display","none")
+                                            .attr("text-anchor", "middle");
+
+                                    arcs.append("path")
+                                            .attr('id',function(d,i) { return 'pieLine'+monthsId[i]; })
+                                            .attr("class", "pointer")
+                                            .style("fill", "none")
+                                            .style("stroke", "black")
+                                           // .attr("marker-end", "url(#circ)")
+                                            .attr("d", function(d,i) {
+                                                  if(d.cx > d.ox) {
+                                                   // console.log('pieLine'+monthsId[i],"M" , d.sx, ",", d.sy ,"L", d.ox, "," ,d.oy, " " ,d.cx, ",", d.cy);
+                                                    return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
+                                                  } else {
+                                                    return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
+                                                  }
+                                                })
+                                            .style("display",'none');
                                   return arcs;
                                 }
                             }
-                         })
+                         });
+                        function mouseoverOnPie(d,i){
+                          for(var iterator3=0;iterator3<monthsId.length;iterator3++)
+                          {
+                            if(monthsId[iterator3] !== d.data.month){
+                                d3.select('#sliceId'+monthsId[iterator3])
+                                    .style('opacity',0.3);
+                                    // .style('stroke-width',3)
+                                    // .style('stroke','gray');
+                                d3.select('#pieTextValue'+monthsId[iterator3])
+                                    .style("display",'none');
+
+                                d3.select('#pieLine'+monthsId[iterator3])
+                                    .style("display",'none');
+                              }
+                              else{
+                                d3.select('#pieTextValue'+monthsId[iterator3])
+                                  .style("display",'block');
+
+                                d3.select('#pieLine'+monthsId[iterator3])
+                                  .style("display",'block');
+                              }
+                          };
+                        };
+                        function mouseoutOfPie(d,i){
+                          for(var iterator4=0;iterator4<monthsId.length;iterator4++)
+                          {
+                            d3.select('#sliceId'+monthsId[iterator4])
+                                .style('opacity',1)
+                                // .style('stroke-width',1.5)
+                                // .style('stroke','#ffffff');
+                            d3.select('#pieTextValue'+monthsId[iterator4])
+                                .style("display",'none');
+
+                            d3.select('#pieLine'+monthsId[iterator4])
+                                .style("display",'none');
+                          };
+                        };
                   }
                 });
+        var  w = window,
+                d = document,
+                e = d.documentElement,
+                g = d.getElementsByTagName('body')[0],
+                x = w.innerWidth || e.clientWidth || g.clientWidth,
+                y = w.innerHeight|| e.clientHeight|| g.clientHeight;
         //call temp chart 
         var chart2 = d3.select("#piechart")
-                      .attr('height', 500)
-                      .attr('width', 420)
+                      .attr('height', (0.7496*y)) //500 of 667
+                      .attr('width', (0.3074*x)) //420 of 1366
                       .chart('pieTempChart');
         chart2.draw(average_ppt);
+
+        function reSizeSvg(chartID){
+          var chart1 = $(chartID),
+            aspect = chart1.width() / chart1.height(),
+            container = chart1.parent();
+            $(window).on("resize", function() {
+
+                var targetWidth = container.width();
+                console.log(chart1,container.width(),chart1.width());
+                chart1.attr("width", targetWidth);
+                chart1.attr("height", Math.round(targetWidth / aspect));
+            }).trigger("resize");
+        }
+        reSizeSvg("#pieTempChartID");
 };
