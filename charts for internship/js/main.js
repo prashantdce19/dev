@@ -202,8 +202,8 @@ function chart(colors){
                   .attr('id','BarChartId')
                   .attr('width',chart.w)
                   .attr('height',chart.h+(2*chart.margins.top))
-                  .attr('viewBox',"0 0 "+chart.w+" "+(chart.h+(2*chart.margins.top)))
-                  .attr('preserveAspectRatio',"xMidYMid");
+                  // .attr('viewBox',"0,0,"+chart.w+","+(chart.h+(2*chart.margins.top)))
+                  // .attr('preserveAspectRatio',"xMidYMid");
 
                 chart.base = chart.base.append("svg:g")
                             .attr("transform", "translate(0," + chart.margins.top+ ")");
@@ -228,9 +228,9 @@ function chart(colors){
                   .attr("id",'yLeftLabelID')
                   .attr('width', chart.margins.left)
                   .attr('height', chart.h+(2*chart.margins.top))
-                  .attr('viewBox',"0 0 "+chart.margins.left+" "+(chart.h+(2*chart.margins.top)))
-                  .attr('preserveAspectRatio',"xMidYMid")
-                  .append("svg:g")
+                  // .attr('viewBox',"0,0,"+chart.margins.left+","+(chart.h+(2*chart.margins.top)))
+                  // .attr('preserveAspectRatio',"xMinYMid");
+                chart.areas.ylabelsLeft = chart.areas.ylabelsLeft.append("svg:g")
                   .attr('transform', 'translate(0,'+(chart.margins.top)+')');
 
                 //make dom element for x label
@@ -253,20 +253,23 @@ function chart(colors){
                   .attr('id','yRightLabelID')               
                   .attr('width',  chart.margins.left)
                   .attr('height', chart.h+(2*chart.margins.top))
-                  .attr('viewBox',"0 0 "+chart.margins.left+" "+(chart.h+(2*chart.margins.top)))
-                  .attr('preserveAspectRatio',"xMidYMid")
-                  .append("svg:g")
+                  // .attr('viewBox',"0,0,"+chart.margins.left+","+(chart.h+(2*chart.margins.top)))
+                  // .attr('preserveAspectRatio',"xMidYMid");
+
+                chart.areas.ylabelsRight = chart.areas.ylabelsRight.append("svg:g")
                   .attr('transform', 'translate(0,'+(chart.margins.top)+')')
                   .append("svg:g")
                   .classed('y axis right', true);
+                  console.log(chart.wf,chart.margins.left,chart.w);
 
                 chart.areas.chartFullBar = d3.select("#entire-data-chart").append("svg:svg")
                   .attr('id','fullChartID')               
                   .attr('width',chart.wf+chart.margins.left) 
                   .attr('height', chart.hf+(0.0299*y)) 
-                  // .attr('viewBox',"0 0 "+(chart.wf)+" "+(chart.hf+(0.0299*y)))
-                  // .attr('preserveAspectRatio',"xMidYMid")
-                  .append("svg:g")
+                  // .attr('viewBox',"0,0,"+(chart.wf+chart.margins.left)+","+(chart.hf+(0.0299*y)))
+                  // .attr('preserveAspectRatio',"xMidYMid");
+
+                chart.areas.chartFullBar = chart.areas.chartFullBar.append("svg:g")
                   .attr('transform', 'translate('+chart.margins.left+',0)')
                   .append('g');
                 chart.areas.barClippath = chart.areas.chartFullBar.append('defs')
@@ -750,15 +753,14 @@ function chart(colors){
             $(window).on("resize", function() {
 
                 var targetWidth = container.width();
-                console.log(chart1,container.width(),chart1.width());
                 chart1.attr("width", targetWidth);
                 chart1.attr("height", Math.round(targetWidth / aspect));
             }).trigger("resize");
         }
-        reSizeSvg("#BarChartId");
-        reSizeSvg("#yLeftLabelID");
-        reSizeSvg("#yRightLabelID");
-        reSizeSvg("#fullChartID");  
+         // reSizeSvg("#yLeftLabelID");
+         // reSizeSvg("#BarChartId");
+         // reSizeSvg("#yRightLabelID");
+         // reSizeSvg("#fullChartID");  
         //calculate avg ppt and avg temp from entier data
         var avgppt=[0,0,0,0,0,0,0,0,0,0,0,0],
             avgtemp=[0,0,0,0,0,0,0,0,0,0,0,0];
@@ -972,7 +974,6 @@ function pptchart(){
                                             cpx = prevbb.left + (prevbb.right - prevbb.left)/2,
                                             cpy = prevbb.top + (prevbb.bottom - prevbb.top)/2,
                                             off = Math.sqrt(Math.pow(ctx - cpx, 2) + Math.pow(cty - cpy, 2))/2;
-                                            console.log(d);
                                         d3.select(this1).attr("transform",
                                             "translate(" + Math.cos(((d.startAngle + d.endAngle - Math.PI) / 2)) * (radius + textOffset + off) + "," + Math.sin((d.startAngle + d.endAngle - Math.PI) / 2) * (radius + textOffset + off) + ")");
                                     }
@@ -1099,12 +1100,11 @@ function pptchart(){
             $(window).on("resize", function() {
 
                 var targetWidth = container.width();
-                console.log(chart1,container.width(),chart1.width());
                 chart1.attr("width", targetWidth);
                 chart1.attr("height", Math.round(targetWidth / aspect));
             }).trigger("resize");
         }
-        reSizeSvg("#piePptChartID");
+        //reSizeSvg("#piePptChartID");
     };
 
 //function for temp chart 
@@ -1310,10 +1310,9 @@ function tempchart(){
             $(window).on("resize", function() {
 
                 var targetWidth = container.width();
-                console.log(chart1,container.width(),chart1.width());
                 chart1.attr("width", targetWidth);
                 chart1.attr("height", Math.round(targetWidth / aspect));
             }).trigger("resize");
         }
-        reSizeSvg("#pieTempChartID");
+        //reSizeSvg("#pieTempChartID");
 };
