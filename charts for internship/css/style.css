@@ -516,3 +516,4 @@ space: nowrap;
   .switch-input:checked + .switch .switch-handle{left: 77px;}
   .blue{margin-left:-14% !important;}
   .readBytesButtons{float: right;width: 84%;margin-top: 10px;}
+}
