@@ -202,8 +202,8 @@ function chart(colors){
                   .attr('id','BarChartId')
                   .attr('width',chart.w)
                   .attr('height',chart.h+(2*chart.margins.top))
-                  // .attr('viewBox',"0,0,"+chart.w+","+(chart.h+(2*chart.margins.top)))
-                  // .attr('preserveAspectRatio',"xMidYMid");
+                  .attr('viewBox',"0,0,"+chart.w+","+(chart.h+(2*chart.margins.top)))
+                  .attr('preserveAspectRatio',"xMidYMid");
 
                 chart.base = chart.base.append("svg:g")
                             .attr("transform", "translate(0," + chart.margins.top+ ")");
@@ -228,8 +228,8 @@ function chart(colors){
                   .attr("id",'yLeftLabelID')
                   .attr('width', chart.margins.left)
                   .attr('height', chart.h+(2*chart.margins.top))
-                  // .attr('viewBox',"0,0,"+chart.margins.left+","+(chart.h+(2*chart.margins.top)))
-                  // .attr('preserveAspectRatio',"xMinYMid");
+                  .attr('viewBox',"0,0,"+chart.margins.left+","+(chart.h+(2*chart.margins.top)))
+                  .attr('preserveAspectRatio',"xMinYMid");
                 chart.areas.ylabelsLeft = chart.areas.ylabelsLeft.append("svg:g")
                   .attr('transform', 'translate(0,'+(chart.margins.top)+')');
 
@@ -355,7 +355,7 @@ function chart(colors){
                 chart.areas.yText = chart.areas.ylabelsRight.append("text")
                   .classed('y text 2', true)
                   .attr("transform", "rotate(90)")
-                  .attr("y", -(0.0899*y))//60 of 667
+                  .attr("y", -(0.0439*x))//60 of 667
                   .attr("x", (chart.h/2))
                   .attr("dy", "1em")
                   .style("text-anchor", "middle")
@@ -737,7 +737,7 @@ function chart(colors){
                 },
 
         });
-       
+       console.log(x,y)
         var getInternShipChart = d3.select('#graph')
                     .append('svg')
                     .attr('height', (0.7046*y)) //470 of 667
@@ -757,8 +757,9 @@ function chart(colors){
                 chart1.attr("height", Math.round(targetWidth / aspect));
             }).trigger("resize");
         }
-         // reSizeSvg("#yLeftLabelID");
-         // reSizeSvg("#BarChartId");
+
+          // reSizeSvg("#yLeftLabelID");
+          // reSizeSvg("#BarChartId");
          // reSizeSvg("#yRightLabelID");
          // reSizeSvg("#fullChartID");  
         //calculate avg ppt and avg temp from entier data
@@ -1093,7 +1094,7 @@ function pptchart(){
       //call ppt chart 
       var chart1 = d3.select("#piechart")
                       .attr('height', (0.7496*y)) //500 of 667
-                      .attr('width', (0.3074*x)) //420 of 1366
+                      .attr('width', (0.3221*x)) //440 of 1366
                       .chart('piePptChart');
       chart1.draw(average_ppt);
       function reSizeSvg(chartID){
@@ -1107,7 +1108,7 @@ function pptchart(){
                 chart1.attr("height", Math.round(targetWidth / aspect));
             }).trigger("resize");
         }
-        //reSizeSvg("#piePptChartID");
+       // reSizeSvg("#piePptChartID");
     };
 
 //function for temp chart 
@@ -1300,9 +1301,10 @@ function tempchart(){
                 x = w.innerWidth || e.clientWidth || g.clientWidth,
                 y = w.innerHeight|| e.clientHeight|| g.clientHeight;
         //call temp chart 
+        console.log(x,y)
         var chart2 = d3.select("#piechart")
                       .attr('height', (0.7496*y)) //500 of 667
-                      .attr('width', (0.3074*x)) //420 of 1366
+                      .attr('width', (0.3221*x)) //440 of 1366
                       .chart('pieTempChart');
         chart2.draw(average_ppt);
 
