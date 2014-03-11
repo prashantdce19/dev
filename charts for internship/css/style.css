@@ -496,6 +496,7 @@ space: nowrap;
   .switch-handle{width:78px;}
   .switch-input:checked + .switch .switch-handle{left: 77px;}
   .blue{margin-left:-5% !important;}
+  .pure-u-1-3 #label{right:-60%;}
  }
  @media screen and (min-width:320px) and (max-width:439px){
   .slice text, .slice2 text{font-size: 11px;}
@@ -517,4 +518,5 @@ space: nowrap;
   .switch-input:checked + .switch .switch-handle{left: 77px;}
   .blue{margin-left:-14% !important;}
   .readBytesButtons{float: right;width: 84%;margin-top: 10px;}
+  .pure-u-1-3 #label{right:-34%;}
 }
