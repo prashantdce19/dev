@@ -490,10 +490,11 @@ space: nowrap;
   .pure-u-2-3 .l-box input{margin-left: 5px !important;font-size: 10px;}
   .pure-u-1-3{width: 15%!important;text-align: left;float: left;}
   .pure-u-2-3{width:68%!important;}
-  .pure-u-1-3 .switch{width: 200px;}
-  .switch-label{width:100px;}
-  .switch-handle{width:90px;}
-  .switch-input:checked + .switch .switch-handle{left: 110px;}
+  .pure-u-1-3 .switch{width: 150px;}
+  .switch-label{width:75px;}
+  .switch-handle{width:78px;}
+  .switch-input:checked + .switch .switch-handle{left: 77px;}
+  .blue{margin-left:-5% !important;}
  }
  @media screen and (min-width:320px) and (max-width:439px){
   .slice text, .slice2 text{font-size: 11px;}
@@ -509,8 +510,9 @@ space: nowrap;
   .pure-u-2-3 .l-box input{margin-left: 5px !important;font-size: 10px;}
   .pure-u-1-3{width: 12%!important;text-align: left;float: left;}
   .pure-u-2-3{width:74%!important;}
-  .pure-u-1-3 .switch{width: 200px;}
-  .switch-label{width:100px;}
-  .switch-handle{width:90px;}
-  .switch-input:checked + .switch .switch-handle{left: 110px;}
- }
+  .pure-u-1-3 .switch{width: 150px;}
+  .switch-label{width:75px;}
+  .switch-handle{width:78px;}
+  .switch-input:checked + .switch .switch-handle{left: 77px;}
+  .blue{margin-left:-14% !important;}
+  .readBytesButtons{float: right;width: 84%;margin-top: 10px;}
