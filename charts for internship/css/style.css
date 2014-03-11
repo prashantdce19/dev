@@ -11,9 +11,9 @@
     }*/
   #graph{
     left:0px;
-    width:77.6%;
+    width:76.8%;
     position:relative;
-    height:68.9%;
+    height:68%;
     margin-right:0;
     display:inline-block;
     /*background: #000fff; /* Old browsers */
@@ -50,7 +50,6 @@ div#axis{
 }
 #label{
   width:450px;
-  top:20px;
   position:relative;
   text-align:center;
   font-family:Tahoma;
@@ -62,7 +61,6 @@ div#axis{
 #x-axis{
   width:100%;
   left:35%;
-  top:20px;
   position:relative;
   font-family:Tahoma;
   font-weight:bold;

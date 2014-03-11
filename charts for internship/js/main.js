@@ -131,7 +131,7 @@ function chart(colors){
                 chart.formatTime = d3.time.format("%m/%d/%Y");
 
                 chart.wf = chart.w;
-                chart.hf = 0.1049*y;//70;
+                chart.hf = 0.09445*y;//63;
 
                 chart.h = chart.h-(3*chart.margins.top);
 
@@ -145,7 +145,7 @@ function chart(colors){
                 .style("opacity", 0);                
                 //select dom element for background abd apply linear gradient to it
                 d3.select('#graph')
-                      .style('background','-webkit-linear-gradient(top,  #ffffff 0%, #ffffff 5%,#dbdbdb 5%,#dbdbdb 96%,#ffffff 96%,#ffffff 100%)');
+                      .style('background','-webkit-linear-gradient(top,  #ffffff 0%, #ffffff 5%,#dbdbdb 5%,#dbdbdb 95%,#ffffff 95%,#ffffff 100%)');
                 //construct range for x,y0 and y1
                 chart.x = d3.scale.linear().range([0, chart.w]);
                 chart.y0 = d3.scale.linear().range([chart.h, 0]);
@@ -737,7 +737,7 @@ function chart(colors){
        
         var getInternShipChart = d3.select('#graph')
                     .append('svg')
-                    .attr('height', (0.7196*y)) //480 of 667
+                    .attr('height', (0.7046*y)) //470 of 667
                     .attr('width', (0.5124*x)) //700 of 1366
                     .chart('internsBarChart');
                     data.pop();
