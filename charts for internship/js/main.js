@@ -904,7 +904,10 @@ function pptchart(){
               //calulate width and height for Precipitation pie chart
               chart.w = +chart.base.attr('width') || 200;
               chart.h = +chart.base.attr('height') || 150;
-              var textOffset = 65;
+
+              var offSetRadi = Math.sqrt((x*x)+(y*y));
+              var textOffset = ((65/1520.14) * offSetRadi);
+
               chart.arc = d3.svg.arc().outerRadius(radius);
               var monthsId=["January","February","March","April","May","June","July","August","September","October","November","December"];
               //have empty areas object to put Precipitation pie chart elements
@@ -925,7 +928,7 @@ function pptchart(){
                     var chat = chart.areas.piechartppt.data([data]) 
                                 .append('g')
                                 .attr("class","pieppt")
-                                .attr("transform", "translate(" + 1.75*radius + "," + 2*radius+ ")")
+                                .attr("transform", "translate(" + 1.60*radius + "," + 2*radius+ ")")
                     //select slice class element to make pie chart
                     return chat.selectAll(".slice")
                               .data(pie);
@@ -1170,7 +1173,7 @@ function tempchart(){
                               var chat = chart.areas.piecharttemp.data([data]) 
                                           .append('g')
                                           .attr("class","pietemp")
-                                          .attr("transform", "translate(" + 1.75*radius + "," + 2*radius+ ")")
+                                          .attr("transform", "translate(" + 1.65*radius + "," + 2*radius+ ")")
                               //select slice class element to make pie chart  
                               return chat.selectAll(".slice")
                                         .data(pie);
