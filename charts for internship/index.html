@@ -86,11 +86,11 @@
                 y = w.innerHeight|| e.clientHeight|| g.clientHeight;
         var circleRadi = Math.sqrt((x*x)+(y*y));
         var radius,smallCircleRadius = 115;
-        if(640 <= x && x <= 768)
+        if(640 < x && x <= 768)
         {
           smallCircleRadius = 250;
         }
-        if(550 <= x && x < 640)
+        if(550 <= x && x <= 640)
         {
           smallCircleRadius = 230;
         }
