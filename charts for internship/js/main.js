@@ -142,7 +142,7 @@ function chart(colors){
 
                 // chart margins to account for labels.
                 chart.margins = {
-                  left : 0.0585*x,//80
+                  left : x <= 600?(0.0667*x):(0.0585*x),//80
                   top : 0.0299*y//20
                 };
                 //convert the given data's time to date format
@@ -359,7 +359,7 @@ function chart(colors){
                 chart.areas.y0Text = chart.areas.ylabelsLeft.append("text")
                   .classed('y text 1', true)
                   .attr("transform", "rotate(-90)")
-                  .attr("y", 0.2*chart.margins.left)
+                  .attr("y", ((0.2*chart.margins.left)-(x <= 600?(0.00667*x):0)))
                   .attr("x", -(chart.h/2))
                   .attr("dy", "1em")
                   .style("text-anchor", "middle")
@@ -373,7 +373,7 @@ function chart(colors){
                 chart.areas.yText = chart.areas.ylabelsRight.append("text")
                   .classed('y text 2', true)
                   .attr("transform", "rotate(90)")
-                  .attr("y", -(0.0439*x))//60 of 667
+                  .attr("y", (-(0.0439*x)-(x <= 600?(0.01667*x):0)))//60 of 667
                   .attr("x", (chart.h/2))
                   .attr("dy", "1em")
                   .style("text-anchor", "middle")
@@ -756,10 +756,17 @@ function chart(colors){
 
         });
        console.log(x,y)
+       var xWidth = 0.5124,
+          yHeight = 0.7046;
+       if(x <= 600)
+       {
+          xWidth = 0.85;
+          yHeight = 0.60
+       }
         var getInternShipChart = d3.select('#graph')
                     .append('svg')
-                    .attr('height', (0.7046*y)) //470 of 667
-                    .attr('width', (0.5124*x)) //700 of 1366
+                    .attr('height', (yHeight*y)) //470 of 667
+                    .attr('width', (xWidth*x)) //700 of 1366
                     .chart('internsBarChart');
                     data.pop();
         //call d3.chart function with data
