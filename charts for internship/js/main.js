@@ -775,7 +775,7 @@ function chart(colors){
           leftyAxis = 0,
           rightyAxis = 0,
           gradientValue = 5;
-       if(550 < x && x <= 768)
+       if(550 <= x && x <= 768)
        {
           xWidth = 0.855;
           yHeight = 0.60;
@@ -783,7 +783,7 @@ function chart(colors){
           leftyAxis = 0.00667*x;
           rightyAxis = 0.01667*x;
        };
-       if(340 < x && x <= 550)
+       if(440 <= x && x < 550)
        {
           xWidth = 0.80;
           yHeight = 0.60;
@@ -792,7 +792,7 @@ function chart(colors){
           rightyAxis = 0.042*x;
           gradientValue = 6;
        };
-       if(320 < x && x <= 340)
+       if(320 <= x && x < 440)
        {
           xWidth = 0.755;
           yHeight = 0.55;
@@ -1161,7 +1161,7 @@ function pptchart(){
             circleTranslate = 2,
             textOffsetSmall =65,
             circleXTranslate = 1.6;
-            if(640 < x && x <= 768)
+            if(640 <= x && x <= 768)
             {
                 xWidth = 0.855;
                 yHeight = 0.7496;
@@ -1169,7 +1169,7 @@ function pptchart(){
                 textOffsetSmall = 80;
                 circleXTranslate = 1.9;
             };
-            if(550 < x && x <= 640)
+            if(550 <= x && x < 640)
             {
                 xWidth = 0.855;
                 yHeight = 0.7496;
@@ -1177,7 +1177,7 @@ function pptchart(){
                 textOffsetSmall = 80;
                 circleXTranslate = 1.50;
             };
-            if(340 < x && x <= 550)
+            if(440 <= x && x < 550)
              {
                 xWidth = 0.855;
                 yHeight = 0.7496;
@@ -1185,7 +1185,7 @@ function pptchart(){
                 circleTranslate = 1.8;
                 circleXTranslate = 1.5;
              };
-             if(320 < x && x <= 340)
+             if(320 <= x && x < 440)
              {
                 xWidth = 0.855;
                 yHeight = 0.67;
@@ -1407,28 +1407,28 @@ function tempchart(){
             yHeight = 0.7496,
             circleTranslate = 2;
             circleXTranslate = 1.65;
-        if(640 < x && x <= 768)
+        if(640 <= x && x <= 768)
        {
           xWidth = 0.855;
           yHeight = 0.7496;
           circleTranslate = 1.7;
           circleXTranslate = 1.8;
        }
-       if(550 < x && x <= 640)
+       if(550 <= x && x < 640)
        {
           xWidth = 0.855;
           yHeight = 0.7496;
           circleTranslate = 1.7;
           circleXTranslate = 1.5;
        }
-       if(340 < x && x <= 550)
+       if(340 <= x && x < 550)
        {
           xWidth = 0.855;
           yHeight = 0.7496;
           circleTranslate = 1.7;
           circleXTranslate = 1.5;
        };
-       if(320 < x && x <= 340)
+       if(320 <= x && x < 340)
        {
           xWidth = 0.875;
           yHeight = 0.67;
