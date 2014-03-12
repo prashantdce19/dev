@@ -981,8 +981,8 @@ function pptchart(){
                                     .attr('id','piePptChartID')
                                     .attr("width", chart.w)
                                     .attr("height", chart.h)
-                                    .attr('viewBox',"0 0 "+chart.w+" "+chart.h+"")
-                                    .attr('preserveAspectRatio',"xMidYMid");
+                                    // .attr('viewBox',"0 0 "+chart.w+" "+chart.h+"")
+                                    // .attr('preserveAspectRatio',"xMidYMid");
 
                //make a layer for Precipitation pie chart elements
                chart.layer('pie1Layer', chart.areas.piechartppt,{
@@ -1017,7 +1017,7 @@ function pptchart(){
                             //make text element and text for each pie element
                             var monthLabels = arcs.append("svg:text")                                     
                                         .attr("transform", function(d) {
-                                                d.innerRadius = 1.5*radius;
+                                                d.innerRadius = circleInnerRadius*radius;
                                                 d.outerRadius = radius*2;
                                                 return "translate(" + (chart.arc.centroid(d)) + ")";        
                                         })
@@ -1026,7 +1026,7 @@ function pptchart(){
                                         .style("font-family","Tahoma")
                                         .style("stroke","#34495e")
                                         .style("stroke-width",0); 
-                            var prev;
+                            var prev,yOffset=0,noOfLabel;
                             function callLabel(d,i,this1){
                                 if(i > 0) {
                                     var thisbb = this1.getBoundingClientRect(),
@@ -1036,13 +1036,15 @@ function pptchart(){
                                             thisbb.left > prevbb.right || 
                                             thisbb.bottom < prevbb.top || 
                                             thisbb.top > prevbb.bottom)) {
+                                        if(noOfLabel === i-2){yOffset = 0.01499*y;};
                                         var ctx = thisbb.left + (thisbb.right - thisbb.left)/2,
                                             cty = thisbb.top + (thisbb.bottom - thisbb.top)/2,
                                             cpx = prevbb.left + (prevbb.right - prevbb.left)/2,
                                             cpy = prevbb.top + (prevbb.bottom - prevbb.top)/2,
                                             off = Math.sqrt(Math.pow(ctx - cpx, 2) + Math.pow(cty - cpy, 2))/2;
                                         d3.select(this1).attr("transform",
-                                            "translate(" + Math.cos(((d.startAngle + d.endAngle - Math.PI) / 2)) * (radius + textOffset + off) + "," + Math.sin((d.startAngle + d.endAngle - Math.PI) / 2) * (radius + textOffset + off) + ")");
+                                            "translate(" + Math.cos(((d.startAngle + d.endAngle - Math.PI) / 2)) * (radius + textOffset + off) + "," + (Math.sin((d.startAngle + d.endAngle - Math.PI) / 2) * (radius + textOffset + off)-yOffset) + ")");
+                                        noOfLabel = i;
                                     }
                                 }
                                 prev = this1;
@@ -1159,39 +1161,41 @@ function pptchart(){
         var xWidth = 0.3221,
             yHeight = 0.7496,
             circleTranslate = 2,
-            textOffsetSmall =65,
-            circleXTranslate = 1.6;
+            textOffsetSmall =40,
+            circleXTranslate = 1.6,
+            circleInnerRadius = 1.5;
             if(640 <= x && x <= 768)
             {
-                xWidth = 0.855;
+                xWidth = 0.00111*x;
                 yHeight = 0.7496;
                 circleTranslate = 1.8;
                 textOffsetSmall = 80;
-                circleXTranslate = 1.9;
+                circleXTranslate = 0.00247*x;
             };
             if(550 <= x && x < 640)
             {
-                xWidth = 0.855;
+                xWidth = 0.00133*x;
                 yHeight = 0.7496;
                 circleTranslate = 1.8;
                 textOffsetSmall = 80;
-                circleXTranslate = 1.50;
+                circleXTranslate = 0.00234*x;
             };
             if(440 <= x && x < 550)
              {
-                xWidth = 0.855;
+                xWidth = 0.00175*x;
                 yHeight = 0.7496;
                 textOffsetSmall = 90;
                 circleTranslate = 1.8;
-                circleXTranslate = 1.5;
+                circleXTranslate = 0.0035*x;
              };
              if(320 <= x && x < 440)
              {
-                xWidth = 0.855;
+                xWidth = 0.00244*x;
                 yHeight = 0.67;
                 textOffsetSmall = 120;
-                circleTranslate = 2;
-                circleXTranslate = 1.45;
+                circleTranslate = 2.2;
+                circleXTranslate = 0.00459*x;
+                circleInnerRadius = 1.64;
              };
       //call ppt chart 
       var chart1 = d3.select("#piechart")
@@ -1301,7 +1305,7 @@ function tempchart(){
                                     //make text element and text for each pie element
                                       arcs.append("svg:text")                                     
                                             .attr("transform", function(d) {                    
-                                            d.innerRadius = 1.7*radius;
+                                            d.innerRadius = circleTempInnerRadi*radius;
                                             d.outerRadius = radius*2;
                                             return "translate(" + (chart.arc.centroid(d)) + ")";        
                                           })
@@ -1403,37 +1407,41 @@ function tempchart(){
                 x = w.innerWidth || e.clientWidth || g.clientWidth,
                 y = w.innerHeight|| e.clientHeight|| g.clientHeight;
         //call temp chart 
-        var xWidth = 0.3221,
+        var xWidth = 0.3308,
             yHeight = 0.7496,
-            circleTranslate = 2;
-            circleXTranslate = 1.65;
+            circleTranslate = 2,
+            circleXTranslate = 1.68,
+            circleTempInnerRadi = 1.7;
         if(640 <= x && x <= 768)
        {
-          xWidth = 0.855;
+          xWidth = 0.00111*x;
           yHeight = 0.7496;
           circleTranslate = 1.7;
-          circleXTranslate = 1.8;
+          circleXTranslate = 0.00248*x;
        }
        if(550 <= x && x < 640)
        {
-          xWidth = 0.855;
+          xWidth = 0.00133*x;
           yHeight = 0.7496;
           circleTranslate = 1.7;
-          circleXTranslate = 1.5;
+          circleXTranslate = 0.00234*x;
+          circleTempInnerRadi = 1.85;
        }
-       if(340 <= x && x < 550)
+       if(440 <= x && x < 550)
        {
-          xWidth = 0.855;
-          yHeight = 0.7496;
+          xWidth = 0.00195*x;
+          yHeight = 0.7096;
           circleTranslate = 1.7;
-          circleXTranslate = 1.5;
+          circleXTranslate = 0.0038*x;
+          circleTempInnerRadi = 1.85;
        };
-       if(320 <= x && x < 340)
+       if(320 <= x && x < 440)
        {
-          xWidth = 0.875;
+          xWidth = 0.00288*x;
           yHeight = 0.67;
           circleTranslate = 2;
-          circleXTranslate = 1.65;
+          circleXTranslate = .006*x;
+          circleTempInnerRadi = 1.85;
        };
 
         var chart2 = d3.select("#piechart")
