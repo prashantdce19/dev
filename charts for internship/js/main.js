@@ -364,7 +364,7 @@ function chart(colors){
                 chart.areas.y0Text = chart.areas.ylabelsLeft.append("text")
                   .classed('y text 1', true)
                   .attr("transform", "rotate(-90)")
-                  .attr("y", ((0.2*chart.margins.left)-(x <= 600?(0.00667*x):0)))
+                  .attr("y", ((0.2*chart.margins.left)-leftyAxis))
                   .attr("x", -(chart.h/2))
                   .attr("dy", "1em")
                   .style("text-anchor", "middle")
@@ -378,7 +378,7 @@ function chart(colors){
                 chart.areas.yText = chart.areas.ylabelsRight.append("text")
                   .classed('y text 2', true)
                   .attr("transform", "rotate(90)")
-                  .attr("y", (-(0.0439*x)-(x <= 600?(0.01667*x):0)))//60 of 667
+                  .attr("y", (-(0.0439*x)-rightyAxis))//60 of 667
                   .attr("x", (chart.h/2))
                   .attr("dy", "1em")
                   .style("text-anchor", "middle")
@@ -761,22 +761,27 @@ function chart(colors){
                 },
 
         });
-       console.log(x,y)
        var xWidth = 0.5124,
           yHeight = 0.7046,
-          leftOrigin = 0.0585*x;
-       if(550 < x <= 600)
+          leftOrigin = 0.0585*x,
+          leftyAxis = 0,
+          rightyAxis = 0;
+       if(550 < x && x <= 600)
        {
           xWidth = 0.855;
           yHeight = 0.60;
           leftOrigin = 0.0667*x;
+          leftyAxis = 0.00667*x;
+          rightyAxis = 0.01667*x;
        };
        if(x <= 550)
        {
           xWidth = 0.80;
           yHeight = 0.60;
           leftOrigin = 0.085*x;
-       }
+          leftyAxis = 0.0085*x;
+          rightyAxis = 0.0285*x;
+       };
         var getInternShipChart = d3.select('#graph')
                     .append('svg')
                     .attr('height', (yHeight*y)) //470 of 667
