@@ -441,7 +441,7 @@ space: nowrap;
 .pieChartSection{float: left;width: 33.5%;}
 .pure-u-2-3{width:100%;}
 .pure-u-1-3{width:100%!important;}
-
+.barBodyChart{width:100%!important;}
 
 /*----- Media queries starts here -----*/
 @media screen and (min-width:1121px){
@@ -449,7 +449,7 @@ space: nowrap;
 }
 @media screen and (min-width:951px) and (max-width:1220px){
   .slice text, .slice2 text{font-size: 13px;}
-  .pure-u-1-3 .switch{right:10%;line-height: 36px;}
+  .pure-u-1-3 .switch{right:25%;line-height: 36px;}
   .pure-u-2-3 .l-box #axis text{font-size: 15px!important;}
   .pure-u-2-3 .l-box #y-axis-right text{font-size: 15px!important;}
   .pure-u-1-3 #label{font-size:15px!important;}
@@ -478,7 +478,7 @@ space: nowrap;
   .pure-u-1-3{width:33.5%!important;}
   .pure-u-2-3{width:100%!important;}
 }
-@media screen and (min-width:670px) and (max-width:779px){
+/*@media screen and (min-width:670px) and (max-width:779px){
   .slice text, .slice2 text{font-size: 11px;}
   .pure-u-1-3 .switch{right:5%;line-height: 36px;}
   .pure-u-2-3 .l-box #axis text{font-size: 12px!important;}
@@ -493,7 +493,7 @@ space: nowrap;
   .pure-u-1-3{width:33.5%!important;}
   .pure-u-2-3{width:100%!important;}
   .linkchart{display:none!important;}
-}
+}*/
 @media screen and (min-width:440px) and (max-width:669px){
   .slice text, .slice2 text{font-size: 11px;}
   .pure-u-1-3 .switch{line-height:30px;text-align: right;left: 100%}
