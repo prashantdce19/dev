@@ -101,6 +101,14 @@ function chart(colors){
             toggleClass(chartLeft,"hide","show");
             toggleClass(chartRight,"show","hide");
           };
+          if(document.getElementById("one").checked){
+              //if button been clicked call ppt chart
+                pptchart();
+            }
+            else{
+              //if checkbox is not checked call temp chart
+              tempchart();
+            }
       };
       document.getElementById('linkToBarChart').onclick=function(){
           var chartLeft = document.getElementById('chartBarLeft'),
@@ -786,8 +794,8 @@ function chart(colors){
        };
        if(320 < x && x <= 340)
        {
-          xWidth = 0.75;
-          yHeight = 0.50;
+          xWidth = 0.755;
+          yHeight = 0.55;
           leftOrigin = 0.118*x;
           leftyAxis = 0.0115*x;
           rightyAxis = 0.07*x;
@@ -1422,10 +1430,10 @@ function tempchart(){
        };
        if(320 < x && x <= 340)
        {
-          xWidth = 0.855;
+          xWidth = 0.875;
           yHeight = 0.67;
-          circleTranslate = 1.7;
-          circleXTranslate = 1.5;
+          circleTranslate = 2;
+          circleXTranslate = 1.65;
        };
 
         var chart2 = d3.select("#piechart")
