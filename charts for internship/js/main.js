@@ -87,7 +87,25 @@ function chart(colors){
                           arrData[arrData.length - 1].push(strMatchedValue);
             }
             return (arrData);
-      }
+      };
+      document.getElementById('linkToPieChart').onclick=function(){
+          var chartLeft = document.getElementById('chartBarLeft'),
+              chartRight = document.getElementById('chartPieRight');
+          if(hasClass(chartLeft,"show"))
+          {
+            toggleClass(chartLeft,"hide","show");
+            toggleClass(chartRight,"show","hide");
+          };
+      };
+      document.getElementById('linkToBarChart').onclick=function(){
+          var chartLeft = document.getElementById('chartBarLeft'),
+              chartRight = document.getElementById('chartPieRight');
+          if(hasClass(chartLeft,"hide"))
+          {
+            toggleClass(chartRight,"hide","show");
+            toggleClass(chartLeft,"show","hide");
+          };
+      };
       //render chart by call make chart function with data and colors
       function makechart(data,colors){
             var time=[];
@@ -301,10 +319,10 @@ function chart(colors){
                           chart.x.domain(chart.brush.empty() ? chart.xf.domain() : chart.brush.extent());
                           chart.areas.bars1.selectAll(".bar1")                            
                                         .attr("d", function(datum, index) { 
-                                              return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.max_temp),5);
+                                              return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.max_temp),0.00366*x);
                                         });
                           chart.areas.bars2.selectAll(".bar2").attr("d", function(datum, index) { 
-                                            return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.min_temp),5);
+                                            return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.min_temp),0.00366*x);
                                     });
                           chart.areas.lines.select(".path1").attr("d",chart.line(data));
                           d3.select('.x.axis').remove();
@@ -456,7 +474,7 @@ function chart(colors){
                       return this
                             .attr("fill", "#1ABC9C")
                             .attr("d", function(datum, index) { 
-                                      return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.max_temp),5);
+                                      return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.max_temp),0.00366*x);
                               })
                             .on('mousemove',mouseoverOnBar) //call mouseoverOnBar function while mouseover on bar
                             .on('mouseout',del)// call del function while mouseout of the bar
@@ -549,7 +567,7 @@ function chart(colors){
                       var barpadding = (0.00146*x);
                       return this.attr("fill", "#34495e")
                                     .attr("d", function(datum, index) { 
-                                            return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.min_temp),5);
+                                            return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.min_temp),0.00366*x);
                                     })                         
                                     .on('mousemove',mouseoverOnBar)//call mouseoverOnBar function while mouseover on bar
                                     .on('mouseout',del)// call del function while mouseout of the bar
