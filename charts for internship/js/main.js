@@ -45,6 +45,11 @@ function chart(colors){
 				       var json = CSV2JSON(csv);
                //call chart to with json data to render for user
 				       makechart(json);
+              var barButton = document.getElementById('linkToPieChart');
+              if(hasClass(barButton,"hide"))
+              {
+                toggleClass(barButton,"show","hide");
+              };
 			    };
   		 	}
 		    var blob = file.slice(start, stop + 1); 
@@ -142,7 +147,7 @@ function chart(colors){
 
                 // chart margins to account for labels.
                 chart.margins = {
-                  left : x <= 600?(0.0667*x):(0.0585*x),//80
+                  left : leftOrigin,//80
                   top : 0.0299*y//20
                 };
                 //convert the given data's time to date format
@@ -518,8 +523,9 @@ function chart(colors){
                           }
                       }
                       //make tooltip when mouseover on bar
+                      console.log(d3.event.pageX);
                       chart.div2 .html(tempVar+": "+ y + "<br/>" + "Day: "+ chart.formatTime(x1)) 
-                              .style("left", (d3.event.pageX)+"px" )  
+                              .style("left", x<=600?((d3.event.pageX>x/2)?(d3.event.pageX-(0.3*x)):d3.event.pageX):d3.event.pageX+"px" )  
                               .style("top", (d3.event.pageY-(0.0899*y))+"px")
                               .style("opacity", 0.9); 
                 };
@@ -619,7 +625,7 @@ function chart(colors){
                                             .style("stroke-width",3)
                                             .on("mousemove",function(d){
                                                   chart.div2 .html("Avg Ppt: "+ d.ppt + "<br/>" + "Day: " + chart.formatTime(d.time))  
-                                                                  .style("left", (d3.event.pageX)+"px" )//place tooltip based on mouse's x current point
+                                                                  .style("left", x<=600?((d3.event.pageX>x/2)?(d3.event.pageX-(0.3*x)):d3.event.pageX):d3.event.pageX+"px" )//place tooltip based on mouse's x current point
                                                                   .style("top", (d3.event.pageY-(0.0899*y))+"px")//place tooltip based on mouse's y current point
                                                                   .style("opacity", 0.9);
                                                 })
@@ -757,11 +763,19 @@ function chart(colors){
         });
        console.log(x,y)
        var xWidth = 0.5124,
-          yHeight = 0.7046;
-       if(x <= 600)
+          yHeight = 0.7046,
+          leftOrigin = 0.0585*x;
+       if(550 < x <= 600)
        {
-          xWidth = 0.85;
-          yHeight = 0.60
+          xWidth = 0.855;
+          yHeight = 0.60;
+          leftOrigin = 0.0667*x;
+       };
+       if(x <= 550)
+       {
+          xWidth = 0.80;
+          yHeight = 0.60;
+          leftOrigin = 0.085*x;
        }
         var getInternShipChart = d3.select('#graph')
                     .append('svg')
@@ -927,12 +941,18 @@ function pptchart(){
       d3.chart('piePptChart',{
         initialize: function(){
               var chart = this;
+              var circleTranslate = 2,textOffsetSmall =65;
+              if(x<=600)
+              {
+                circleTranslate = 1.8;
+                textOffsetSmall = 80;
+              }
               //calulate width and height for Precipitation pie chart
               chart.w = +chart.base.attr('width') || 200;
               chart.h = +chart.base.attr('height') || 150;
 
               var offSetRadi = Math.sqrt((x*x)+(y*y));
-              var textOffset = ((65/1520.14) * offSetRadi);
+              var textOffset = ((textOffsetSmall/1520.14) * offSetRadi);
 
               chart.arc = d3.svg.arc().outerRadius(radius);
               var monthsId=["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -954,7 +974,7 @@ function pptchart(){
                     var chat = chart.areas.piechartppt.data([data]) 
                                 .append('g')
                                 .attr("class","pieppt")
-                                .attr("transform", "translate(" + 1.60*radius + "," + 2*radius+ ")")
+                                .attr("transform", "translate(" + 1.60*radius + "," + circleTranslate*radius+ ")")
                     //select slice class element to make pie chart
                     return chat.selectAll(".slice")
                               .data(pie);
@@ -1116,10 +1136,19 @@ function pptchart(){
                 g = d.getElementsByTagName('body')[0],
                 x = w.innerWidth || e.clientWidth || g.clientWidth,
                 y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+
+        //call temp chart 
+        var xWidth = 0.3221,
+            yHeight = 0.7496;
+       if(x <= 600)
+       {
+          xWidth = 0.855;
+          yHeight = 0.7496;
+       }
       //call ppt chart 
       var chart1 = d3.select("#piechart")
-                      .attr('height', (0.7496*y)) //500 of 667
-                      .attr('width', (0.3221*x)) //440 of 1366
+                      .attr('height', (yHeight*y)) //500 of 667
+                      .attr('width', (xWidth*x)) //440 of 1366
                       .chart('piePptChart');
       chart1.draw(average_ppt);
       function reSizeSvg(chartID){
@@ -1190,16 +1219,21 @@ function tempchart(){
                                               .attr('id','pieTempChartID')
                                               .attr("width", chart.w)
                                               .attr("height", chart.h)
-                                              .attr('viewBox',"0 0 "+chart.w+" "+chart.h+"")
-                                              .attr('preserveAspectRatio',"xMidYMid");
+                                              // .attr('viewBox',"0 0 "+chart.w+" "+chart.h+"")
+                                              // .attr('preserveAspectRatio',"xMidYMid");
                          chart.layer('pie2Layer', chart.areas.piecharttemp,{
                             dataBind: function(data) {
                               //make pie element for pie chart
                               var pie = d3.layout.pie().sort(null).value(function(d) { return d.temp; });
+                              var circleTranslate = 2;
+                              if(x<=600)
+                              {
+                                circleTranslate = 1.7;
+                              }
                               var chat = chart.areas.piecharttemp.data([data]) 
                                           .append('g')
                                           .attr("class","pietemp")
-                                          .attr("transform", "translate(" + 1.65*radius + "," + 2*radius+ ")")
+                                          .attr("transform", "translate(" + 1.65*radius + "," + circleTranslate*radius+ ")")
                               //select slice class element to make pie chart  
                               return chat.selectAll(".slice")
                                         .data(pie);
@@ -1326,10 +1360,16 @@ function tempchart(){
                 x = w.innerWidth || e.clientWidth || g.clientWidth,
                 y = w.innerHeight|| e.clientHeight|| g.clientHeight;
         //call temp chart 
-        console.log(x,y)
+        var xWidth = 0.3221,
+            yHeight = 0.7496;
+       if(x <= 600)
+       {
+          xWidth = 0.855;
+          yHeight = 0.7496;
+       }
         var chart2 = d3.select("#piechart")
-                      .attr('height', (0.7496*y)) //500 of 667
-                      .attr('width', (0.3221*x)) //440 of 1366
+                      .attr('height', (yHeight*y)) //500 of 667
+                      .attr('width', (xWidth*x)) //440 of 1366
                       .chart('pieTempChart');
         chart2.draw(average_ppt);
 
