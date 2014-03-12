@@ -168,7 +168,7 @@ function chart(colors){
                 .style("opacity", 0);                
                 //select dom element for background abd apply linear gradient to it
                 d3.select('#graph')
-                      .style('background','-webkit-linear-gradient(top,  #ffffff 0%, #ffffff 5%,#dbdbdb 5%,#dbdbdb 95%,#ffffff 95%,#ffffff 100%)');
+                      .style('background','-webkit-linear-gradient(top,  #ffffff 0%, #ffffff '+gradientValue+'%,#dbdbdb '+gradientValue+'%,#dbdbdb 95%,#ffffff 95%,#ffffff 100%)');
                 //construct range for x,y0 and y1
                 chart.x = d3.scale.linear().range([0, chart.w]);
                 chart.y0 = d3.scale.linear().range([chart.h, 0]);
@@ -765,7 +765,8 @@ function chart(colors){
           yHeight = 0.7046,
           leftOrigin = 0.0585*x,
           leftyAxis = 0,
-          rightyAxis = 0;
+          rightyAxis = 0,
+          gradientValue = 5;
        if(550 < x && x <= 600)
        {
           xWidth = 0.855;
@@ -774,13 +775,23 @@ function chart(colors){
           leftyAxis = 0.00667*x;
           rightyAxis = 0.01667*x;
        };
-       if(x <= 550)
+       if(340 < x && x <= 550)
        {
           xWidth = 0.80;
           yHeight = 0.60;
-          leftOrigin = 0.085*x;
-          leftyAxis = 0.0085*x;
-          rightyAxis = 0.0285*x;
+          leftOrigin = 0.09*x;
+          leftyAxis = 0.009*x;
+          rightyAxis = 0.042*x;
+          gradientValue = 6;
+       };
+       if(320 < x && x <= 340)
+       {
+          xWidth = 0.75;
+          yHeight = 0.50;
+          leftOrigin = 0.118*x;
+          leftyAxis = 0.0115*x;
+          rightyAxis = 0.07*x;
+          gradientValue = 6;
        };
         var getInternShipChart = d3.select('#graph')
                     .append('svg')
@@ -946,12 +957,6 @@ function pptchart(){
       d3.chart('piePptChart',{
         initialize: function(){
               var chart = this;
-              var circleTranslate = 2,textOffsetSmall =65;
-              if(x<=600)
-              {
-                circleTranslate = 1.8;
-                textOffsetSmall = 80;
-              }
               //calulate width and height for Precipitation pie chart
               chart.w = +chart.base.attr('width') || 200;
               chart.h = +chart.base.attr('height') || 150;
@@ -979,7 +984,7 @@ function pptchart(){
                     var chat = chart.areas.piechartppt.data([data]) 
                                 .append('g')
                                 .attr("class","pieppt")
-                                .attr("transform", "translate(" + 1.60*radius + "," + circleTranslate*radius+ ")")
+                                .attr("transform", "translate(" + circleXTranslate*radius + "," + circleTranslate*radius+ ")")
                     //select slice class element to make pie chart
                     return chat.selectAll(".slice")
                               .data(pie);
@@ -1144,12 +1149,18 @@ function pptchart(){
 
         //call temp chart 
         var xWidth = 0.3221,
-            yHeight = 0.7496;
-       if(x <= 600)
-       {
-          xWidth = 0.855;
-          yHeight = 0.7496;
-       }
+            yHeight = 0.7496,
+            circleTranslate = 2,
+            textOffsetSmall =65,
+            circleXTranslate = 1.6;
+             if(x <= 600)
+             {
+                xWidth = 0.855;
+                yHeight = 0.7496;
+                circleTranslate = 1.8;
+                textOffsetSmall = 80;
+                circleXTranslate = 1.50;
+             };
       //call ppt chart 
       var chart1 = d3.select("#piechart")
                       .attr('height', (yHeight*y)) //500 of 667
@@ -1229,16 +1240,11 @@ function tempchart(){
                          chart.layer('pie2Layer', chart.areas.piecharttemp,{
                             dataBind: function(data) {
                               //make pie element for pie chart
-                              var pie = d3.layout.pie().sort(null).value(function(d) { return d.temp; });
-                              var circleTranslate = 2;
-                              if(x<=600)
-                              {
-                                circleTranslate = 1.7;
-                              }
+                              var pie = d3.layout.pie().sort(null).value(function(d) { return d.temp; });                              
                               var chat = chart.areas.piecharttemp.data([data]) 
                                           .append('g')
                                           .attr("class","pietemp")
-                                          .attr("transform", "translate(" + 1.65*radius + "," + circleTranslate*radius+ ")")
+                                          .attr("transform", "translate(" + circleXTranslate*radius + "," + circleTranslate*radius+ ")")
                               //select slice class element to make pie chart  
                               return chat.selectAll(".slice")
                                         .data(pie);
@@ -1366,12 +1372,17 @@ function tempchart(){
                 y = w.innerHeight|| e.clientHeight|| g.clientHeight;
         //call temp chart 
         var xWidth = 0.3221,
-            yHeight = 0.7496;
+            yHeight = 0.7496,
+            circleTranslate = 2;
+            circleXTranslate = 1.65;
        if(x <= 600)
        {
           xWidth = 0.855;
           yHeight = 0.7496;
+          circleTranslate = 1.7;
+          circleXTranslate = 1.5;
        }
+
         var chart2 = d3.select("#piechart")
                       .attr('height', (yHeight*y)) //500 of 667
                       .attr('width', (xWidth*x)) //440 of 1366
