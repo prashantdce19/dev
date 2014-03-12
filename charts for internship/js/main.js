@@ -525,7 +525,7 @@ function chart(colors){
                       //make tooltip when mouseover on bar
                       console.log(d3.event.pageX);
                       chart.div2 .html(tempVar+": "+ y + "<br/>" + "Day: "+ chart.formatTime(x1)) 
-                              .style("left", x<=600?((d3.event.pageX>x/2)?(d3.event.pageX-(0.3*x)):d3.event.pageX):d3.event.pageX+"px" )  
+                              .style("left", x<=768?((d3.event.pageX>x/2)?(d3.event.pageX-(0.3*x)):d3.event.pageX):d3.event.pageX+"px" )  
                               .style("top", (d3.event.pageY-(0.0899*y))+"px")
                               .style("opacity", 0.9); 
                 };
@@ -625,7 +625,7 @@ function chart(colors){
                                             .style("stroke-width",3)
                                             .on("mousemove",function(d){
                                                   chart.div2 .html("Avg Ppt: "+ d.ppt + "<br/>" + "Day: " + chart.formatTime(d.time))  
-                                                                  .style("left", x<=600?((d3.event.pageX>x/2)?(d3.event.pageX-(0.3*x)):d3.event.pageX):d3.event.pageX+"px" )//place tooltip based on mouse's x current point
+                                                                  .style("left", x<=768?((d3.event.pageX>x/2)?(d3.event.pageX-(0.3*x)):d3.event.pageX):d3.event.pageX+"px" )//place tooltip based on mouse's x current point
                                                                   .style("top", (d3.event.pageY-(0.0899*y))+"px")//place tooltip based on mouse's y current point
                                                                   .style("opacity", 0.9);
                                                 })
@@ -767,7 +767,7 @@ function chart(colors){
           leftyAxis = 0,
           rightyAxis = 0,
           gradientValue = 5;
-       if(550 < x && x <= 600)
+       if(550 < x && x <= 768)
        {
           xWidth = 0.855;
           yHeight = 0.60;
@@ -1153,13 +1153,37 @@ function pptchart(){
             circleTranslate = 2,
             textOffsetSmall =65,
             circleXTranslate = 1.6;
-             if(x <= 600)
-             {
+            if(640 < x && x <= 768)
+            {
+                xWidth = 0.855;
+                yHeight = 0.7496;
+                circleTranslate = 1.8;
+                textOffsetSmall = 80;
+                circleXTranslate = 1.9;
+            };
+            if(550 < x && x <= 640)
+            {
                 xWidth = 0.855;
                 yHeight = 0.7496;
                 circleTranslate = 1.8;
                 textOffsetSmall = 80;
                 circleXTranslate = 1.50;
+            };
+            if(340 < x && x <= 550)
+             {
+                xWidth = 0.855;
+                yHeight = 0.7496;
+                textOffsetSmall = 90;
+                circleTranslate = 1.8;
+                circleXTranslate = 1.5;
+             };
+             if(320 < x && x <= 340)
+             {
+                xWidth = 0.855;
+                yHeight = 0.67;
+                textOffsetSmall = 120;
+                circleTranslate = 2;
+                circleXTranslate = 1.45;
              };
       //call ppt chart 
       var chart1 = d3.select("#piechart")
@@ -1375,13 +1399,34 @@ function tempchart(){
             yHeight = 0.7496,
             circleTranslate = 2;
             circleXTranslate = 1.65;
-       if(x <= 600)
+        if(640 < x && x <= 768)
+       {
+          xWidth = 0.855;
+          yHeight = 0.7496;
+          circleTranslate = 1.7;
+          circleXTranslate = 1.8;
+       }
+       if(550 < x && x <= 640)
        {
           xWidth = 0.855;
           yHeight = 0.7496;
           circleTranslate = 1.7;
           circleXTranslate = 1.5;
        }
+       if(340 < x && x <= 550)
+       {
+          xWidth = 0.855;
+          yHeight = 0.7496;
+          circleTranslate = 1.7;
+          circleXTranslate = 1.5;
+       };
+       if(320 < x && x <= 340)
+       {
+          xWidth = 0.855;
+          yHeight = 0.67;
+          circleTranslate = 1.7;
+          circleXTranslate = 1.5;
+       };
 
         var chart2 = d3.select("#piechart")
                       .attr('height', (yHeight*y)) //500 of 667
