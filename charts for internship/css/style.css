@@ -487,7 +487,7 @@ space: nowrap;
   .pure-u-2-3 .l-box #y-axis-right text{font-size: 12px!important;}
   .pure-u-1-3 #label{font-size:12px!important;right: 0% !important;}
   .pure-u-2-3 #x-axis{font-size:12px!important;}
-  .button:before{font-size:12px!important;line-height: 20px;}
+  .button:before{font-size:12px!important;line-height: 25px;}
   .pure-u-2-3 .blue{font-size:12px!important;line-height: 20px;}
   .pure-u-1-3 .switch .switch-label{font-size:12px!important;}
   .x.axis text{font-size:8px;}
@@ -510,13 +510,13 @@ space: nowrap;
   }
 @media screen and (min-width:440px) and (max-width:550px){
   .slice text, .slice2 text{font-size: 11px;}
-  .pure-u-1-3 .switch{line-height:30px;text-align: right;left: 100%}
+  .pure-u-1-3 .switch{line-height:35px;text-align: right;left: -88px !important;}
   .pure-u-2-3 .l-box #axis text{font-size: 12px!important;}
   .pure-u-2-3 .l-box #y-axis-right text{font-size: 12px!important;}
   .pure-u-1-3 #label{font-size:12px!important;right: 0% !important;}
   .pure-u-2-3 #x-axis{font-size:12px!important;}
-  .button:before{font-size:12px!important;line-height: 20px;}
-  .pure-u-2-3 .blue{font-size:12px!important;line-height: 20px;}
+  .button:before{font-size:12px!important;line-height: 25px;}
+  .pure-u-2-3 .blue{font-size:12px!important;line-height: 25px;}
   .pure-u-1-3 .switch .switch-label{font-size:12px!important;}
   .x.axis text{font-size:8px;}
   .pure-u-2-3 .l-box input{margin-left: 5px !important;font-size: 12px;}
@@ -538,13 +538,13 @@ space: nowrap;
 }
 @media screen and (min-width:320px) and (max-width:439px){
   .slice text, .slice2 text{font-size: 13px;}
-  .pure-u-1-3 .switch{line-height:30px;text-align: right;left: 100%}
+  .pure-u-1-3 .switch{line-height:35px;text-align: right;}
   .pure-u-2-3 .l-box #axis text{font-size: 12px!important;}
   .pure-u-2-3 .l-box #y-axis-right text{font-size: 12px!important;}
   .pure-u-1-3 #label{font-size:12px!important;right: 0% !important;}
   .pure-u-2-3 #x-axis{font-size:12px!important;}
-  .button:before{font-size:12px!important;line-height: 20px;}
-  .pure-u-2-3 .blue{font-size:12px!important;line-height: 20px;}
+  .button:before{font-size:12px!important;line-height: 25px;}
+  .pure-u-2-3 .blue{font-size:12px!important;line-height: 25px;}
   .pure-u-1-3 .switch .switch-label{font-size:12px!important;}
   .x.axis text{font-size:8px;}
   .pure-u-2-3 .l-box input{margin-left: 5px !important;font-size: 12px;}
@@ -560,6 +560,6 @@ space: nowrap;
   .hide{display:none!important;}
   .show{display: block!important;}
   .pure-u-1-3 .switch{left:-15%;}
-  #graph{width : 85.5%;height : 57%;}
+  #graph{width : 75%;height : 57%;}
   #x-axis{width: 100%;text-align: center;left:0;}
 }
