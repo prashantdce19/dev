@@ -499,7 +499,7 @@ space: nowrap;
   .pieChartSection{width:100%!important;}
   .linkchart{margin:20px 0 20px 40px;}
   .linkchart .btn{ width: 80%;float: left;text-align: center;margin-bottom:20px;font-weight:bold;}
-  .barHeaderButton{width:100%!important;}
+  .barHeaderButton{width:100%!important;margin:0 10px;}
   .pieChartSection{width:100%!important;}
   .barBodyChart{width:100%!important;}
   .hide{display:none!important;}
@@ -527,7 +527,7 @@ space: nowrap;
   .pieChartSection{width:100%!important;}
   .linkchart{margin:20px 0 20px 20px;}
   .linkchart .btn{ width: 80%;float: left;text-align: center;margin-bottom:20px;font-weight:bold;}
-  .barHeaderButton{width:100%!important;}
+  .barHeaderButton{width:100%!important;margin:0 10px;}
   .barBodyChart{width:100%!important;}
   .hide{display:none!important;}
   .show{display: block!important;}
