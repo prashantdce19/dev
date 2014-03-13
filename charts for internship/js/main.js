@@ -158,6 +158,7 @@ function chart(colors){
                   left : leftOrigin,//80
                   top : 0.0299*y//20
                 };
+                var heightMultiplier = 2.5;
                 //convert the given data's time to date format
                 chart.formatTime = d3.time.format("%m/%d/%Y");
 
@@ -232,8 +233,8 @@ function chart(colors){
                   .classed('Barchart', true)
                   .attr('id','BarChartId')
                   .attr('width',chart.w)
-                  .attr('height',chart.h+(2*chart.margins.top))
-                  .attr('viewBox',"0,0,"+chart.w+","+(chart.h+(2*chart.margins.top)))
+                  .attr('height',chart.h+(heightMultiplier*chart.margins.top))
+                  .attr('viewBox',"0,0,"+chart.w+","+(chart.h+(heightMultiplier*chart.margins.top)))
                   .attr('preserveAspectRatio',"xMidYMid");
 
                 chart.base = chart.base.append("svg:g")
@@ -258,8 +259,8 @@ function chart(colors){
                 chart.areas.ylabelsLeft = d3.select("#axis").append("svg:svg")
                   .attr("id",'yLeftLabelID')
                   .attr('width', chart.margins.left)
-                  .attr('height', chart.h+(2*chart.margins.top))
-                  .attr('viewBox',"0,0,"+chart.margins.left+","+(chart.h+(2*chart.margins.top)))
+                  .attr('height', chart.h+(heightMultiplier*chart.margins.top))
+                  .attr('viewBox',"0,0,"+chart.margins.left+","+(chart.h+(heightMultiplier*chart.margins.top)))
                   .attr('preserveAspectRatio',"xMinYMid");
                 chart.areas.ylabelsLeft = chart.areas.ylabelsLeft.append("svg:g")
                   .attr('transform', 'translate(0,'+(chart.margins.top)+')');
@@ -267,8 +268,9 @@ function chart(colors){
                 //make dom element for x label
                 chart.areas.xlabels = chart.base.append('g')
                   .classed('x axis', true)
+                  .attr('id','xAxisId')
                   .attr('width', chart.w)
-                  .attr('height', chart.h+(2*chart.margins.top)) // 5 of 667
+                  .attr('height', chart.margins.top) // 5 of 667
                   .attr('transform', 'translate(0,'+(chart.h)+')')
                   .attr("stroke","#848484")
                   .attr("stroke-width","0.5");
@@ -283,7 +285,7 @@ function chart(colors){
                 chart.areas.ylabelsRight = d3.select("#y-axis-right").append("svg:svg") 
                   .attr('id','yRightLabelID')               
                   .attr('width',  chart.margins.left)
-                  .attr('height', chart.h+(2*chart.margins.top))
+                  .attr('height', chart.h+(heightMultiplier*chart.margins.top))
                   // .attr('viewBox',"0,0,"+chart.margins.left+","+(chart.h+(2*chart.margins.top)))
                   // .attr('preserveAspectRatio',"xMidYMid");
 
@@ -291,12 +293,11 @@ function chart(colors){
                   .attr('transform', 'translate(0,'+(chart.margins.top)+')')
                   .append("svg:g")
                   .classed('y axis right', true);
-                  console.log(chart.wf,chart.margins.left,chart.w);
 
                 chart.areas.chartFullBar = d3.select("#entire-data-chart").append("svg:svg")
                   .attr('id','fullChartID')               
                   .attr('width',chart.wf+chart.margins.left) 
-                  .attr('height', chart.hf+(0.0299*y)) 
+                  .attr('height', chart.hf+(0.046*y)) 
                   // .attr('viewBox',"0,0,"+(chart.wf+chart.margins.left)+","+(chart.hf+(0.0299*y)))
                   // .attr('preserveAspectRatio',"xMidYMid");
 
@@ -341,12 +342,29 @@ function chart(colors){
                           d3.select('.x.axis').remove();
                           chart.areas.xlabels = chart.base.append('g')
                                     .classed('x axis', true)
+                                    .attr('id','xAxisId')
                                     .attr('width', chart.w) // 2 of 1366
                                     .attr('height', chart.h+(2*chart.margins.top)) //5 of 667
                                     .attr('transform', 'translate(0,'+(chart.h)+')')
                                     .attr("stroke","#848484")
                                     .attr("stroke-width","0.5")
                                     .call(xAxis);
+                          var prev,yOffset=0,noOfLabel;
+                          function callBarLabel(i,this1){
+                                  if(i > 0) {
+                                      var thisbb = this1.getBoundingClientRect(),
+                                          prevbb = prev.getBoundingClientRect();
+                                      // move if they overlap
+                                      if(!(thisbb.right < prevbb.left || 
+                                              thisbb.left > prevbb.right)) {
+                                           if(noOfLabel === i-1){yOffset = 9;}else{yOffset = 19;noOfLabel = i;};
+                                              d3.select(this1).attr('y',yOffset);
+                                      }
+                                  }
+                                  prev = this1;
+                              };
+                          d3.selectAll('#xAxisId .tick text').each(function(d,i){callBarLabel(i,this)});
+
                           chart.areas.circles.selectAll('.circle')
                                             .attr("cx", function(d,i){return chart.x(i+1);});
                           d3.selectAll(".handle").attr("d", resizePath);      
@@ -354,6 +372,7 @@ function chart(colors){
 
                 chart.areas.xlabelsFull = chart.areas.chartFullBar.append('g')
                   .classed('x axis', true)
+                  .attr('id','xAxisId')
                   .attr('width', chart.wf)
                   .attr('height', chart.hf)
                   .attr('transform', 'translate(0,'+(chart.hf)+')')
@@ -450,7 +469,23 @@ function chart(colors){
                         chart.y1.domain([0,d3.max(data.map(function(datum){return +datum.ppt;}))]);
                         //call x axis 
                         chart.areas.xlabels.call(xAxis);
-                        //call left y axis and render it in chart
+
+                        var prev,yOffset=0,noOfLabel;
+                        function callBarLabel(i,this1){
+                                if(i > 0) {
+                                    var thisbb = this1.getBoundingClientRect(),
+                                        prevbb = prev.getBoundingClientRect();
+                                    // move if they overlap
+                                    if(!(thisbb.right < prevbb.left || 
+                                            thisbb.left > prevbb.right)) {
+                                         if(noOfLabel === i-1){yOffset = 9;}else{yOffset = 19;noOfLabel = i;};
+                                            d3.select(this1).attr('y',yOffset);
+                                    }
+                                }
+                                prev = this1;
+                            };
+                        d3.selectAll('#xAxisId .tick text').each(function(d,i){callBarLabel(i,this)});
+
                         var yAxisLeft = d3.svg.axis().scale(chart.y0).ticks(10).orient("left");
                         chart.areas.ylabelsLeft
                                   .append("svg:g")
@@ -531,7 +566,6 @@ function chart(colors){
                           }
                       }
                       //make tooltip when mouseover on bar
-                      console.log(d3.event.pageX);
                       chart.div2 .html(tempVar+": "+ y + "<br/>" + "Day: "+ chart.formatTime(x1)) 
                               .style("left", x<=768?((d3.event.pageX>x/2)?(d3.event.pageX-(0.3*x)):d3.event.pageX):d3.event.pageX+"px" )  
                               .style("top", (d3.event.pageY-(0.0899*y))+"px")
@@ -667,7 +701,21 @@ function chart(colors){
                                 });
                                 //call x axis 
                                 chart.areas.xlabelsFull.call(xAxis);
-
+                                var prev,yOffset=0,noOfLabel;
+                                function callBarLabel(i,this1){
+                                    if(i > 0) {
+                                        var thisbb = this1.getBoundingClientRect(),
+                                            prevbb = prev.getBoundingClientRect();
+                                        // move if they overlap
+                                        if(!(thisbb.right < prevbb.left || 
+                                                thisbb.left > prevbb.right)) {
+                                             if(noOfLabel === i-1){yOffset = 9;}else{yOffset = 19;noOfLabel = i;};
+                                                d3.select(this1).attr('y',yOffset);
+                                        }
+                                    }
+                                    prev = this1;
+                                };
+                                d3.selectAll('#xAxisId .tick text').each(function(d,i){callBarLabel(i,this)});
                                 chart.areas.barBrush
                                           .call(chart.brush)
                                         .selectAll("rect")
@@ -1049,7 +1097,6 @@ function pptchart(){
                                 }
                                 prev = this1;
                             };
-                            monthLabels.each(function(d,i){callLabel(d,i,this);});
                             monthLabels.each(function(d,i){callLabel(d,i,this);});
                               //make number in the form of text for each pie element
                               // arcs.append("svg:text")   
