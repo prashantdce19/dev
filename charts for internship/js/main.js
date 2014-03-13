@@ -158,7 +158,7 @@ function chart(colors){
                   left : leftOrigin,//80
                   top : 0.0299*y//20
                 };
-                var heightMultiplier = 2.5;
+                var heightMultiplier = 2.59;
                 //convert the given data's time to date format
                 chart.formatTime = d3.time.format("%m/%d/%Y");
 
@@ -297,7 +297,7 @@ function chart(colors){
                 chart.areas.chartFullBar = d3.select("#entire-data-chart").append("svg:svg")
                   .attr('id','fullChartID')               
                   .attr('width',chart.wf+chart.margins.left) 
-                  .attr('height', chart.hf+(0.046*y)) 
+                  .attr('height', chart.hf+(0.05*y)) 
                   // .attr('viewBox',"0,0,"+(chart.wf+chart.margins.left)+","+(chart.hf+(0.0299*y)))
                   // .attr('preserveAspectRatio',"xMidYMid");
 
@@ -315,16 +315,16 @@ function chart(colors){
                 function resizePath(d) {
                   var e = +(d == "e"),
                       x = e ? 1 : -1,
-                      y = chart.hf / 3;
+                      y = chart.hf / 5;
                   return "M" + (.5 * x) + "," + y
-                      + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6)
-                      + "V" + (2 * y - 6)
-                      + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y)
+                      + "A6,6 0 0 " + e + " " + (8.5 * x) + "," + (y + 6)
+                      + "V" + (4 * y -6)
+                      + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (4 * y)
                       + "Z"
                       + "M" + (2.5 * x) + "," + (y + 8)
-                      + "V" + (2 * y - 8)
+                      + "V" + (4 * y - 8)
                       + "M" + (4.5 * x) + "," + (y + 8)
-                      + "V" + (2 * y - 8);
+                      + "V" + (4 * y - 8);
                 }
 
                 function brushed() {
@@ -843,7 +843,7 @@ function chart(colors){
        if(320 <= x && x < 440)
        {
           xWidth = 0.755;
-          yHeight = 0.55;
+          yHeight = 0.56;
           leftOrigin = 0.118*x;
           leftyAxis = 0.0115*x;
           rightyAxis = 0.07*x;

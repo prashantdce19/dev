@@ -622,7 +622,7 @@ space: nowrap;
   .barBodyChart{width:100%!important;}
   .hide{display:none!important;}
   .show{display: block!important;}
-  #graph{width : 75%;height :51.5%;}
+  #graph{width : 75%;height :53%;}
   #x-axis{width: 100%;text-align: center;left:0;}
   .pieHeaderButton .l-box{width:100% !important;}
   .pieHeaderButton label.switch-container{float: left;width: 100%;}
