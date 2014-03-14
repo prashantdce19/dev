@@ -627,3 +627,7 @@ space: nowrap;
   .pieHeaderButton .l-box{width:100% !important;}
   .pieHeaderButton label.switch-container{float: left;width: 100%;}
 }
+@media screen and (min-width:320px) and (max-width:335px){
+  .pure-u-2-3 .l-box input{float:left;}
+  .readBytesButtons{float: left;margin-top: 20px;width: 14%;position: relative;right: 0px;}
+}
