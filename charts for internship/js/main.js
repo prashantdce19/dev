@@ -158,7 +158,7 @@ function chart(colors){
                   left : leftOrigin,//80
                   top : 0.0299*y//20
                 };
-                var heightMultiplier = 2.59;
+                var heightMultiplier = 2.59, xLabelHeight = (0.03*y);
                 //convert the given data's time to date format
                 chart.formatTime = d3.time.format("%m/%d/%Y");
 
@@ -357,7 +357,7 @@ function chart(colors){
                                       // move if they overlap
                                       if(!(thisbb.right < prevbb.left || 
                                               thisbb.left > prevbb.right)) {
-                                           if(noOfLabel === i-1){yOffset = 9;}else{yOffset = 19;noOfLabel = i;};
+                                           if(noOfLabel === i-1){yOffset = 9;}else{yOffset = xLabelHeight;noOfLabel = i;};
                                               d3.select(this1).attr('y',yOffset);
                                       }
                                   }
@@ -478,7 +478,7 @@ function chart(colors){
                                     // move if they overlap
                                     if(!(thisbb.right < prevbb.left || 
                                             thisbb.left > prevbb.right)) {
-                                         if(noOfLabel === i-1){yOffset = 9;}else{yOffset = 19;noOfLabel = i;};
+                                         if(noOfLabel === i-1){yOffset = 9;}else{yOffset = xLabelHeight;noOfLabel = i;};
                                             d3.select(this1).attr('y',yOffset);
                                     }
                                 }
@@ -709,7 +709,7 @@ function chart(colors){
                                         // move if they overlap
                                         if(!(thisbb.right < prevbb.left || 
                                                 thisbb.left > prevbb.right)) {
-                                             if(noOfLabel === i-1){yOffset = 9;}else{yOffset = 19;noOfLabel = i;};
+                                             if(noOfLabel === i-1){yOffset = 9;}else{yOffset = xLabelHeight;noOfLabel = i;};
                                                 d3.select(this1).attr('y',yOffset);
                                         }
                                     }
