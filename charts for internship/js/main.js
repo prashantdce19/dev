@@ -158,6 +158,7 @@ function chart(colors){
                   left : leftOrigin,//80
                   top : 0.0299*y//20
                 };
+                var heightMultiplier = 2.59;
                 //convert the given data's time to date format
                 chart.formatTime = d3.time.format("%m/%d/%Y");
 
@@ -232,8 +233,8 @@ function chart(colors){
                   .classed('Barchart', true)
                   .attr('id','BarChartId')
                   .attr('width',chart.w)
-                  .attr('height',chart.h+(2*chart.margins.top))
-                  .attr('viewBox',"0,0,"+chart.w+","+(chart.h+(2*chart.margins.top)))
+                  .attr('height',chart.h+(heightMultiplier*chart.margins.top))
+                  .attr('viewBox',"0,0,"+chart.w+","+(chart.h+(heightMultiplier*chart.margins.top)))
                   .attr('preserveAspectRatio',"xMidYMid");
 
                 chart.base = chart.base.append("svg:g")
@@ -258,8 +259,8 @@ function chart(colors){
                 chart.areas.ylabelsLeft = d3.select("#axis").append("svg:svg")
                   .attr("id",'yLeftLabelID')
                   .attr('width', chart.margins.left)
-                  .attr('height', chart.h+(2*chart.margins.top))
-                  .attr('viewBox',"0,0,"+chart.margins.left+","+(chart.h+(2*chart.margins.top)))
+                  .attr('height', chart.h+(heightMultiplier*chart.margins.top))
+                  .attr('viewBox',"0,0,"+chart.margins.left+","+(chart.h+(heightMultiplier*chart.margins.top)))
                   .attr('preserveAspectRatio',"xMinYMid");
                 chart.areas.ylabelsLeft = chart.areas.ylabelsLeft.append("svg:g")
                   .attr('transform', 'translate(0,'+(chart.margins.top)+')');
@@ -267,8 +268,9 @@ function chart(colors){
                 //make dom element for x label
                 chart.areas.xlabels = chart.base.append('g')
                   .classed('x axis', true)
+                  .attr('id','xAxisId')
                   .attr('width', chart.w)
-                  .attr('height', chart.h+(2*chart.margins.top)) // 5 of 667
+                  .attr('height', chart.margins.top) // 5 of 667
                   .attr('transform', 'translate(0,'+(chart.h)+')')
                   .attr("stroke","#848484")
                   .attr("stroke-width","0.5");
@@ -283,7 +285,7 @@ function chart(colors){
                 chart.areas.ylabelsRight = d3.select("#y-axis-right").append("svg:svg") 
                   .attr('id','yRightLabelID')               
                   .attr('width',  chart.margins.left)
-                  .attr('height', chart.h+(2*chart.margins.top))
+                  .attr('height', chart.h+(heightMultiplier*chart.margins.top))
                   // .attr('viewBox',"0,0,"+chart.margins.left+","+(chart.h+(2*chart.margins.top)))
                   // .attr('preserveAspectRatio',"xMidYMid");
 
@@ -291,12 +293,11 @@ function chart(colors){
                   .attr('transform', 'translate(0,'+(chart.margins.top)+')')
                   .append("svg:g")
                   .classed('y axis right', true);
-                  console.log(chart.wf,chart.margins.left,chart.w);
 
                 chart.areas.chartFullBar = d3.select("#entire-data-chart").append("svg:svg")
                   .attr('id','fullChartID')               
                   .attr('width',chart.wf+chart.margins.left) 
-                  .attr('height', chart.hf+(0.0299*y)) 
+                  .attr('height', chart.hf+(0.05*y)) 
                   // .attr('viewBox',"0,0,"+(chart.wf+chart.margins.left)+","+(chart.hf+(0.0299*y)))
                   // .attr('preserveAspectRatio',"xMidYMid");
 
@@ -314,16 +315,16 @@ function chart(colors){
                 function resizePath(d) {
                   var e = +(d == "e"),
                       x = e ? 1 : -1,
-                      y = chart.hf / 3;
+                      y = chart.hf / 5;
                   return "M" + (.5 * x) + "," + y
-                      + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6)
-                      + "V" + (2 * y - 6)
-                      + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y)
+                      + "A6,6 0 0 " + e + " " + (8.5 * x) + "," + (y + 6)
+                      + "V" + (4 * y -6)
+                      + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (4 * y)
                       + "Z"
                       + "M" + (2.5 * x) + "," + (y + 8)
-                      + "V" + (2 * y - 8)
+                      + "V" + (4 * y - 8)
                       + "M" + (4.5 * x) + "," + (y + 8)
-                      + "V" + (2 * y - 8);
+                      + "V" + (4 * y - 8);
                 }
 
                 function brushed() {
@@ -341,12 +342,29 @@ function chart(colors){
                           d3.select('.x.axis').remove();
                           chart.areas.xlabels = chart.base.append('g')
                                     .classed('x axis', true)
+                                    .attr('id','xAxisId')
                                     .attr('width', chart.w) // 2 of 1366
                                     .attr('height', chart.h+(2*chart.margins.top)) //5 of 667
                                     .attr('transform', 'translate(0,'+(chart.h)+')')
                                     .attr("stroke","#848484")
                                     .attr("stroke-width","0.5")
                                     .call(xAxis);
+                          var prev,yOffset=0,noOfLabel;
+                          function callBarLabel(i,this1){
+                                  if(i > 0) {
+                                      var thisbb = this1.getBoundingClientRect(),
+                                          prevbb = prev.getBoundingClientRect();
+                                      // move if they overlap
+                                      if(!(thisbb.right < prevbb.left || 
+                                              thisbb.left > prevbb.right)) {
+                                           if(noOfLabel === i-1){yOffset = 9;}else{yOffset = 19;noOfLabel = i;};
+                                              d3.select(this1).attr('y',yOffset);
+                                      }
+                                  }
+                                  prev = this1;
+                              };
+                          d3.selectAll('#xAxisId .tick text').each(function(d,i){callBarLabel(i,this)});
+
                           chart.areas.circles.selectAll('.circle')
                                             .attr("cx", function(d,i){return chart.x(i+1);});
                           d3.selectAll(".handle").attr("d", resizePath);      
@@ -354,6 +372,7 @@ function chart(colors){
 
                 chart.areas.xlabelsFull = chart.areas.chartFullBar.append('g')
                   .classed('x axis', true)
+                  .attr('id','xAxisId')
                   .attr('width', chart.wf)
                   .attr('height', chart.hf)
                   .attr('transform', 'translate(0,'+(chart.hf)+')')
@@ -450,7 +469,23 @@ function chart(colors){
                         chart.y1.domain([0,d3.max(data.map(function(datum){return +datum.ppt;}))]);
                         //call x axis 
                         chart.areas.xlabels.call(xAxis);
-                        //call left y axis and render it in chart
+
+                        var prev,yOffset=0,noOfLabel;
+                        function callBarLabel(i,this1){
+                                if(i > 0) {
+                                    var thisbb = this1.getBoundingClientRect(),
+                                        prevbb = prev.getBoundingClientRect();
+                                    // move if they overlap
+                                    if(!(thisbb.right < prevbb.left || 
+                                            thisbb.left > prevbb.right)) {
+                                         if(noOfLabel === i-1){yOffset = 9;}else{yOffset = 19;noOfLabel = i;};
+                                            d3.select(this1).attr('y',yOffset);
+                                    }
+                                }
+                                prev = this1;
+                            };
+                        d3.selectAll('#xAxisId .tick text').each(function(d,i){callBarLabel(i,this)});
+
                         var yAxisLeft = d3.svg.axis().scale(chart.y0).ticks(10).orient("left");
                         chart.areas.ylabelsLeft
                                   .append("svg:g")
@@ -531,7 +566,6 @@ function chart(colors){
                           }
                       }
                       //make tooltip when mouseover on bar
-                      console.log(d3.event.pageX);
                       chart.div2 .html(tempVar+": "+ y + "<br/>" + "Day: "+ chart.formatTime(x1)) 
                               .style("left", x<=768?((d3.event.pageX>x/2)?(d3.event.pageX-(0.3*x)):d3.event.pageX):d3.event.pageX+"px" )  
                               .style("top", (d3.event.pageY-(0.0899*y))+"px")
@@ -667,7 +701,21 @@ function chart(colors){
                                 });
                                 //call x axis 
                                 chart.areas.xlabelsFull.call(xAxis);
-
+                                var prev,yOffset=0,noOfLabel;
+                                function callBarLabel(i,this1){
+                                    if(i > 0) {
+                                        var thisbb = this1.getBoundingClientRect(),
+                                            prevbb = prev.getBoundingClientRect();
+                                        // move if they overlap
+                                        if(!(thisbb.right < prevbb.left || 
+                                                thisbb.left > prevbb.right)) {
+                                             if(noOfLabel === i-1){yOffset = 9;}else{yOffset = 19;noOfLabel = i;};
+                                                d3.select(this1).attr('y',yOffset);
+                                        }
+                                    }
+                                    prev = this1;
+                                };
+                                d3.selectAll('#xAxisId .tick text').each(function(d,i){callBarLabel(i,this)});
                                 chart.areas.barBrush
                                           .call(chart.brush)
                                         .selectAll("rect")
@@ -795,7 +843,7 @@ function chart(colors){
        if(320 <= x && x < 440)
        {
           xWidth = 0.755;
-          yHeight = 0.55;
+          yHeight = 0.56;
           leftOrigin = 0.118*x;
           leftyAxis = 0.0115*x;
           rightyAxis = 0.07*x;
@@ -981,8 +1029,8 @@ function pptchart(){
                                     .attr('id','piePptChartID')
                                     .attr("width", chart.w)
                                     .attr("height", chart.h)
-                                    .attr('viewBox',"0 0 "+chart.w+" "+chart.h+"")
-                                    .attr('preserveAspectRatio',"xMidYMid");
+                                    // .attr('viewBox',"0 0 "+chart.w+" "+chart.h+"")
+                                    // .attr('preserveAspectRatio',"xMidYMid");
 
                //make a layer for Precipitation pie chart elements
                chart.layer('pie1Layer', chart.areas.piechartppt,{
@@ -1017,7 +1065,7 @@ function pptchart(){
                             //make text element and text for each pie element
                             var monthLabels = arcs.append("svg:text")                                     
                                         .attr("transform", function(d) {
-                                                d.innerRadius = 1.5*radius;
+                                                d.innerRadius = circleInnerRadius*radius;
                                                 d.outerRadius = radius*2;
                                                 return "translate(" + (chart.arc.centroid(d)) + ")";        
                                         })
@@ -1026,7 +1074,7 @@ function pptchart(){
                                         .style("font-family","Tahoma")
                                         .style("stroke","#34495e")
                                         .style("stroke-width",0); 
-                            var prev;
+                            var prev,yOffset=0,noOfLabel;
                             function callLabel(d,i,this1){
                                 if(i > 0) {
                                     var thisbb = this1.getBoundingClientRect(),
@@ -1036,18 +1084,19 @@ function pptchart(){
                                             thisbb.left > prevbb.right || 
                                             thisbb.bottom < prevbb.top || 
                                             thisbb.top > prevbb.bottom)) {
+                                        if(noOfLabel === i-2){yOffset = 0.01499*y;};
                                         var ctx = thisbb.left + (thisbb.right - thisbb.left)/2,
                                             cty = thisbb.top + (thisbb.bottom - thisbb.top)/2,
                                             cpx = prevbb.left + (prevbb.right - prevbb.left)/2,
                                             cpy = prevbb.top + (prevbb.bottom - prevbb.top)/2,
                                             off = Math.sqrt(Math.pow(ctx - cpx, 2) + Math.pow(cty - cpy, 2))/2;
                                         d3.select(this1).attr("transform",
-                                            "translate(" + Math.cos(((d.startAngle + d.endAngle - Math.PI) / 2)) * (radius + textOffset + off) + "," + Math.sin((d.startAngle + d.endAngle - Math.PI) / 2) * (radius + textOffset + off) + ")");
+                                            "translate(" + Math.cos(((d.startAngle + d.endAngle - Math.PI) / 2)) * (radius + textOffset + off) + "," + (Math.sin((d.startAngle + d.endAngle - Math.PI) / 2) * (radius + textOffset + off)-yOffset) + ")");
+                                        noOfLabel = i;
                                     }
                                 }
                                 prev = this1;
                             };
-                            monthLabels.each(function(d,i){callLabel(d,i,this);});
                             monthLabels.each(function(d,i){callLabel(d,i,this);});
                               //make number in the form of text for each pie element
                               // arcs.append("svg:text")   
@@ -1159,39 +1208,41 @@ function pptchart(){
         var xWidth = 0.3221,
             yHeight = 0.7496,
             circleTranslate = 2,
-            textOffsetSmall =65,
-            circleXTranslate = 1.6;
+            textOffsetSmall =40,
+            circleXTranslate = 1.6,
+            circleInnerRadius = 1.5;
             if(640 <= x && x <= 768)
             {
-                xWidth = 0.855;
+                xWidth = 0.00111*x;
                 yHeight = 0.7496;
                 circleTranslate = 1.8;
                 textOffsetSmall = 80;
-                circleXTranslate = 1.9;
+                circleXTranslate = 0.00247*x;
             };
             if(550 <= x && x < 640)
             {
-                xWidth = 0.855;
+                xWidth = 0.00133*x;
                 yHeight = 0.7496;
                 circleTranslate = 1.8;
                 textOffsetSmall = 80;
-                circleXTranslate = 1.50;
+                circleXTranslate = 0.00234*x;
             };
             if(440 <= x && x < 550)
              {
-                xWidth = 0.855;
+                xWidth = 0.00175*x;
                 yHeight = 0.7496;
                 textOffsetSmall = 90;
                 circleTranslate = 1.8;
-                circleXTranslate = 1.5;
+                circleXTranslate = 0.0035*x;
              };
              if(320 <= x && x < 440)
              {
-                xWidth = 0.855;
+                xWidth = 0.00244*x;
                 yHeight = 0.67;
                 textOffsetSmall = 120;
-                circleTranslate = 2;
-                circleXTranslate = 1.45;
+                circleTranslate = 2.2;
+                circleXTranslate = 0.00459*x;
+                circleInnerRadius = 1.64;
              };
       //call ppt chart 
       var chart1 = d3.select("#piechart")
@@ -1301,7 +1352,7 @@ function tempchart(){
                                     //make text element and text for each pie element
                                       arcs.append("svg:text")                                     
                                             .attr("transform", function(d) {                    
-                                            d.innerRadius = 1.7*radius;
+                                            d.innerRadius = circleTempInnerRadi*radius;
                                             d.outerRadius = radius*2;
                                             return "translate(" + (chart.arc.centroid(d)) + ")";        
                                           })
@@ -1403,37 +1454,41 @@ function tempchart(){
                 x = w.innerWidth || e.clientWidth || g.clientWidth,
                 y = w.innerHeight|| e.clientHeight|| g.clientHeight;
         //call temp chart 
-        var xWidth = 0.3221,
+        var xWidth = 0.3308,
             yHeight = 0.7496,
-            circleTranslate = 2;
-            circleXTranslate = 1.65;
+            circleTranslate = 2,
+            circleXTranslate = 1.68,
+            circleTempInnerRadi = 1.7;
         if(640 <= x && x <= 768)
        {
-          xWidth = 0.855;
+          xWidth = 0.00111*x;
           yHeight = 0.7496;
           circleTranslate = 1.7;
-          circleXTranslate = 1.8;
+          circleXTranslate = 0.00248*x;
        }
        if(550 <= x && x < 640)
        {
-          xWidth = 0.855;
+          xWidth = 0.00133*x;
           yHeight = 0.7496;
           circleTranslate = 1.7;
-          circleXTranslate = 1.5;
+          circleXTranslate = 0.00234*x;
+          circleTempInnerRadi = 1.85;
        }
-       if(340 <= x && x < 550)
+       if(440 <= x && x < 550)
        {
-          xWidth = 0.855;
-          yHeight = 0.7496;
+          xWidth = 0.00195*x;
+          yHeight = 0.7096;
           circleTranslate = 1.7;
-          circleXTranslate = 1.5;
+          circleXTranslate = 0.0038*x;
+          circleTempInnerRadi = 1.85;
        };
-       if(320 <= x && x < 340)
+       if(320 <= x && x < 440)
        {
-          xWidth = 0.875;
+          xWidth = 0.00288*x;
           yHeight = 0.67;
           circleTranslate = 2;
-          circleXTranslate = 1.65;
+          circleXTranslate = .006*x;
+          circleTempInnerRadi = 1.85;
        };
 
         var chart2 = d3.select("#piechart")
