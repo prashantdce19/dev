@@ -44,17 +44,21 @@ function chart(colors){
                //conver the data from file to json format by call funtion with data as argument
 
 				       var json = CSV2JSON(csv);
-               //call chart to with json data to render for user
+               //call chart with json data to render for user
               if(json[0].min_temp === undefined && json[0].max_temp === undefined || json[0].ppt === undefined){
                   d3.select(".pieHeaderButton").style("display","none");
               };
-              if(json[0].time === undefined && json[0].min_temp === undefined && json[0].max_temp === undefined && json[0].ppt === undefined){
+              if(json[0].min_temp === undefined && json[0].max_temp === undefined && json[0].ppt === undefined && json[0].time === undefined){
                   alert("We don't understand data")
               }else{
                 if(json[0].time === undefined){
                   alert('What date you entered for?');
                 }else{
-                  makechart(json);
+                  if(json[0].min_temp === undefined && json[0].max_temp === undefined && json[0].ppt === undefined){
+                    alert("We don't understand data");
+                  }else{
+                    makechart(json);
+                  }
                 }
               };
               var barButton = document.getElementById('linkToPieChart');
@@ -1057,8 +1061,10 @@ function chart(colors){
           //call tempchart initially to display pie chart 
           if(data[0].max_temp !== undefined || data[0].min_temp !== undefined){
               tempchart();
+              document.getElementById('one').checked = false;
           }else{
               pptchart();
+              document.getElementById('one').checked = true;
           }
     } 
 } 
