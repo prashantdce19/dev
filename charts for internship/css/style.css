@@ -64,7 +64,7 @@
 
 }
 
-  #graph{
+#graph{
     left:0px;
     width:76.8%;
     position:relative;
@@ -78,6 +78,17 @@
     /*background: -o-linear-gradient(top, #000fff 0%,#000fff 50%,#ffff00 50%,#ffff00 100%); /* Opera11.10+ */
     /*background: -ms-linear-gradient(top, #000fff 0%,#000fff 50%,#ffff00 50%,#ffff00 100%); /* IE10+ */
     /*background: linear-gradient(top, #000fff 0%,#000fff 50%,#ffff00 50%,#ffff00 100%); /* W3C */
+}
+#smallgraph{
+    left:8.7%;
+    width:76.8%;
+    position:relative;
+    height:10%;
+    margin-right:0;
+    display:inline-block;
+}
+.yf.grid .tick line {
+     stroke-width: 1.0;
 }
 html, button, input, select, textarea{
   font-family: 'Roboto', sans-serif !important;
@@ -120,6 +131,7 @@ div#axis{
   right: 6%;
 }
 #x-axis{
+  top:38%;
   width:100%;
   left:35%;
   position:relative;
@@ -569,6 +581,7 @@ space: nowrap;
   #x-axis{width: 100%;text-align: center;left:0;}
   .pieHeaderButton .l-box{width:100% !important;}
   .pieHeaderButton label.switch-container{float: left;width: 100%;}
+  #smallgraph{left:6.1%;width:85.8%;}
   }
 @media screen and (min-width:440px) and (max-width:549px){
   .slice text, .slice2 text{font-size: 14px;}
@@ -595,9 +608,11 @@ space: nowrap;
   .hide{display:none!important;}
   .show{display: block!important;}
   #graph{width : 80%;height : 57%;}
-  #x-axis{width: 100%;text-align: center;left:0;}
+  #x-axis{width: 100%;text-align: center;left:0;top:50%;}
   .pieHeaderButton .l-box{width:100% !important;}
   .pieHeaderButton label.switch-container{float: left;width: 100%;}
+  #smallgraph{left:8.2%;width:80.1%;}
+  .xf.grid .tick line{stroke-width:1.0;}
 }
 @media screen and (min-width:320px) and (max-width:439px){
   .slice text, .slice2 text{font-size: 13px;}
@@ -623,9 +638,11 @@ space: nowrap;
   .hide{display:none!important;}
   .show{display: block!important;}
   #graph{width : 75%;height :53%;}
-  #x-axis{width: 100%;text-align: center;left:0;}
+  #x-axis{width: 100%;text-align: center;left:0;top:50%;}
   .pieHeaderButton .l-box{width:100% !important;}
   .pieHeaderButton label.switch-container{float: left;width: 100%;}
+  #smallgraph{left:10.9%;width:75.8%;}
+  .xf.grid .tick line{stroke-width:1.0;}
 }
 @media screen and (min-width:320px) and (max-width:349px){
   .pure-u-2-3 .l-box input{float:left;}

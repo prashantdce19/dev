@@ -290,6 +290,20 @@ function chart(colors){
                   .orient("left")
                   .ticks(10)
                 };
+
+                function make_x_len_axis() {
+                  return d3.svg.axis()
+                  .scale(chart.xf)
+                  .orient("bottom")
+                  .ticks(20)
+                }
+
+                function make_y_len_axis() {
+                  return d3.svg.axis()
+                  .scale(chart.y0f)
+                  .orient("left")
+                  .ticks(10)
+                };
                 //make label for x axis 
                   var xAxis = d3.svg.axis().scale(chart.x).tickValues([16,45,75,105,136,166,197,228,258,289,319,350]).orient("bottom").tickFormat(d3.format("d"));
                   xAxis.tickFormat(function(d, i){
@@ -372,7 +386,10 @@ function chart(colors){
                   .append("svg:g")
                   .classed('y axis right', true);
 
-                chart.areas.chartFullBar = d3.select("#entire-data-chart").append("svg:svg")
+                chart.areas.chartFullBar = d3.select("#entire-data-chart")
+                  .attr('id','smallgraph')
+                  .style('background','-webkit-linear-gradient(top,  #ffffff 0%, #ffffff '+gradientValue+'%,#dbdbdb '+gradientValue+'%,#dbdbdb 95%,#ffffff 95%,#ffffff 100%)')
+                  .append("svg:svg")
                   .attr('id','fullChartID')               
                   .attr('width',chart.wf+chart.margins.left) 
                   .attr('height', chart.hf+(0.05*y)) 
@@ -380,8 +397,9 @@ function chart(colors){
                   // .attr('preserveAspectRatio',"xMidYMid");
 
                 chart.areas.chartFullBar = chart.areas.chartFullBar.append("svg:g")
-                  .attr('transform', 'translate('+chart.margins.left+',0)')
+                  //.attr('transform', 'translate('+chart.margins.left+',0)')
                   .append('g');
+                 
                 chart.areas.barClippath = chart.areas.chartFullBar.append('defs')
                 chart.areas.barClippath = chart.areas.barClippath.append('clipPath')
                                               .attr('id','clipFull')
@@ -453,7 +471,19 @@ function chart(colors){
                           d3.selectAll('#xAxisId .tick text').each(function(d,i){callBarLabel(i,this)});
                           d3.selectAll(".handle").attr("d", resizePath);      
                         };
-
+                chart.areas.chartFullBar.append("g")      
+                  .attr("class", "xf grid")
+                  .attr("transform", "translate(0," + chart.hf + ")")
+                  .call(make_x_len_axis()
+                        .tickSize(-chart.hf, 0, 0)
+                        .tickFormat("")
+                  )
+                chart.areas.chartFullBar.append("g")     
+                  .attr("class", "yf grid")
+                  .call(make_y_len_axis()
+                        .tickSize(-chart.wf, 0, 0)
+                        .tickFormat("")
+                  )
                 chart.areas.xlabelsFull = chart.areas.chartFullBar.append('g')
                   .classed('x axis', true)
                   .attr('id','xAxisId')
@@ -1132,7 +1162,7 @@ function pptchart(){
                   dataBind: function(data) {
                     //make pie element for pie chart
                     var pie = d3.layout.pie().sort(null).value(function(d) { return d.value; });
-                    var chat = chart.areas.piechartppt.data([data]) 
+                    var chat = chart.areas.piechartppt.data([data])
                                 .append('g')
                                 .attr("class","pieppt")
                                 .attr("transform", "translate(" + circleXTranslate*radius + "," + circleTranslate*radius+ ")")
@@ -1153,7 +1183,7 @@ function pptchart(){
                                         .style("stroke","#ffffff");
                             //make line path for each pie element
                             arcs.append("svg:path")
-                                        .attr("fill", function(d, i) { return color[i]; }) 
+                                        .attr("fill", function(d, i) { return color[i]; })
                                         .attr("d", chart.arc)
                                         .on('mouseover',mouseoverOnPie)
                                         .on('mouseout',mouseoutOfPie);
