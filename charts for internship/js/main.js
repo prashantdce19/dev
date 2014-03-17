@@ -7,21 +7,21 @@ function chart(colors){
       //listen to the switch button for click
       var classEl = document.getElementById('one');
       classEl.addEventListener("click",function(e){
-      //check for checkbox button been clicked or not
-      if(document.getElementById("one").checked){
-        //if button been clicked call ppt chart
-          pptchart();
-      }
-      else{
-        //if checkbox is not checked call temp chart
-        tempchart();
-      }
+          //check for checkbox button been clicked or not
+          if(document.getElementById("one").checked){
+            //if button been clicked call ppt chart
+              pptchart();
+          }
+          else{
+            //if checkbox is not checked call temp chart
+            tempchart();
+          }
       });
       //add event listener for class readBytesButtons while click
       document.getElementsByClassName('readBytesButtons')[0].addEventListener('click', function(evt) {
               //check whether the chart is already called or not
                 if (evt.target.tagName.toLowerCase() == 'button' && d3.select('.grid')[0][0] === null) 
-                  //if chart is not been called call it for first time
+                  //if chart is not been called called for first time
                    readBlob();         
       }, false);
       //read the data file 
@@ -42,9 +42,21 @@ function chart(colors){
 		      if (evt.target.readyState == FileReader.DONE) {
 				       csv = evt.target.result;    
                //conver the data from file to json format by call funtion with data as argument
+
 				       var json = CSV2JSON(csv);
                //call chart to with json data to render for user
-				       makechart(json);
+              if(json[0].min_temp === undefined && json[0].max_temp === undefined || json[0].ppt === undefined){
+                  d3.select(".pieHeaderButton").style("display","none");
+              };
+              if(json[0].time === undefined && json[0].min_temp === undefined && json[0].max_temp === undefined && json[0].ppt === undefined){
+                  alert("We don't understand data")
+              }else{
+                if(json[0].time === undefined){
+                  alert('What date you entered for?');
+                }else{
+                  makechart(json);
+                }
+              };
               var barButton = document.getElementById('linkToPieChart');
               if(hasClass(barButton,"hide"))
               {
@@ -59,11 +71,61 @@ function chart(colors){
       function CSV2JSON(csv) { 
             //convert csv format to array format
             var array = CSVToArray(csv),objArray = [];
+            var tmn = [
+                        ['min','Min','min.','Min.','MIN','minimum','Minimum','MINIMUM','tmin','tMin','Tmin','TMin','TMIN','mintemp',
+                          'minTemp','Mintemp','MinTemp','minimumtemp','minimumTemp','Minimumtemp','MinimumTemp',
+                          'mintemperature','minTemperature','Mintemperature','MinTemperature','minimumtemperature',
+                          'minimumTemperature','Minimumtemperature','MinimumTemperature'],
+                        ['max','Max','max.','Max.','MAX','maximum','Maximum','MAXIMUM','tmax','tMax','Tmax','TMax','TMAX','maxtemp',
+                        'maxTemp','Maxtemp','MaxTemp','maximumtemp','maximumTemp','Maximumtemp','MaximumTemp',
+                        'maxtemperature','maxTemperature','Maxtemperature','MaxTemperature','maximumtemperature',
+                        'maximumTemperature','Maximumtemperature','MaximumTemperature'],
+                        ['Percipitation','percipitation','Ppt','ppt'],
+                        ['Date','date','Time','time']
+                      ],
+                originalHeader = ['min_temp','max_temp','ppt','time']
+                headerKey =[];
+            for (var k1 = 0; k1 < array[0].length; k1++) {                  
+                var key = array[0][k1];
+                for(var k3 = 0;k3< tmn.length;k3++){
+                    for(var k2 = 0; k2< tmn[k3].length; k2++){
+                        if(key.indexOf(tmn[k3][k2]) !== -1){
+                          headerKey[k1]=originalHeader[k3];
+                          break;
+                        };
+                    }
+                }
+            };
+            var mytemp = [];
+            var headerVar = ['Date','date','Time','time','Percipitation','percipitation','Ppt','ppt','max','Max','max.','Max.','MAX','maximum','Maximum','MAXIMUM',
+                              'tmax','tMax','Tmax','TMax','TMAX','maxtemp','maxTemp','Maxtemp','MaxTemp','maximumtemp',
+                              'maximumTemp','Maximumtemp','MaximumTemp','maxtemperature','maxTemperature','Maxtemperature',
+                              'MaxTemperature','maximumtemperature','maximumTemperature','Maximumtemperature',
+                              'MaximumTemperature','min','Min','min.','Min.','MIN','minimum','Minimum','MINIMUM','tmin','tMin',
+                              'Tmin','TMin','TMIN','mintemp','minTemp','Mintemp','MinTemp','minimumtemp','minimumTemp',
+                              'Minimumtemp','MinimumTemp','mintemperature','minTemperature','Mintemperature','MinTemperature',
+                              'minimumtemperature','minimumTemperature','Minimumtemperature','MinimumTemperature'];
+            var testVar = 0;
+            for (var k1 = 0; k1 < array[0].length; k1++) {
+                    var key = array[0][k1];
+                    for(var i=0;i<= headerVar.length;i++){
+                      if(key.indexOf(headerVar[i]) !== -1){
+                        testVar = 1;
+                        break;
+                      };
+                    };
+                    if(testVar === 0){
+                      mytemp.push(key);
+                    };
+                    testVar = 0;
+            };
             for (var i = 1; i < array.length; i++) {
                 objArray[i - 1] = {};
                 for (var k = 0; k < array[0].length && k < array[i].length; k++) {
                     var key = array[0][k];
-                    objArray[i - 1][key] = array[i][k]
+                      if (mytemp.every(function(currentElement) { return currentElement !== key; })) {
+                          objArray[i-1][headerKey[k]] = array[i][k];
+                      }
                 }
             }
             var json = objArray;
@@ -123,24 +185,36 @@ function chart(colors){
       function makechart(data,colors){
             var time=[];
             if(average_ppt.length!=0){
-                    average_ppt.length==0;
-                   }
+              average_ppt.length==0;
+            }
             
             for(i=0;i<data.length;i++){
             	time[i]=data[i].time;
             }
             //convert the given data's time to date format
             var parseDate = d3.time.format("%m/%d/%Y").parse;
-            for(i=0;i<data.length;i++){
+            for(var i=0;i<data.length-1;i++){
             	data[i].time=parseDate(data[i].time);
-
             }
+
             var  w = window,
                 d = document,
                 e = d.documentElement,
                 g = d.getElementsByTagName('body')[0],
                 x = w.innerWidth || e.clientWidth || g.clientWidth,
                 y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+
+            var  maxTempVar = "max_temp",
+                  minTempVar = "min_temp";
+            if(data[0].min_temp === undefined){
+                  minTempVar = "max_temp";
+            };
+            if(data[0].max_temp === undefined){
+                  maxTempVar = "min_temp";
+            };
+            if(data[0].max_temp === undefined && data[0].min_temp === undefined){
+                  maxTempVar = "ppt";
+            };
 
             //use d3.chart function to build charts
             d3.chart("internsBarChart", {
@@ -206,7 +280,7 @@ function chart(colors){
                   .ticks(20)
                 }
 
-                function make_y_axis() {    
+                function make_y_axis() {
                   return d3.svg.axis()
                   .scale(chart.y0)
                   .orient("left")
@@ -331,14 +405,23 @@ function chart(colors){
                          var barWidth = (0.00146*x);  // 2 of 1366
                          var barpadding = (0.000146*x); //.2 of 1366
                           chart.x.domain(chart.brush.empty() ? chart.xf.domain() : chart.brush.extent());
-                          chart.areas.bars1.selectAll(".bar1")                            
+                          if(data[0].max_temp !== undefined){
+                              chart.areas.bars1.selectAll(".bar1")
                                         .attr("d", function(datum, index) { 
-                                              return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.max_temp),0.00366*x);
+                                            return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.max_temp),0.00366*x);
                                         });
-                          chart.areas.bars2.selectAll(".bar2").attr("d", function(datum, index) { 
+                          };
+                          if(data[0].min_temp !== undefined){
+                              chart.areas.bars2.selectAll(".bar2")
+                                        .attr("d", function(datum, index) { 
                                             return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.min_temp),0.00366*x);
-                                    });
-                          chart.areas.lines.select(".path1").attr("d",chart.line(data));
+                                        });
+                          };
+                          if(data[0].ppt !== undefined){
+                              chart.areas.lines.select(".path1").attr("d",chart.line(data));
+                              chart.areas.circles.selectAll('.circle')
+                                            .attr("cx", function(d,i){return chart.x(i+1);});
+                          };
                           d3.select('.x.axis').remove();
                           chart.areas.xlabels = chart.base.append('g')
                                     .classed('x axis', true)
@@ -364,9 +447,6 @@ function chart(colors){
                                   prev = this1;
                               };
                           d3.selectAll('#xAxisId .tick text').each(function(d,i){callBarLabel(i,this)});
-
-                          chart.areas.circles.selectAll('.circle')
-                                            .attr("cx", function(d,i){return chart.x(i+1);});
                           d3.selectAll(".handle").attr("d", resizePath);      
                         };
 
@@ -459,74 +539,110 @@ function chart(colors){
                     return path.join("");
                   };
 
-                //have first layer for max temperature bars
-                chart.layer('bars1', chart.areas.bars1, {
-                  dataBind: function(data) {
+                  //have first layer for max temperature bars
+                    chart.layer('bars1', chart.areas.bars1, {
+                      dataBind: function(data) {
 
-                        // update the domain of the x,y0 and y1 Scales since it depends on the data
-                        chart.x.domain([0.5,data.length]);
-                        chart.y0.domain([0,d3.max(data.map(function(datum){return +datum.max_temp;}))]);
-                        chart.y1.domain([0,d3.max(data.map(function(datum){return +datum.ppt;}))]);
-                        //call x axis 
-                        chart.areas.xlabels.call(xAxis);
+                            // update the domain of the x,y0 and y1 Scales since it depends on the data
+                            chart.x.domain([0.5,data.length]);
+                            chart.y0.domain([0,d3.max(data.map(function(datum){return +datum[maxTempVar];}))]);
+                            chart.y1.domain([0,d3.max(data.map(function(datum){return +datum[maxTempVar];}))]);
+                            //call x axis 
+                            chart.areas.xlabels.call(xAxis);
 
-                        var prev,yOffset=0,noOfLabel;
-                        function callBarLabel(i,this1){
-                                if(i > 0) {
-                                    var thisbb = this1.getBoundingClientRect(),
-                                        prevbb = prev.getBoundingClientRect();
-                                    // move if they overlap
-                                    if(!(thisbb.right < prevbb.left || 
-                                            thisbb.left > prevbb.right)) {
-                                         if(noOfLabel === i-1){yOffset = 9;}else{yOffset = xLabelHeight;noOfLabel = i;};
-                                            d3.select(this1).attr('y',yOffset);
+                            var prev,yOffset=0,noOfLabel;
+                            function callBarLabel(i,this1){
+                                    if(i > 0) {
+                                        var thisbb = this1.getBoundingClientRect(),
+                                            prevbb = prev.getBoundingClientRect();
+                                        // move if they overlap
+                                        if(!(thisbb.right < prevbb.left || 
+                                                thisbb.left > prevbb.right)) {
+                                             if(noOfLabel === i-1){yOffset = 9;}else{yOffset = xLabelHeight;noOfLabel = i;};
+                                                d3.select(this1).attr('y',yOffset);
+                                        }
                                     }
-                                }
-                                prev = this1;
+                                    prev = this1;
+                                };
+                            d3.selectAll('#xAxisId .tick text').each(function(d,i){callBarLabel(i,this)});
+
+                            var yAxisLeft = d3.svg.axis().scale(chart.y0).ticks(10).orient("left");
+                            chart.areas.ylabelsLeft
+                                      .append("svg:g")
+                                      .classed('y axis', true)
+                                      .attr("stroke","#848484")
+                                      .attr("stroke-width","0.5")
+                                      .attr("transform", "translate(" + (chart.margins.left) + ",0)")
+                                      .call(yAxisLeft);
+                            //call right y axis and render it in chart
+                            var yAxisRight = d3.svg.axis().scale(chart.y1).ticks(10).orient("right");
+                            chart.areas.ylabelsRight
+                                      .attr("stroke","#848484")
+                                      .attr("stroke-width","0.5")
+                                      .call(yAxisRight);
+                            //select dom element to construct bars
+                            var datai = _.pluck(data,'max_temp')
+                            for(var i=0;i<datai.length;i++){
+                              datai[i] = +datai[i];
                             };
-                        d3.selectAll('#xAxisId .tick text').each(function(d,i){callBarLabel(i,this)});
+                            return this.selectAll("rect1")
+                                   .data(data);        
+                      },
+                      insert: function() {
+                          //append tag element for bars
+                          return this.append("path")
+                            .classed('bar1', true)
+                      },
 
-                        var yAxisLeft = d3.svg.axis().scale(chart.y0).ticks(10).orient("left");
-                        chart.areas.ylabelsLeft
-                                  .append("svg:g")
-                                  .classed('y axis', true)
-                                  .attr("stroke","#848484")
-                                  .attr("stroke-width","0.5")
-                                  .attr("transform", "translate(" + (chart.margins.left) + ",0)")
-                                  .call(yAxisLeft);
-                        //call right y axis and render it in chart
-                        var yAxisRight = d3.svg.axis().scale(chart.y1).ticks(10).orient("right");
-                        chart.areas.ylabelsRight
-                                  .attr("stroke","#848484")
-                                  .attr("stroke-width","0.5")
-                                  .call(yAxisRight);
-                        //select dom element to construct bars
-                        var datai = _.pluck(data,'max_temp')
-                        for(var i=0;i<datai.length;i++){
-                          datai[i] = +datai[i];
-                        };
-                        return this.selectAll("rect1")
-                               .data(data);        
-                  },
-                  insert: function() {
-                      //append tag element for bars
-                      return this.append("path")
-                        .classed('bar1', true)
-                  },
-
-                });
-                //on data enter make the line for bars
-                var onEnterBar1 = function(){
-                      var barWidth = (0.00146*x);
-                      var barpadding = (0.000146*x);
-                      return this
-                            .attr("fill", "#1ABC9C")
-                            .attr("d", function(datum, index) { 
-                                      return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.max_temp),0.00366*x);
-                              })
-                            .on('mousemove',mouseoverOnBar) //call mouseoverOnBar function while mouseover on bar
-                            .on('mouseout',del)// call del function while mouseout of the bar
-                            .on("click",mouseClickOnBar); //call mouseClickOnBar function while mousemove of the bar
+                    });
+                    //on data enter make the line for bars
+                    var onEnterBar1 = function(){
+                          var barWidth = (0.00146*x);
+                          var barpadding = (0.000146*x);
+                          return this
+                                .attr("fill", "#1ABC9C")
+                                .attr("d", function(datum, index) { 
+                                          return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.max_temp),0.00366*x);
+                                  })
+                                .on('mousemove',mouseoverOnBar) //call mouseoverOnBar function while mouseover on bar
+                                .on('mouseout',del)// call del function while mouseout of the bar
+                                .on("click",mouseClickOnBar); //call mouseClickOnBar function while mousemove of the bar
+                    };
+                if(data[0].max_temp !== undefined){
+                    chart.layer('bars1').on('enter', onEnterBar1);
+                    chart.layer('bars1').on('update', onEnterBar1);
+                };
+                //have second layer for min temperature bars
+                
+                    chart.layer('bars2', chart.areas.bars2, {
+                                dataBind: function(data) {
+                                    var datai = _.pluck(data,'min_temp');
+                                    for(var i=0;i<datai.length;i++){
+                                      datai[i] = +datai[i];
+                                    };
+                                    return this.selectAll("rect2")
+                                             .data(data);
+                                },
+                                insert: function() {
+                                      return this.append("path")
+                                              .classed('bar2', true)
+                                }
+                    });
+                    //on data enter make the line for bars
+                    var onEnterBar2 = function(){
+                          var barWidth = (0.00366*x);
+                          var barpadding = (0.00146*x);
+                          return this.attr("fill", "#34495e")
+                                        .attr("d", function(datum, index) { 
+                                                return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.min_temp),0.00366*x);
+                                        })
+                                        .on('mousemove',mouseoverOnBar)//call mouseoverOnBar function while mouseover on bar
+                                        .on('mouseout',del)// call del function while mouseout of the bar
+                                        .on("click",mouseClickOnBar);//call mouseClickOnBar function while mouse click on the bar
+                    };
+                if(data[0].min_temp !== undefined){
+                    chart.layer('bars2').on('enter', onEnterBar2);
+                    chart.layer('bars2').on('update', onEnterBar2);
                 };
                 var mouseClickOnBar = function(){
                   tempchart();//call tempchart function while mouse click on the bar
@@ -592,98 +708,69 @@ function chart(colors){
                           .style("opacity", 0);
                 };
 
-                chart.layer('bars1').on('enter', onEnterBar1);
-                chart.layer('bars1').on('update', onEnterBar1);
-                //have second layer for min temperature bars
-                chart.layer('bars2', chart.areas.bars2, {
+                //have third layer for line
+                if(data[0].ppt !== undefined){
+                    chart.layer("lines", chart.areas.lines, {
+
                             dataBind: function(data) {
-                                var datai = _.pluck(data,'min_temp');
-                                for(var i=0;i<datai.length;i++){
-                                  datai[i] = +datai[i];
-                                };
-                                return this.selectAll("rect2")
-                                         .data(data);
+                                //select dom element to make line
+                                return this.selectAll("path").data([data]);
                             },
                             insert: function() {
-                                  return this.append("path")
-                                          .classed('bar2', true)
+                               return this.append("path")
+                                        .datum(data)
+                                        .attr('class','path1')
+                                        .attr("d", chart.line(data)) //call line function to make line with data
+                                        .on("click",mouseClickOnLine)//call mouseClickOnLine function while mouse click on the line
                             }
-                });
-                //on data enter make the line for bars
-                var onEnterBar2 = function(){
-                      var barWidth = (0.00366*x);
-                      var barpadding = (0.00146*x);
-                      return this.attr("fill", "#34495e")
-                                    .attr("d", function(datum, index) { 
-                                            return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.min_temp),0.00366*x);
-                                    })                         
-                                    .on('mousemove',mouseoverOnBar)//call mouseoverOnBar function while mouseover on bar
-                                    .on('mouseout',del)// call del function while mouseout of the bar
-                                    .on("click",mouseClickOnBar);//call mouseClickOnBar function while mouse click on the bar
+                          });
+                     //on dmouse click on the line call pptchart
+                    var mouseClickOnLine = function(){
+                      pptchart();
+                      document.getElementById('one').checked = true;//make checkbox true while mouse click on the line
+                     };
+                    //have fourth layer for cirlces on line when mouver mouse move on each points of line
+                    chart.layer("circles", chart.areas.circles, {
+
+                            dataBind: function(data) {
+                                //select dom element to make cirles
+                                return this.selectAll("circle")
+                                          .data(data);
+                            },
+                            insert: function() {
+                               return this.append("circle")
+                                        .classed('circle',true)
+                            },
+                            events: {
+                                    //on data enter make the circles
+                                    enter: function() {
+
+                                      var chart = this.chart();
+                                      return this.attr("cy", function(d){return chart.y1(d.ppt);})
+                                                .attr("cx", function(d,i){return chart.x(i+1);})
+                                                .style("fill", "transparent")
+                                                .attr("r", 8)
+                                                .style("stroke-width",3)
+                                                .on("mousemove",function(d){
+                                                      chart.div2 .html("Avg Ppt: "+ d.ppt + "<br/>" + "Day: " + chart.formatTime(d.time))  
+                                                                      .style("left", x<=768?((d3.event.pageX>x/2)?(d3.event.pageX-(0.3*x)):d3.event.pageX):d3.event.pageX+"px" )//place tooltip based on mouse's x current point
+                                                                      .style("top", (d3.event.pageY-(0.0899*y))+"px")//place tooltip based on mouse's y current point
+                                                                      .style("opacity", 0.9);
+                                                    })
+                                                .on("mouseout", function(d){ 
+                                                        chart.div2.transition()
+                                                        .duration(500)    
+                                                        .style("opacity", 0);
+                                                   })
+                                                .on("click",mouseClickOnLine);
+                                    }}
+                          });
                 };
-                chart.layer('bars2').on('enter', onEnterBar2);
-                chart.layer('bars2').on('update', onEnterBar2);
-                //have third layer for line
-                chart.layer("lines", chart.areas.lines, {
-
-                        dataBind: function(data) {
-                            //select dom element to make line
-                            return this.selectAll("path").data([data]);
-                        },
-                        insert: function() {
-                           return this.append("path")
-                                    .datum(data)
-                                    .attr('class','path1')
-                                    .attr("d", chart.line(data)) //call line function to make line with data
-                                    .on("click",mouseClickOnLine)//call mouseClickOnLine function while mouse click on the line
-                        }
-                      });
-                 //on dmouse click on the line call pptchart
-                var mouseClickOnLine = function(){
-                  pptchart();
-                  document.getElementById('one').checked = true;//make checkbox true while mouse click on the line
-                 };
-                //have fourth layer for cirlces on line when mouver mouse move on each points of line
-                chart.layer("circles", chart.areas.circles, {
-
-                        dataBind: function(data) {
-                            //select dom element to make cirles
-                            return this.selectAll("circle")
-                                      .data(data);
-                        },
-                        insert: function() {
-                           return this.append("circle")
-                                    .classed('circle',true)
-                        },
-                        events: {
-                                //on data enter make the circles
-                                enter: function() {
-
-                                  var chart = this.chart();
-                                  return this.attr("cy", function(d){return chart.y1(d.ppt);})
-                                            .attr("cx", function(d,i){return chart.x(i+1);})
-                                            .style("fill", "transparent")
-                                            .attr("r", 8)
-                                            .style("stroke-width",3)
-                                            .on("mousemove",function(d){
-                                                  chart.div2 .html("Avg Ppt: "+ d.ppt + "<br/>" + "Day: " + chart.formatTime(d.time))  
-                                                                  .style("left", x<=768?((d3.event.pageX>x/2)?(d3.event.pageX-(0.3*x)):d3.event.pageX):d3.event.pageX+"px" )//place tooltip based on mouse's x current point
-                                                                  .style("top", (d3.event.pageY-(0.0899*y))+"px")//place tooltip based on mouse's y current point
-                                                                  .style("opacity", 0.9);
-                                                })
-                                            .on("mouseout", function(d){ 
-                                                    chart.div2.transition()
-                                                    .duration(500)    
-                                                    .style("opacity", 0);
-                                               })
-                                            .on("click",mouseClickOnLine);
-                                }}
-                      });
                 chart.layer('fullChartBar1', chart.areas.chartFullBar1, {
                             dataBind: function(data) {
                                 chart.xf.domain([0.5,data.length]);
-                                chart.y0f.domain([0,d3.max(data.map(function(datum){return +datum.max_temp;}))]);
-                                chart.y1f.domain([0,d3.max(data.map(function(datum){return +datum.ppt;}))]);
+                                chart.y0f.domain([0,d3.max(data.map(function(datum){return +datum[maxTempVar];}))]);
+                                chart.y1f.domain([0,d3.max(data.map(function(datum){return +datum[maxTempVar];}))]);
                                 var xAxis = d3.svg.axis().scale(chart.xf).tickValues([16,45,75,105,136,166,197,228,258,289,319,350]).orient("bottom").tickFormat(d3.format("d"));
                                 xAxis.tickFormat(function(d, i){
                                        if(d==16)  return ("January")
@@ -739,13 +826,11 @@ function chart(colors){
                 var onEnterBar1Full = function(){
                       return this.attr("fill", "#1ABC9C")
                                     .attr("d", barPathFull)
-                                    // .on('mousemove',mouseoverOnBar)//call mouseoverOnBar function while mouseover on bar
-                                    // .on('mouseout',del)// call del function while mouseout of the bar
-                                    // .on("click",mouseClickOnBar);//call mouseClickOnBar function while mouse click on the bar
                 };
-                chart.layer('fullChartBar1').on('enter', onEnterBar1Full);
-                chart.layer('fullChartBar1').on('update', onEnterBar1Full);
-
+                if(data[0].max_temp !== undefined){
+                    chart.layer('fullChartBar1').on('enter', onEnterBar1Full);
+                    chart.layer('fullChartBar1').on('update', onEnterBar1Full);
+                };
                 chart.layer('fullChartBar2', chart.areas.chartFullBar2, {
                             dataBind: function(data) {
                                 chart.areas.barBrush
@@ -763,35 +848,34 @@ function chart(colors){
                             insert: function() {
                                   return this.append("path")
                                           .classed('barFull2', true)
-                                          .attr("fill", "#34495e")
+                                          .attr("fill", "#34495e");
                             }
                 });
                 var onEnterBar2Full = function(){
                       return this.attr("fill", "#34495e")
-                                    .attr("d", barPathFull)
-                                    // .on('mousemove',mouseoverOnBar)//call mouseoverOnBar function while mouseover on bar
-                                    // .on('mouseout',del)// call del function while mouseout of the bar
-                                    // .on("click",mouseClickOnBar);//call mouseClickOnBar function while mouse click on the bar
+                                    .attr("d", barPathFull);
                 };
-                chart.layer('fullChartBar2').on('enter', onEnterBar2Full);
-                chart.layer('fullChartBar2').on('update', onEnterBar2Full);
+                if(data[0].min_temp !== undefined){
+                    chart.layer('fullChartBar2').on('enter', onEnterBar2Full);
+                    chart.layer('fullChartBar2').on('update', onEnterBar2Full);
+                };
+                //have third layer for line
+                if(data[0].ppt !== undefined){
+                    chart.layer("linesFull", chart.areas.chartFullLine, {
 
-                                //have third layer for line
-                chart.layer("linesFull", chart.areas.chartFullLine, {
-
-                        dataBind: function(data) {
-                            //select dom element to make line
-                            return this.selectAll("path").data([data]);
-                        },
-                        insert: function() {
-                           return this.append("path")
-                                    .datum(data)
-                                    .attr('class','pathFull')
-                                    .attr("d", chart.lineFull(data)) //call line function to make line with data
-                                   // .on("click",mouseClickOnLine)//call mouseClickOnLine function while mouse click on the line
-                        }
-                      });
-
+                            dataBind: function(data) {
+                                //select dom element to make line
+                                return this.selectAll("path").data([data]);
+                            },
+                            insert: function() {
+                               return this.append("path")
+                                        .datum(data)
+                                        .attr('class','pathFull')
+                                        .attr("d", chart.lineFull(data)) //call line function to make line with data
+                                       // .on("click",mouseClickOnLine)//call mouseClickOnLine function while mouse click on the line
+                            }
+                          });
+                };
               },
             
               // configures the width of the chart.
@@ -876,77 +960,78 @@ function chart(colors){
         //calculate avg ppt and avg temp from entier data
         var avgppt=[0,0,0,0,0,0,0,0,0,0,0,0],
             avgtemp=[0,0,0,0,0,0,0,0,0,0,0,0];
-         for(i=0;i<data.length;i++){
+
+        for(i=0;i<data.length;i++){
               if(i<31)
               { 
                 avgppt[0]= parseFloat(data[i].ppt)+avgppt[0];
-                avgtemp[0]= parseFloat(data[i].max_temp)+parseFloat(data[i].min_temp)+avgtemp[0];
+                avgtemp[0]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[0];
                 avg_ppt[0]=avgppt[0]/31; 
                 avg_temp[0]=avgtemp[0]/(31*2);   }
              else if((30<i)&&(i<59))
               { 
                 avgppt[1]= parseFloat(data[i].ppt)+avgppt[1];
-                avgtemp[1]= parseFloat(data[i].max_temp)+parseFloat(data[i].min_temp)+avgtemp[1];
+                avgtemp[1]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[1];
                 avg_ppt[1]=(avgppt[1])/28;
                 avg_temp[1]=(avgtemp[1]/2)/28;   }
               else if((58<i)&&(i<90))
               { 
                 avgppt[2]= parseFloat(data[i].ppt)+avgppt[2];
-                avgtemp[2]= parseFloat(data[i].max_temp)+parseFloat(data[i].min_temp)+avgtemp[2];
+                avgtemp[2]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[2];
                 avg_ppt[2]=(avgppt[2])/31;  
                 avg_temp[2]=(avgtemp[2]/2)/31; }
               else if((89<i)&&(i<120))
               { 
                 avgppt[3]= parseFloat(data[i].ppt)+avgppt[3];
-                avgtemp[3]= parseFloat(data[i].max_temp)+parseFloat(data[i].min_temp)+avgtemp[3];
+                avgtemp[3]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[3];
                 avg_ppt[3]=(avgppt[3])/30;
                 avg_temp[3]=(avgtemp[3]/2)/30;   }
               else if((119<i)&&(i<151))
               { 
                 avgppt[4]= parseFloat(data[i].ppt)+avgppt[4];
-                avgtemp[4]= parseFloat(data[i].max_temp)+parseFloat(data[i].min_temp)+avgtemp[4];
+                avgtemp[4]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[4];
                 avg_ppt[4]=(avgppt[4])/31;
                 avg_temp[4]=(avgtemp[4]/2)/31;   }
               else if((150<i)&&(i<181))
               { 
                 avgppt[5]= parseFloat(data[i].ppt)+avgppt[5];
-                avgtemp[5]= parseFloat(data[i].max_temp)+parseFloat(data[i].min_temp)+avgtemp[5];
+                avgtemp[5]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[5];
                 avg_ppt[5]=avgppt[5]/30;
                 avg_temp[5]=avgtemp[5]/(30*2);   }
               else if((180<i)&&(i<212))
               { 
                 avgppt[6]= parseFloat(data[i].ppt)+avgppt[6];
-                avgtemp[6]= parseFloat(data[i].max_temp)+parseFloat(data[i].min_temp)+avgtemp[6];
+                avgtemp[6]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[6];
                 avg_ppt[6]=(avgppt[6])/31;
                 avg_temp[6]=(avgtemp[6]/2)/31;   }
               else if((211<i)&&(i<243))
               { 
                 avgppt[7]= parseFloat(data[i].ppt)+avgppt[7];
-                avgtemp[7]= parseFloat(data[i].max_temp)+parseFloat(data[i].min_temp)+avgtemp[7];
+                avgtemp[7]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[7];
                 avg_ppt[7]=(avgppt[7])/31;
                 avg_temp[7]=(avgtemp[7]/2)/31;   }
               else if((242<i)&&(i<273))
               { 
                 avgppt[8]= parseFloat(data[i].ppt)+avgppt[8];
-                avgtemp[8]= parseFloat(data[i].max_temp)+parseFloat(data[i].min_temp)+avgtemp[8];
+                avgtemp[8]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[8];
                 avg_ppt[8]=(avgppt[8])/30;
                 avg_temp[8]=(avgtemp[8]/2)/30;   }
               else if((272<i)&&(i<304))
               { 
                 avgppt[9]= parseFloat(data[i].ppt)+avgppt[9];
-                avgtemp[9]= parseFloat(data[i].max_temp)+parseFloat(data[i].min_temp)+avgtemp[9];
+                avgtemp[9]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[9];
                 avg_ppt[9]=(avgppt[9])/31;
                 avg_temp[9]=(avgtemp[9]/2)/31;   }
               else if((303<i)&&(i<344))
               { 
                 avgppt[10]= parseFloat(data[i].ppt)+avgppt[10];
-                avgtemp[10]= parseFloat(data[i].max_temp)+parseFloat(data[i].min_temp)+avgtemp[10];
+                avgtemp[10]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[10];
                 avg_ppt[10]=(avgppt[10])/30;
                 avg_temp[10]=(avgtemp[10]/2)/30;   }
               else if((343<i)&&(i<365))
               { 
                 avgppt[11]= parseFloat(data[i].ppt)+avgppt[11];
-                avgtemp[11]= parseFloat(data[i].max_temp)+parseFloat(data[i].min_temp)+avgtemp[11];
+                avgtemp[11]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[11];
                 avg_ppt[11]=(avgppt[11])/31;
                 avg_temp[11]=(avgtemp[11])/(31*2);   }
           }
@@ -970,7 +1055,11 @@ function chart(colors){
               pie_chart[i][2]=avg_temp[i];
           }
           //call tempchart initially to display pie chart 
-          tempchart();
+          if(data[0].max_temp !== undefined || data[0].min_temp !== undefined){
+              tempchart();
+          }else{
+              pptchart();
+          }
     } 
 } 
 //ppt pie chart function
@@ -1375,7 +1464,7 @@ function tempchart(){
                                               return d.y = /*(Math.sin(a) * (radius + 70))*/chart.arc.centroid(d)[1]+25;
                                             })
                                             .text(function(d) {
-                                              return d.data.value.toFixed(2); 
+                                              return d.data.temp.toFixed(2); 
                                             })
                                             .each(function(d) {
                                               var bbox = this.getBBox();
@@ -1397,7 +1486,6 @@ function tempchart(){
                                            // .attr("marker-end", "url(#circ)")
                                             .attr("d", function(d,i) {
                                                   if(d.cx > d.ox) {
-                                                   // console.log('pieLine'+monthsId[i],"M" , d.sx, ",", d.sy ,"L", d.ox, "," ,d.oy, " " ,d.cx, ",", d.cy);
                                                     return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
                                                   } else {
                                                     return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
