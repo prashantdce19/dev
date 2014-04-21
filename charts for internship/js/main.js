@@ -245,10 +245,6 @@ function chart(colors){
 
                 chart.h = chart.h-(3*chart.margins.top);
 
-                //select dom element for circle's tooltip
-                chart.div1= d3.select("body").append("div") 
-                .attr("class", "tooltip")       
-                .style("opacity", 0);
                 //select dom element for bar's tooltip
                 chart.div2= d3.select("body").append("div") 
                 .attr("class", "tooltip")       
@@ -638,7 +634,7 @@ function chart(colors){
                                 .attr("d", function(datum, index) { 
                                           return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.max_temp),0.00366*x);
                                   })
-                                .on('mousemove',mouseoverOnBar) //call mouseoverOnBar function while mouseover on bar
+                                .on('mouseover',mouseoverOnBar) //call mouseoverOnBar function while mouseover on bar
                                 .on('mouseout',del)// call del function while mouseout of the bar
                                 .on("click",mouseClickOnBar); //call mouseClickOnBar function while mousemove of the bar
                     };
@@ -670,7 +666,7 @@ function chart(colors){
                                         .attr("d", function(datum, index) { 
                                                 return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.min_temp),0.00366*x);
                                         })
-                                        .on('mousemove',mouseoverOnBar)//call mouseoverOnBar function while mouseover on bar
+                                        .on('mouseover',mouseoverOnBar)//call mouseoverOnBar function while mouseover on bar
                                         .on('mouseout',del)// call del function while mouseout of the bar
                                         .on("click",mouseClickOnBar);//call mouseClickOnBar function while mouse click on the bar
                     };
@@ -717,9 +713,10 @@ function chart(colors){
                       }
                       //make tooltip when mouseover on bar
                       chart.div2 .html(tempVar+": "+ y + "<br/>" + "Day: "+ chart.formatTime(x1)) 
-                              .style("left", x<=768?((d3.event.pageX>x/2)?(d3.event.pageX-(0.3*x)):d3.event.pageX):d3.event.pageX+"px" )  
+                              .style("left", x<=768?((d3.event.pageX>x/2)?(d3.event.pageX+20):d3.event.pageX+20):(d3.event.pageX+20)+"px" )  
                               .style("top", (d3.event.pageY-(0.0899*y))+"px")
                               .style("opacity", 0.9); 
+                              console.log('in',y);
                 };
                 //delete tooltip when mouseout of the bar
                 var del =function(d){
@@ -737,9 +734,9 @@ function chart(colors){
                         d3.select('#pieLine'+monthsId[iterator2])
                             .style("display",'none');
                       }
-                      chart.div2.transition()    
-                          .duration(500)    
+                      chart.div2   
                           .style("opacity", 0);
+                      console.log('out');
                 };
 
                 //have third layer for line
