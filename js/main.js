@@ -1391,8 +1391,7 @@ function tempchart(){
           d3.select(".pieChartSvg").remove();
           //change lable text
           d3.select('#label').text('Average Temperature');
-        	tempColors = ["#ff3e00","#e2ffd2","#ff6100","#73ceff","#ffc621","#9cf7ff","#faff99","#ceffff","#64b2ff","#ffdc76","#ffc621","#ff1400"];
-          
+        	tempColors = ["#ff1400","#ff3e00","#ff6100","#ff8400","#ffc621","#ffdc76","#faff99","#e2ffd2","#ceffff","#9cf7ff","#73ceff","#64b2ff"];
           var array=[],
               color=[],
          	    ppt_chart=[],
@@ -1425,6 +1424,7 @@ function tempchart(){
           	color[array[i]]=tempColors[i];
             avg_temp[i]=temp[i];
           }
+          console.log(color,array,tempColors,avg_temp,ppt_chart)
           //make a layer for temperature pie chart elements
           d3.chart('pieTempChart',{
                   initialize: function(){
