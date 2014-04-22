@@ -2,7 +2,7 @@ function clickcount(count){
       count++;
       return count;
 }
-function chart(colors){   
+function chart(){   
       var csv, json;
       //listen to the switch button for click
       var classEl = document.getElementById('one');
@@ -185,8 +185,8 @@ function chart(colors){
             toggleClass(chartLeft,"show","hide");
           };
       };
-      //render chart by call make chart function with data and colors
-      function makechart(data,colors){
+      //render chart by call make chart function with data
+      function makechart(data){
             var time=[];
             if(average_ppt.length!=0){
               average_ppt.length==0;
@@ -716,7 +716,6 @@ function chart(colors){
                               .style("left", x<=768?((d3.event.pageX>x/2)?(d3.event.pageX+20):d3.event.pageX+20):(d3.event.pageX+20)+"px" )  
                               .style("top", (d3.event.pageY-(0.0899*y))+"px")
                               .style("opacity", 0.9); 
-                              console.log('in',y);
                 };
                 //delete tooltip when mouseout of the bar
                 var del =function(d){
@@ -736,7 +735,6 @@ function chart(colors){
                       }
                       chart.div2   
                           .style("opacity", 0);
-                      console.log('out');
                 };
 
                 //have third layer for line
@@ -1102,6 +1100,7 @@ function pptchart(){
         //change lable text
         d3.select('#label').text('Average Precipitation');
         //calculate avg ppt for pie chart
+        pptColors = ["#025f74","#025f74","#027a96","#0288a7","#03a3c8","#04bee9","#04ccfa","#24d3fc","#56ddfc","#89e7fd","#aaeefe","#ccf5fe"];
         var color=[],ppt_chart=[],ppt=[],array=[];
     		for (var i=0;i<12;i++){
     			 	ppt[i]=avg_ppt[i];
@@ -1128,7 +1127,7 @@ function pptchart(){
     			}
     		}
     		for(i=0;i<12;i++){
-      			color[array[i]]=colors[i];
+      			color[array[i]]=pptColors[i];
             avg_ppt[i]=ppt[i];
         }
       //d3 chart for Precipitation pie chart
@@ -1392,7 +1391,9 @@ function tempchart(){
           d3.select(".pieChartSvg").remove();
           //change lable text
           d3.select('#label').text('Average Temperature');
-        	var array=[],
+        	tempColors = ["#ff3e00","#e2ffd2","#ff6100","#73ceff","#ffc621","#9cf7ff","#faff99","#ceffff","#64b2ff","#ffdc76","#ffc621","#ff1400"];
+          
+          var array=[],
               color=[],
          	    ppt_chart=[],
               temp=[];
@@ -1421,7 +1422,7 @@ function tempchart(){
         		}
         	}
           for(i=0;i<12;i++){
-          	color[array[i]]=colors1[i];
+          	color[array[i]]=tempColors[i];
             avg_temp[i]=temp[i];
           }
           //make a layer for temperature pie chart elements
