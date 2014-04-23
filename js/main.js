@@ -1,236 +1,48 @@
-function clickcount(count){
-      count++;
-      return count;
-}
-function chart(){   
-      var csv, json;
-      //listen to the switch button for click
-      var classEl = document.getElementById('one');
-      classEl.addEventListener("click",function(e){
-          //check for checkbox button been clicked or not
-          if(document.getElementById("one").checked){
-            //if button been clicked call ppt chart
-              pptchart();
-          }
-          else{
-            //if checkbox is not checked call temp chart
-            tempchart();
-          }
-      });
-      //add event listener for class readBytesButtons while click
-      document.getElementsByClassName('readBytesButtons')[0].addEventListener('click', function(evt) {
-              //check whether the chart is already called or not
-                if (evt.target.tagName.toLowerCase() == 'button' && d3.select('.grid')[0][0] === null) 
-                  //if chart is not been called called for first time
-                   readBlob();         
-      }, false);
-      //read the data file 
-      function readBlob() {
-
-		    var files = document.getElementById('files').files;
-		    if (!files.length) {
-          //if there is no file ask user to select a file
-		      alert('Please select a file!');
-		      return;
-		    };
-		    var file = files[0], 
-            start =  0, 
-            stop = file.size - 1, 
-            reader = new FileReader();
-		    reader.onloadend= function(evt) {
-          //check the file has data or not
-		      if (evt.target.readyState == FileReader.DONE) {
-				       csv = evt.target.result;    
-               //conver the data from file to json format by call funtion with data as argument
-
-				       var json = CSV2JSON(csv);
-               //call chart with json data to render for user
-              if(json[0].min_temp === undefined && json[0].max_temp === undefined || json[0].ppt === undefined){
-                  d3.select(".pieHeaderButton").style("display","none");
-              };
-              if(json[0].min_temp === undefined && json[0].max_temp === undefined && json[0].ppt === undefined && json[0].time === undefined){
-                  alert("We don't understand data")
-              }else{
-                if(json[0].time === undefined){
-                  alert('What date you entered for?');
-                }else{
-                  if(json[0].min_temp === undefined && json[0].max_temp === undefined && json[0].ppt === undefined){
-                    alert("We don't understand data");
-                  }else{
-                    makechart(json);
-                  }
-                }
-              };
-              var barButton = document.getElementById('linkToPieChart');
-              if(hasClass(barButton,"hide"))
-              {
-                toggleClass(barButton,"show","hide");
-              };
-			    };
-  		 	}
-		    var blob = file.slice(start, stop + 1); 
-		    reader.readAsBinaryString(blob);
-	    }
-      //convert file format data to json format
-      function CSV2JSON(csv) { 
-            //convert csv format to array format
-            var array = CSVToArray(csv),objArray = [];
-            var tmn = [
-                        ['min','Min','min.','Min.','MIN','minimum','Minimum','MINIMUM','tmin','tMin','Tmin','TMin','TMIN','mintemp',
-                          'minTemp','Mintemp','MinTemp','minimumtemp','minimumTemp','Minimumtemp','MinimumTemp',
-                          'mintemperature','minTemperature','Mintemperature','MinTemperature','minimumtemperature',
-                          'minimumTemperature','Minimumtemperature','MinimumTemperature'],
-                        ['max','Max','max.','Max.','MAX','maximum','Maximum','MAXIMUM','tmax','tMax','Tmax','TMax','TMAX','maxtemp',
-                        'maxTemp','Maxtemp','MaxTemp','maximumtemp','maximumTemp','Maximumtemp','MaximumTemp',
-                        'maxtemperature','maxTemperature','Maxtemperature','MaxTemperature','maximumtemperature',
-                        'maximumTemperature','Maximumtemperature','MaximumTemperature'],
-                        ['Percipitation','percipitation','Ppt','ppt'],
-                        ['Date','date','Time','time']
-                      ],
-                originalHeader = ['min_temp','max_temp','ppt','time']
-                headerKey =[];
-            for (var k1 = 0; k1 < array[0].length; k1++) {                  
-                var key = array[0][k1];
-                for(var k3 = 0;k3< tmn.length;k3++){
-                    for(var k2 = 0; k2< tmn[k3].length; k2++){
-                        if(key.indexOf(tmn[k3][k2]) !== -1){
-                          headerKey[k1]=originalHeader[k3];
-                          break;
-                        };
-                    }
-                }
-            };
-            var mytemp = [];
-            var headerVar = ['Date','date','Time','time','Percipitation','percipitation','Ppt','ppt','max','Max','max.','Max.','MAX','maximum','Maximum','MAXIMUM',
-                              'tmax','tMax','Tmax','TMax','TMAX','maxtemp','maxTemp','Maxtemp','MaxTemp','maximumtemp',
-                              'maximumTemp','Maximumtemp','MaximumTemp','maxtemperature','maxTemperature','Maxtemperature',
-                              'MaxTemperature','maximumtemperature','maximumTemperature','Maximumtemperature',
-                              'MaximumTemperature','min','Min','min.','Min.','MIN','minimum','Minimum','MINIMUM','tmin','tMin',
-                              'Tmin','TMin','TMIN','mintemp','minTemp','Mintemp','MinTemp','minimumtemp','minimumTemp',
-                              'Minimumtemp','MinimumTemp','mintemperature','minTemperature','Mintemperature','MinTemperature',
-                              'minimumtemperature','minimumTemperature','Minimumtemperature','MinimumTemperature'];
-            var testVar = 0;
-            for (var k1 = 0; k1 < array[0].length; k1++) {
-                    var key = array[0][k1];
-                    for(var i=0;i<= headerVar.length;i++){
-                      if(key.indexOf(headerVar[i]) !== -1){
-                        testVar = 1;
-                        break;
-                      };
-                    };
-                    if(testVar === 0){
-                      mytemp.push(key);
-                    };
-                    testVar = 0;
-            };
-            for (var i = 1; i < array.length; i++) {
-                objArray[i - 1] = {};
-                for (var k = 0; k < array[0].length && k < array[i].length; k++) {
-                    var key = array[0][k];
-                      if (mytemp.every(function(currentElement) { return currentElement !== key; })) {
-                          objArray[i-1][headerKey[k]] = array[i][k];
-                      }
-                }
-            }
-            var json = objArray;
-            return json;
+function makechart(data){
+      var time=[];
+      if(average_ppt.length!=0){
+        average_ppt.length==0;
+      };      
+      for(i=0;i<data.length;i++){
+      	time[i]=data[i].time;
       }
-      //convert csv format to array format
-      function CSVToArray(strData, strDelimiter) {
-            strDelimiter = (strDelimiter || ",");
-            var objPattern = new RegExp((
-                                    "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
-                                    "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
-                                    "([^\"\\" + strDelimiter + "\\r\\n]*))"), "gi"),
-                arrData = [[]],
-                arrMatches = null;
-            while (arrMatches = objPattern.exec(strData)) {
-                          var strMatchedDelimiter = arrMatches[1];
-                          if (strMatchedDelimiter.length && (strMatchedDelimiter != strDelimiter)) {
-                              arrData.push([]);
-                          }
-                          if (arrMatches[2]) {
-                              var strMatchedValue = arrMatches[2].replace(
-                              new RegExp("\"\"", "g"), "\"");
-                          } else {
-                              var strMatchedValue = arrMatches[3];
-                          }
-                          arrData[arrData.length - 1].push(strMatchedValue);
-            }
-            return (arrData);
-      };
-      document.getElementById('linkToPieChart').onclick=function(){
-          var chartLeft = document.getElementById('chartBarLeft'),
-              chartRight = document.getElementById('chartPieRight');
-          if(hasClass(chartLeft,"show"))
-          {
-            toggleClass(chartLeft,"hide","show");
-            toggleClass(chartRight,"show","hide");
-          };
-          if(document.getElementById("one").checked){
-              //if button been clicked call ppt chart
-                pptchart();
-            }
-            else{
-              //if checkbox is not checked call temp chart
-              tempchart();
-            }
-      };
-      document.getElementById('linkToBarChart').onclick=function(){
-          var chartLeft = document.getElementById('chartBarLeft'),
-              chartRight = document.getElementById('chartPieRight');
-          if(hasClass(chartLeft,"hide"))
-          {
-            toggleClass(chartRight,"hide","show");
-            toggleClass(chartLeft,"show","hide");
-          };
-      };
-      //render chart by call make chart function with data
-      function makechart(data){
-            var time=[];
-            if(average_ppt.length!=0){
-              average_ppt.length==0;
-            }
-            
-            for(i=0;i<data.length;i++){
-            	time[i]=data[i].time;
-            }
-            //convert the given data's time to date format
-            var parseDate = d3.time.format("%m/%d/%Y").parse;
-            for(var i=0;i<data.length-1;i++){
-            	data[i].time=parseDate(data[i].time);
-            }
+      //convert the given data's time to date format
+      var parseDate = d3.time.format("%m/%d/%Y").parse;
+      for(var i=0;i<data.length-1;i++){
+      	data[i].time=parseDate(data[i].time);
+      }
 
-            var  w = window,
-                d = document,
-                e = d.documentElement,
-                g = d.getElementsByTagName('body')[0],
-                x = w.innerWidth || e.clientWidth || g.clientWidth,
-                y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+      var  w = window,
+          d = document,
+          e = d.documentElement,
+          g = d.getElementsByTagName('body')[0],
+          x = w.innerWidth || e.clientWidth || g.clientWidth,
+          y = w.innerHeight|| e.clientHeight|| g.clientHeight;
 
-            var  maxTempVar = "max_temp",
-                  minTempVar = "min_temp";
-            if(data[0].min_temp === undefined){
-                  minTempVar = "max_temp";
-            };
-            if(data[0].max_temp === undefined){
-                  maxTempVar = "min_temp";
-            };
-            if(data[0].max_temp === undefined && data[0].min_temp === undefined){
-                  maxTempVar = "ppt";
-            };
-
-            //use d3.chart function to build charts
-            d3.chart("internsBarChart", {
-              //initalize variables inside d3.charts function
-              initialize: function() {
-                // create a base scale we will use later.
+      var  maxTempVar = "max_temp",
+            minTempVar = "min_temp";
+      if(data[0].min_temp === undefined){
+            minTempVar = "max_temp";
+      };
+      if(data[0].max_temp === undefined){
+            maxTempVar = "min_temp";
+      };
+      if(data[0].max_temp === undefined && data[0].min_temp === undefined){
+            maxTempVar = "ppt";
+      };
+      var months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+      //use d3.chart function to build charts
+      d3.chart("internsBarChart", {
+          //initalize variables inside d3.charts function
+          initialize: function() {
+              // create a base scale we will use later.
                 var chart = this;
               
                 //Get height and width of chart and covert it into values
                 chart.w = +chart.base.attr('width');
                 chart.h = +chart.base.attr('height');
 
+                chart.dayCount = [16,45,75,105,136,166,197,228,258,289,319,350];
                 // chart margins to account for labels.
                 chart.margins = {
                   left : leftOrigin,//80
@@ -301,20 +113,9 @@ function chart(){
                   .ticks(10)
                 };
                 //make label for x axis 
-                  var xAxis = d3.svg.axis().scale(chart.x).tickValues([16,45,75,105,136,166,197,228,258,289,319,350]).orient("bottom").tickFormat(d3.format("d"));
+                  var xAxis = d3.svg.axis().scale(chart.x).tickValues(chart.dayCount).orient("bottom").tickFormat(d3.format("d"));
                   xAxis.tickFormat(function(d, i){
-                   if(d==16) return ("January")
-                   if(d==45)    return ("February")
-                   if(d==75)    return ("March")
-                   if(d==105)  return ("April")
-                   if(d==136)  return ("May")
-                   if(d==166)  return ("June")
-                   if(d==197)  return ("July")
-                   if(d==228)  return ("August")
-                   if(d==258)  return ("September")
-                   if(d==289)  return ("October")
-                   if(d==319)  return ("November")
-                   if(d==350)  return ("December")
+                   if(d==chart.dayCount[i]) return months[i]
                   });
                 //make width and height for barchart
                 chart.base
@@ -634,7 +435,7 @@ function chart(){
                                 .attr("d", function(datum, index) { 
                                           return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.max_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.max_temp),0.00366*x);
                                   })
-                                .on('mouseover',mouseoverOnBar) //call mouseoverOnBar function while mouseover on bar
+                                .on('mouseover',mouseoverOnElement) //call mouseoverOnElement function while mouseover on bar
                                 .on('mouseout',del)// call del function while mouseout of the bar
                                 .on("click",mouseClickOnBar); //call mouseClickOnBar function while mousemove of the bar
                     };
@@ -642,34 +443,33 @@ function chart(){
                     chart.layer('bars1').on('enter', onEnterBar1);
                     chart.layer('bars1').on('update', onEnterBar1);
                 };
-                //have second layer for min temperature bars
-                
-                    chart.layer('bars2', chart.areas.bars2, {
-                                dataBind: function(data) {
-                                    var datai = _.pluck(data,'min_temp');
-                                    for(var i=0;i<datai.length;i++){
-                                      datai[i] = +datai[i];
-                                    };
-                                    return this.selectAll("rect2")
-                                             .data(data);
-                                },
-                                insert: function() {
-                                      return this.append("path")
-                                              .classed('bar2', true)
-                                }
-                    });
-                    //on data enter make the line for bars
-                    var onEnterBar2 = function(){
-                          var barWidth = (0.00366*x);
-                          var barpadding = (0.00146*x);
-                          return this.attr("fill", "#34495e")
-                                        .attr("d", function(datum, index) { 
-                                                return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.min_temp),0.00366*x);
-                                        })
-                                        .on('mouseover',mouseoverOnBar)//call mouseoverOnBar function while mouseover on bar
-                                        .on('mouseout',del)// call del function while mouseout of the bar
-                                        .on("click",mouseClickOnBar);//call mouseClickOnBar function while mouse click on the bar
-                    };
+                //have second layer for min temperature bars                
+                chart.layer('bars2', chart.areas.bars2, {
+                            dataBind: function(data) {
+                                var datai = _.pluck(data,'min_temp');
+                                for(var i=0;i<datai.length;i++){
+                                  datai[i] = +datai[i];
+                                };
+                                return this.selectAll("rect2")
+                                         .data(data);
+                            },
+                            insert: function() {
+                                  return this.append("path")
+                                          .classed('bar2', true)
+                            }
+                });
+                //on data enter make the line for bars
+                var onEnterBar2 = function(){
+                      var barWidth = (0.00366*x);
+                      var barpadding = (0.00146*x);
+                      return this.attr("fill", "#34495e")
+                                    .attr("d", function(datum, index) { 
+                                            return topRoundedRect(chart.x(index+1)-barWidth/2, chart.y0(datum.min_temp),(chart.w / data.length- barpadding+(0.00366*x)),chart.h-chart.y0(datum.min_temp),0.00366*x);
+                                    })
+                                    .on('mouseover',mouseoverOnElement)//call mouseoverOnElement function while mouseover on bar
+                                    .on('mouseout',del)// call del function while mouseout of the bar
+                                    .on("click",mouseClickOnBar);//call mouseClickOnBar function while mouse click on the bar
+                };
                 if(data[0].min_temp !== undefined){
                     chart.layer('bars2').on('enter', onEnterBar2);
                     chart.layer('bars2').on('update', onEnterBar2);
@@ -678,59 +478,74 @@ function chart(){
                   tempchart();//call tempchart function while mouse click on the bar
                   document.getElementById('one').checked = false;//make checkbox false while mouse click on the bar
                  };
-                var mouseoverOnBar = function(d,i){
-
+                var mouseoverOnElement = function(d,i){
                       var x0 = chart.x.invert(d3.mouse(this)[0]).toFixed(0);
                       if(this.className.baseVal === 'bar1'){
                           var y=parseFloat(data[x0-1].max_temp);
                           var tempVar = 'Max temp';
+                          var tempIdVar = 'temp';
                       }else{
                           var y=parseFloat(data[x0-1].min_temp);
                           var tempVar = 'Min temp';
+                          var tempIdVar = 'temp';
+                      }
+                      if(this.className.baseVal === 'circle'){
+                          var tempIdVar = 'ppt';
                       }
                       var x1=data[x0-1].time;
                       var monthsId=["January","February","March","April","May","June","July","August","September","October","November","December"];
                       for(var iterator1=0;iterator1<monthsId.length;iterator1++)
                       {
                         if(iterator1 !== d.time.getMonth()){
-                            d3.select('#sliceId'+monthsId[iterator1])
+                            d3.select('#sliceId'+tempIdVar+monthsId[iterator1])
                                 .style('opacity',0.3);
                                 // .style('stroke-width',3)
                                 // .style('stroke','gray');
-                            d3.select('#pieTextValue'+monthsId[iterator1])
+                            d3.select('#pieTextValue'+tempIdVar+monthsId[iterator1])
                                 .style("display",'none');
 
-                            d3.select('#pieLine'+monthsId[iterator1])
+                            d3.select('#pieLine'+tempIdVar+monthsId[iterator1])
                                 .style("display",'none');
                           }
                           else{
-                            d3.select('#pieTextValue'+monthsId[iterator1])
+                            d3.select('#pieTextValue'+tempIdVar+monthsId[iterator1])
                               .style("display",'block');
 
-                            d3.select('#pieLine'+monthsId[iterator1])
+                            d3.select('#pieLine'+tempIdVar+monthsId[iterator1])
                               .style("display",'block');
                           }
                       }
-                      //make tooltip when mouseover on bar
-                      chart.div2 .html(tempVar+": "+ y + "<br/>" + "Day: "+ chart.formatTime(x1)) 
-                              .style("left", x<=768?((d3.event.pageX>x/2)?(d3.event.pageX+20):d3.event.pageX+20):(d3.event.pageX+20)+"px" )  
-                              .style("top", (d3.event.pageY-(0.0899*y))+"px")
-                              .style("opacity", 0.9); 
+                      if(this.className.baseVal === 'circle'){
+                          chart.div2 .html("Avg Ppt: "+ d.ppt + "<br/>" + "Day: " + chart.formatTime(d.time))  
+                                .style("left", x<=768?((d3.event.pageX>x/2)?(d3.event.pageX-(0.3*x)):d3.event.pageX):d3.event.pageX+"px" )//place tooltip based on mouse's x current point
+                                .style("top", d3.event.pageY+"px")//place tooltip based on mouse's y current point
+                                .style("opacity", 0.9);
+                      }else{                                               
+                        //make tooltip when mouseover on bar
+                        chart.div2 .html(tempVar+": "+ y + "<br/>" + "Day: "+ chart.formatTime(x1)) 
+                                .style("left", x<=768?((d3.event.pageX>x/2)?(d3.event.pageX):d3.event.pageX):(d3.event.pageX)+"px" )  
+                                .style("top", (d3.event.pageY-(0.0899*y))+"px")
+                                .style("opacity", 0.9); 
+                      };
                 };
                 //delete tooltip when mouseout of the bar
                 var del =function(d){
-
+                      if(this.className.baseVal === 'circle'){
+                        var tempIdVar = 'ppt';
+                      }else{
+                        var tempIdVar = 'temp';
+                      }
                       var monthsId=["January","February","March","April","May","June","July","August","September","October","November","December"];
                       for(var iterator2=0;iterator2<monthsId.length;iterator2++)
                       {
-                        d3.select('#sliceId'+monthsId[iterator2])
+                        d3.select('#sliceId'+tempIdVar+monthsId[iterator2])
                             .style('opacity',1)
                             // .style('stroke-width',1.5)
                             // .style('stroke','#ffffff');
-                        d3.select('#pieTextValue'+monthsId[iterator2])
+                        d3.select('#pieTextValue'+tempIdVar+monthsId[iterator2])
                             .style("display",'none');
 
-                        d3.select('#pieLine'+monthsId[iterator2])
+                        d3.select('#pieLine'+tempIdVar+monthsId[iterator2])
                             .style("display",'none');
                       }
                       chart.div2   
@@ -780,18 +595,9 @@ function chart(){
                                                 .style("fill", "transparent")
                                                 .attr("r", 8)
                                                 .style("stroke-width",3)
-                                                .on("mousemove",function(d){
-                                                      chart.div2 .html("Avg Ppt: "+ d.ppt + "<br/>" + "Day: " + chart.formatTime(d.time))  
-                                                                      .style("left", x<=768?((d3.event.pageX>x/2)?(d3.event.pageX-(0.3*x)):d3.event.pageX):d3.event.pageX+"px" )//place tooltip based on mouse's x current point
-                                                                      .style("top", (d3.event.pageY-(0.0899*y))+"px")//place tooltip based on mouse's y current point
-                                                                      .style("opacity", 0.9);
-                                                    })
-                                                .on("mouseout", function(d){ 
-                                                        chart.div2.transition()
-                                                        .duration(500)    
-                                                        .style("opacity", 0);
-                                                   })
-                                                .on("click",mouseClickOnLine);
+                                                .on("click",mouseClickOnLine)
+                                                .on('mouseover',mouseoverOnElement)//call mouseoverOnElement function while mouseover on bar
+                                                .on('mouseout',del);// call del function while mouseout of the bar;
                                     }}
                           });
                 };
@@ -800,20 +606,9 @@ function chart(){
                                 chart.xf.domain([0.5,data.length]);
                                 chart.y0f.domain([0,d3.max(data.map(function(datum){return +datum[maxTempVar];}))]);
                                 chart.y1f.domain([0,d3.max(data.map(function(datum){return +datum[maxTempVar];}))]);
-                                var xAxis = d3.svg.axis().scale(chart.xf).tickValues([16,45,75,105,136,166,197,228,258,289,319,350]).orient("bottom").tickFormat(d3.format("d"));
+                                var xAxis = d3.svg.axis().scale(chart.xf).tickValues(chart.dayCount).orient("bottom").tickFormat(d3.format("d"));
                                 xAxis.tickFormat(function(d, i){
-                                       if(d==16)  return ("January")
-                                       if(d==45)  return ("February")
-                                       if(d==75)  return ("March")
-                                       if(d==105)  return ("April")
-                                       if(d==136)  return ("May")
-                                       if(d==166)  return ("June")
-                                       if(d==197)  return ("July")
-                                       if(d==228)  return ("August")
-                                       if(d==258)  return ("September")
-                                       if(d==289)  return ("October")
-                                       if(d==319)  return ("November")
-                                       if(d==350)  return ("December")
+                                       if(d==chart.dayCount[i])  return months[i];
                                 });
                                 //call x axis 
                                 chart.areas.xlabelsFull.call(xAxis);
@@ -905,8 +700,7 @@ function chart(){
                             }
                           });
                 };
-              },
-            
+              },            
               // configures the width of the chart.
               // when called without arguments, returns the
               // current width.
@@ -927,648 +721,569 @@ function chart(){
                   }
                   this.h = newHeight;
                   return this;
-                },
+                }
+      });
+      var xWidth = 0.5124,
+        yHeight = 0.7046,
+        leftOrigin = 0.0585*x,
+        leftyAxis = 0,
+        rightyAxis = 0,
+        gradientValue = 5;
+      if(550 <= x && x <= 768)
+      {
+        xWidth = 0.855;
+        yHeight = 0.60;
+        leftOrigin = 0.0667*x;
+        leftyAxis = 0.00667*x;
+        rightyAxis = 0.01667*x;
+      };
+      if(440 <= x && x < 550)
+      {
+        xWidth = 0.80;
+        yHeight = 0.60;
+        leftOrigin = 0.09*x;
+        leftyAxis = 0.009*x;
+        rightyAxis = 0.042*x;
+        gradientValue = 6;
+      };
+      if(320 <= x && x < 440)
+      {
+        xWidth = 0.755;
+        yHeight = 0.56;
+        leftOrigin = 0.118*x;
+        leftyAxis = 0.0115*x;
+        rightyAxis = 0.07*x;
+        gradientValue = 6;
+      };
+      var getInternShipChart = d3.select('#graph')
+                  .append('svg')
+                  .attr('height', (yHeight*y)) //470 of 667
+                  .attr('width', (xWidth*x)) //700 of 1366
+                  .chart('internsBarChart');
+                  data.pop();
+      //call d3.chart function with data
+      getInternShipChart.draw(data);
 
-        });
-       var xWidth = 0.5124,
-          yHeight = 0.7046,
-          leftOrigin = 0.0585*x,
-          leftyAxis = 0,
-          rightyAxis = 0,
-          gradientValue = 5;
-       if(550 <= x && x <= 768)
-       {
-          xWidth = 0.855;
-          yHeight = 0.60;
-          leftOrigin = 0.0667*x;
-          leftyAxis = 0.00667*x;
-          rightyAxis = 0.01667*x;
-       };
-       if(440 <= x && x < 550)
-       {
-          xWidth = 0.80;
-          yHeight = 0.60;
-          leftOrigin = 0.09*x;
-          leftyAxis = 0.009*x;
-          rightyAxis = 0.042*x;
-          gradientValue = 6;
-       };
-       if(320 <= x && x < 440)
-       {
-          xWidth = 0.755;
-          yHeight = 0.56;
-          leftOrigin = 0.118*x;
-          leftyAxis = 0.0115*x;
-          rightyAxis = 0.07*x;
-          gradientValue = 6;
-       };
-        var getInternShipChart = d3.select('#graph')
-                    .append('svg')
-                    .attr('height', (yHeight*y)) //470 of 667
-                    .attr('width', (xWidth*x)) //700 of 1366
-                    .chart('internsBarChart');
-                    data.pop();
-        //call d3.chart function with data
-        getInternShipChart.draw(data);
-        function reSizeSvg(chartID){
-          var chart1 = $(chartID),
-            aspect = chart1.width() / chart1.height(),
-            container = chart1.parent();
-            $(window).on("resize", function() {
+      //calculate data for pie charts.
+      var avgppt=[0,0,0,0,0,0,0,0,0,0,0,0],
+          avgtemp=[0,0,0,0,0,0,0,0,0,0,0,0];
 
-                var targetWidth = container.width();
-                chart1.attr("width", targetWidth);
-                chart1.attr("height", Math.round(targetWidth / aspect));
-            }).trigger("resize");
+      for(i=0;i<data.length;i++){
+            if(i<31)
+            { 
+              avgppt[0]= parseFloat(data[i].ppt)+avgppt[0];
+              avgtemp[0]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[0];
+              avg_ppt[0]=avgppt[0]/31; 
+              avg_temp[0]=avgtemp[0]/(31*2);   }
+           else if((30<i)&&(i<59))
+            { 
+              avgppt[1]= parseFloat(data[i].ppt)+avgppt[1];
+              avgtemp[1]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[1];
+              avg_ppt[1]=(avgppt[1])/28;
+              avg_temp[1]=(avgtemp[1]/2)/28;   }
+            else if((58<i)&&(i<90))
+            { 
+              avgppt[2]= parseFloat(data[i].ppt)+avgppt[2];
+              avgtemp[2]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[2];
+              avg_ppt[2]=(avgppt[2])/31;  
+              avg_temp[2]=(avgtemp[2]/2)/31; }
+            else if((89<i)&&(i<120))
+            { 
+              avgppt[3]= parseFloat(data[i].ppt)+avgppt[3];
+              avgtemp[3]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[3];
+              avg_ppt[3]=(avgppt[3])/30;
+              avg_temp[3]=(avgtemp[3]/2)/30;   }
+            else if((119<i)&&(i<151))
+            { 
+              avgppt[4]= parseFloat(data[i].ppt)+avgppt[4];
+              avgtemp[4]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[4];
+              avg_ppt[4]=(avgppt[4])/31;
+              avg_temp[4]=(avgtemp[4]/2)/31;   }
+            else if((150<i)&&(i<181))
+            { 
+              avgppt[5]= parseFloat(data[i].ppt)+avgppt[5];
+              avgtemp[5]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[5];
+              avg_ppt[5]=avgppt[5]/30;
+              avg_temp[5]=avgtemp[5]/(30*2);   }
+            else if((180<i)&&(i<212))
+            { 
+              avgppt[6]= parseFloat(data[i].ppt)+avgppt[6];
+              avgtemp[6]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[6];
+              avg_ppt[6]=(avgppt[6])/31;
+              avg_temp[6]=(avgtemp[6]/2)/31;   }
+            else if((211<i)&&(i<243))
+            { 
+              avgppt[7]= parseFloat(data[i].ppt)+avgppt[7];
+              avgtemp[7]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[7];
+              avg_ppt[7]=(avgppt[7])/31;
+              avg_temp[7]=(avgtemp[7]/2)/31;   }
+            else if((242<i)&&(i<273))
+            { 
+              avgppt[8]= parseFloat(data[i].ppt)+avgppt[8];
+              avgtemp[8]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[8];
+              avg_ppt[8]=(avgppt[8])/30;
+              avg_temp[8]=(avgtemp[8]/2)/30;   }
+            else if((272<i)&&(i<304))
+            { 
+              avgppt[9]= parseFloat(data[i].ppt)+avgppt[9];
+              avgtemp[9]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[9];
+              avg_ppt[9]=(avgppt[9])/31;
+              avg_temp[9]=(avgtemp[9]/2)/31;   }
+            else if((303<i)&&(i<344))
+            { 
+              avgppt[10]= parseFloat(data[i].ppt)+avgppt[10];
+              avgtemp[10]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[10];
+              avg_ppt[10]=(avgppt[10])/30;
+              avg_temp[10]=(avgtemp[10]/2)/30;   }
+            else if((343<i)&&(i<365))
+            { 
+              avgppt[11]= parseFloat(data[i].ppt)+avgppt[11];
+              avgtemp[11]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[11];
+              avg_ppt[11]=(avgppt[11])/31;
+              avg_temp[11]=(avgtemp[11])/(31*2);   }
+        };        
+        if(average_ppt.length==0){
+            for(var i = 0; i < 12; i++) {
+                average_ppt.push({
+                    month: months[i],
+                    value: avg_ppt[i],
+                    temp: avg_temp[i]
+                });
+            }
         }
-
-          // reSizeSvg("#yLeftLabelID");
-          // reSizeSvg("#BarChartId");
-         // reSizeSvg("#yRightLabelID");
-         // reSizeSvg("#fullChartID");  
-        //calculate avg ppt and avg temp from entier data
-        var avgppt=[0,0,0,0,0,0,0,0,0,0,0,0],
-            avgtemp=[0,0,0,0,0,0,0,0,0,0,0,0];
-
-        for(i=0;i<data.length;i++){
-              if(i<31)
-              { 
-                avgppt[0]= parseFloat(data[i].ppt)+avgppt[0];
-                avgtemp[0]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[0];
-                avg_ppt[0]=avgppt[0]/31; 
-                avg_temp[0]=avgtemp[0]/(31*2);   }
-             else if((30<i)&&(i<59))
-              { 
-                avgppt[1]= parseFloat(data[i].ppt)+avgppt[1];
-                avgtemp[1]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[1];
-                avg_ppt[1]=(avgppt[1])/28;
-                avg_temp[1]=(avgtemp[1]/2)/28;   }
-              else if((58<i)&&(i<90))
-              { 
-                avgppt[2]= parseFloat(data[i].ppt)+avgppt[2];
-                avgtemp[2]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[2];
-                avg_ppt[2]=(avgppt[2])/31;  
-                avg_temp[2]=(avgtemp[2]/2)/31; }
-              else if((89<i)&&(i<120))
-              { 
-                avgppt[3]= parseFloat(data[i].ppt)+avgppt[3];
-                avgtemp[3]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[3];
-                avg_ppt[3]=(avgppt[3])/30;
-                avg_temp[3]=(avgtemp[3]/2)/30;   }
-              else if((119<i)&&(i<151))
-              { 
-                avgppt[4]= parseFloat(data[i].ppt)+avgppt[4];
-                avgtemp[4]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[4];
-                avg_ppt[4]=(avgppt[4])/31;
-                avg_temp[4]=(avgtemp[4]/2)/31;   }
-              else if((150<i)&&(i<181))
-              { 
-                avgppt[5]= parseFloat(data[i].ppt)+avgppt[5];
-                avgtemp[5]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[5];
-                avg_ppt[5]=avgppt[5]/30;
-                avg_temp[5]=avgtemp[5]/(30*2);   }
-              else if((180<i)&&(i<212))
-              { 
-                avgppt[6]= parseFloat(data[i].ppt)+avgppt[6];
-                avgtemp[6]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[6];
-                avg_ppt[6]=(avgppt[6])/31;
-                avg_temp[6]=(avgtemp[6]/2)/31;   }
-              else if((211<i)&&(i<243))
-              { 
-                avgppt[7]= parseFloat(data[i].ppt)+avgppt[7];
-                avgtemp[7]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[7];
-                avg_ppt[7]=(avgppt[7])/31;
-                avg_temp[7]=(avgtemp[7]/2)/31;   }
-              else if((242<i)&&(i<273))
-              { 
-                avgppt[8]= parseFloat(data[i].ppt)+avgppt[8];
-                avgtemp[8]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[8];
-                avg_ppt[8]=(avgppt[8])/30;
-                avg_temp[8]=(avgtemp[8]/2)/30;   }
-              else if((272<i)&&(i<304))
-              { 
-                avgppt[9]= parseFloat(data[i].ppt)+avgppt[9];
-                avgtemp[9]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[9];
-                avg_ppt[9]=(avgppt[9])/31;
-                avg_temp[9]=(avgtemp[9]/2)/31;   }
-              else if((303<i)&&(i<344))
-              { 
-                avgppt[10]= parseFloat(data[i].ppt)+avgppt[10];
-                avgtemp[10]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[10];
-                avg_ppt[10]=(avgppt[10])/30;
-                avg_temp[10]=(avgtemp[10]/2)/30;   }
-              else if((343<i)&&(i<365))
-              { 
-                avgppt[11]= parseFloat(data[i].ppt)+avgppt[11];
-                avgtemp[11]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[11];
-                avg_ppt[11]=(avgppt[11])/31;
-                avg_temp[11]=(avgtemp[11])/(31*2);   }
-          }
-          var months=["January","February","March","April","May","June","July","August","September","October","November","December"];
-          if(average_ppt.length==0){
-              for (var i = 0; i < 12; i++) {
-                  average_ppt.push({
-                      month: months[i],
-                      value: avg_ppt[i],
-                      temp:avg_temp[i]
-                  });
-              }
-          }
-          var pie_chart=new Array(12);
-          for (var i = 0; i < 12; i++) {
-            pie_chart[i] = new Array(3);
-          };
-          for(var i=0;i<12;i++){
-              pie_chart[i][0]=months[i];
-              pie_chart[i][1]=avg_ppt[i];
-              pie_chart[i][2]=avg_temp[i];
-          }
-          //call tempchart initially to display pie chart 
-          if(data[0].max_temp !== undefined || data[0].min_temp !== undefined){
-              tempchart();
-              document.getElementById('one').checked = false;
-          }else{
-              pptchart();
-              document.getElementById('one').checked = true;
-          }
-    } 
-} 
+        //call tempchart initially to display pie chart 
+        if(data[0].max_temp !== undefined || data[0].min_temp !== undefined){
+            tempchart();
+            document.getElementById('one').checked = false;
+        }else{
+            pptchart();
+            document.getElementById('one').checked = true;
+        }
+}
 //ppt pie chart function
 function pptchart(){
-        //remove early created piechart dom element
-        d3.select(".pieChartSvg").remove();
-        //change lable text
-        d3.select('#label').text('Average Precipitation');
-        //calculate avg ppt for pie chart
-        pptColors = ["#025f74","#025f74","#027a96","#0288a7","#03a3c8","#04bee9","#04ccfa","#24d3fc","#56ddfc","#89e7fd","#aaeefe","#ccf5fe"];
-        var color=[],ppt_chart=[],ppt=[],array=[];
-    		for (var i=0;i<12;i++){
-    			 	ppt[i]=avg_ppt[i];
-    		}
-    		for (var i=0;i<12;i++){
-    			for (var j=i+1;j<12;j++){
-    				if(avg_ppt[i]>avg_ppt[j]){
-    					   ppt_chart[i]=avg_ppt[i];
-    				}
-    				else{
-    					ppt_chart[i]=avg_ppt[j];
-    					avg_ppt[j]=avg_ppt[i];
-    					avg_ppt[i]=ppt_chart[i];
-    				}
-    			}
-    			if(i==11)
-      				ppt_chart[i]=avg_ppt[i];
-    		}
-    		for (var i=0;i<12;i++){
-    			for (var j=0;j<12;j++){
-    				if(ppt_chart[i]==ppt[j]){
-      					array[i]=j;
-    				}
-    			}
-    		}
-    		for(i=0;i<12;i++){
-      			color[array[i]]=pptColors[i];
-            avg_ppt[i]=ppt[i];
-        }
-      //d3 chart for Precipitation pie chart
-      d3.chart('piePptChart',{
-        initialize: function(){
-              var chart = this;
-              //calulate width and height for Precipitation pie chart
-              chart.w = +chart.base.attr('width') || 200;
-              chart.h = +chart.base.attr('height') || 150;
+    //remove early created piechart dom element
+    d3.select(".pieChartSvg").remove();
+    //change lable text
+    d3.select('#label').text('Average Precipitation');
+    //calculate avg ppt for pie chart
+    pptColors = ["#025f74","#025f74","#027a96","#0288a7","#03a3c8","#04bee9","#04ccfa","#24d3fc","#56ddfc","#89e7fd","#aaeefe","#ccf5fe"];
+    var color=[],ppt_chart=[],ppt=[];
+    //calculate color based the avg temperature of the month for pie chart
+        ppt=avg_ppt.slice(0);
+        ppt_chart = avg_ppt.slice(0);
+        ppt_chart.sort(function(a,b){return b-a});
 
-              var offSetRadi = Math.sqrt((x*x)+(y*y));
-              var textOffset = ((textOffsetSmall/1520.14) * offSetRadi);
+        for (var i=0;i<ppt.length;i++){
+        var countAvgVal = 0;
+          for (var j=0;j<ppt_chart.length;j++){
+            for(var z=0;z<ppt.length;z++){if(ppt[i] === ppt[z] && i!==z && z<i){++countAvgVal;
+              console.log(countAvgVal,z,j,i);}}
+              if(ppt[i] === ppt_chart[j]){
+                    color[i] = pptColors[j+countAvgVal];
+                    break;
+              }
+          }
+        };
+    //d3 chart for Precipitation pie chart
+    d3.chart('piePptChart',{
+    initialize: function(){
+          var chart = this;
+          //calulate width and height for Precipitation pie chart
+          chart.w = +chart.base.attr('width') || 200;
+          chart.h = +chart.base.attr('height') || 150;
 
-              chart.arc = d3.svg.arc().outerRadius(radius);
-              var monthsId=["January","February","March","April","May","June","July","August","September","October","November","December"];
-              //have empty areas object to put Precipitation pie chart elements
-              this.areas = {};
-              chart.areas.piechartppt = chart.base.append('svg')
-                                    .classed('pieChartSvg',true)
-                                    .attr('id','piePptChartID')
-                                    .attr("width", chart.w)
-                                    .attr("height", chart.h)
-                                    // .attr('viewBox',"0 0 "+chart.w+" "+chart.h+"")
-                                    // .attr('preserveAspectRatio',"xMidYMid");
+          var offSetRadi = Math.sqrt((x*x)+(y*y));
+          var textOffset = ((textOffsetSmall/1520.14) * offSetRadi);
 
-               //make a layer for Precipitation pie chart elements
-               chart.layer('pie1Layer', chart.areas.piechartppt,{
-                  dataBind: function(data) {
-                    //make pie element for pie chart
-                    var pie = d3.layout.pie().sort(null).value(function(d) { return d.value; });
-                    var chat = chart.areas.piechartppt.data([data])
-                                .append('g')
-                                .attr("class","pieppt")
-                                .attr("transform", "translate(" + circleXTranslate*radius + "," + circleTranslate*radius+ ")")
-                    //select slice class element to make pie chart
-                    return chat.selectAll(".slice")
-                              .data(pie);
-                  },
-                  insert: function(){ 
-                    //make g element as many as pie elements based on data
-                    return this.append("g");
-                  },
-                  events:{
-                      //enter event for pie chart while data enter into the early created element
-                      enter:function(){
-                        var arcs = this.attr("class", "slice")
-                                        .attr('id',function(d,i){return 'sliceId'+monthsId[i];})
-                                        .style("stroke-width",1.5)
-                                        .style("stroke","#ffffff");
-                            //make line path for each pie element
-                            arcs.append("svg:path")
-                                        .attr("fill", function(d, i) { return color[i]; })
-                                        .attr("d", chart.arc)
-                                        .on('mouseover',mouseoverOnPie)
-                                        .on('mouseout',mouseoutOfPie);
-                            //make text element and text for each pie element
-                            var monthLabels = arcs.append("svg:text")                                     
-                                        .attr("transform", function(d) {
-                                                d.innerRadius = circleInnerRadius*radius;
-                                                d.outerRadius = radius*2;
-                                                return "translate(" + (chart.arc.centroid(d)) + ")";        
-                                        })
-                                        .attr("text-anchor", "middle")
-                                        .text(function(d, i) { return d.data.month; })
-                                        .style("font-family","Tahoma")
-                                        .style("stroke","#34495e")
-                                        .style("stroke-width",0); 
-                            var prev,yOffset=0,noOfLabel;
-                            function callLabel(d,i,this1){
-                                if(i > 0) {
-                                    var thisbb = this1.getBoundingClientRect(),
-                                        prevbb = prev.getBoundingClientRect();
-                                    // move if they overlap
-                                    if(!(thisbb.right < prevbb.left || 
-                                            thisbb.left > prevbb.right || 
-                                            thisbb.bottom < prevbb.top || 
-                                            thisbb.top > prevbb.bottom)) {
-                                        if(noOfLabel === i-2){yOffset = 0.01499*y;};
-                                        var ctx = thisbb.left + (thisbb.right - thisbb.left)/2,
-                                            cty = thisbb.top + (thisbb.bottom - thisbb.top)/2,
-                                            cpx = prevbb.left + (prevbb.right - prevbb.left)/2,
-                                            cpy = prevbb.top + (prevbb.bottom - prevbb.top)/2,
-                                            off = Math.sqrt(Math.pow(ctx - cpx, 2) + Math.pow(cty - cpy, 2))/2;
-                                        d3.select(this1).attr("transform",
-                                            "translate(" + Math.cos(((d.startAngle + d.endAngle - Math.PI) / 2)) * (radius + textOffset + off) + "," + (Math.sin((d.startAngle + d.endAngle - Math.PI) / 2) * (radius + textOffset + off)-yOffset) + ")");
-                                        noOfLabel = i;
-                                    }
+          chart.arc = d3.svg.arc().outerRadius(radius);
+          var monthsId=["January","February","March","April","May","June","July","August","September","October","November","December"];
+          //have empty areas object to put Precipitation pie chart elements
+          this.areas = {};
+          chart.areas.piechartppt = chart.base.append('svg')
+                                .classed('pieChartSvg',true)
+                                .attr('id','piePptChartID')
+                                .attr("width", chart.w)
+                                .attr("height", chart.h)
+                                // .attr('viewBox',"0 0 "+chart.w+" "+chart.h+"")
+                                // .attr('preserveAspectRatio',"xMidYMid");
+
+           //make a layer for Precipitation pie chart elements
+           chart.layer('pie1Layer', chart.areas.piechartppt,{
+              dataBind: function(data) {
+                //make pie element for pie chart
+                var pie = d3.layout.pie().sort(null).value(function(d) { return d.value; });
+                var chat = chart.areas.piechartppt.data([data])
+                            .append('g')
+                            .attr("class","pieppt")
+                            .attr("transform", "translate(" + circleXTranslate*radius + "," + circleTranslate*radius+ ")")
+                //select slice class element to make pie chart
+                return chat.selectAll(".slice")
+                          .data(pie);
+              },
+              insert: function(){ 
+                //make g element as many as pie elements based on data
+                return this.append("g");
+              },
+              events:{
+                  //enter event for pie chart while data enter into the early created element
+                  enter:function(){
+                    var arcs = this.attr("class", "slice")
+                                    .attr('id',function(d,i){return 'sliceIdppt'+monthsId[i];})
+                                    .style("stroke-width",1.5)
+                                    .style("stroke","#ffffff");
+                        //make line path for each pie element
+                        arcs.append("svg:path")
+                                    .attr("fill", function(d, i) { return color[i]; })
+                                    .attr("d", chart.arc)
+                                    .on('mouseover',mouseoverOnPie)
+                                    .on('mouseout',mouseoutOfPie);
+                        //make text element and text for each pie element
+                        var monthLabels = arcs.append("svg:text")                                     
+                                    .attr("transform", function(d) {
+                                            d.innerRadius = circleInnerRadius*radius;
+                                            d.outerRadius = radius*2;
+                                            return "translate(" + (chart.arc.centroid(d)) + ")";        
+                                    })
+                                    .attr("text-anchor", "middle")
+                                    .text(function(d, i) { return d.data.month; })
+                                    .style("font-family","Tahoma")
+                                    .style("stroke","#34495e")
+                                    .style("stroke-width",0); 
+                        var prev,yOffset=0,noOfLabel;
+                        function callLabel(d,i,this1){
+                            if(i > 0) {
+                                var thisbb = this1.getBoundingClientRect(),
+                                    prevbb = prev.getBoundingClientRect();
+                                // move if they overlap
+                                if(!(thisbb.right < prevbb.left || 
+                                        thisbb.left > prevbb.right || 
+                                        thisbb.bottom < prevbb.top || 
+                                        thisbb.top > prevbb.bottom)) {
+                                    if(noOfLabel === i-2){yOffset = 0.01499*y;};
+                                    var ctx = thisbb.left + (thisbb.right - thisbb.left)/2,
+                                        cty = thisbb.top + (thisbb.bottom - thisbb.top)/2,
+                                        cpx = prevbb.left + (prevbb.right - prevbb.left)/2,
+                                        cpy = prevbb.top + (prevbb.bottom - prevbb.top)/2,
+                                        off = Math.sqrt(Math.pow(ctx - cpx, 2) + Math.pow(cty - cpy, 2))/2;
+                                    d3.select(this1).attr("transform",
+                                        "translate(" + Math.cos(((d.startAngle + d.endAngle - Math.PI) / 2)) * (radius + textOffset + off) + "," + (Math.sin((d.startAngle + d.endAngle - Math.PI) / 2) * (radius + textOffset + off)-yOffset) + ")");
+                                    noOfLabel = i;
                                 }
-                                prev = this1;
-                            };
-                            monthLabels.each(function(d,i){callLabel(d,i,this);});
-                              //make number in the form of text for each pie element
-                              // arcs.append("svg:text")   
-                              //           .attr('id',function(d,i) { return 'pieTextValue'+monthsId[i]; })                                
-                              //           .attr("transform", function(d) {                    
-                              //                   d.innerRadius = radius;
-                              //                   d.outerRadius = radius;
-                              //                 return "translate(" + (chart.arc.centroid(d)) + ")";        
-                              //           })
-                              //           .attr("text-anchor", "middle")                       
-                              //           .text(function(d, i) { return d.data.value.toFixed(2); })
-                              //           .style("font-family","Tahoma")
-                              //           .style("fill","#34495e")
-                              //           .style("stroke-width",0)
-                              //           .style("display","none");
+                            }
+                            prev = this1;
+                        };
+                        monthLabels.each(function(d,i){callLabel(d,i,this);});
 
-                              arcs.append("svg:text")   
-                                        .attr('id',function(d,i) { return 'pieTextValue'+monthsId[i]; })                                         
-                                        .attr("x", function(d) {
-                                          var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
-                                          d.cx = Math.cos(a) * (radius/2+((radius/2)/2));
-                                          return d.x = /*(Math.cos(a) * (radius + 60))*/chart.arc.centroid(d)[0]>0?chart.arc.centroid(d)[0]+10:chart.arc.centroid(d)[0]-9;
-                                        })
-                                        .attr("y", function(d) {
-                                          var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
-                                          d.cy = Math.sin(a) * (radius/2+((radius/2)/2));
-                                          return d.y = /*(Math.sin(a) * (radius + 80))*/chart.arc.centroid(d)[1]+25;
-                                        })
-                                        .text(function(d) {
-                                          return d.data.value.toFixed(2); 
-                                        })
-                                        .each(function(d) {
-                                          var bbox = this.getBBox();
-                                          d.sx = d.x - bbox.width/2 - 2;
-                                          d.ox = d.x + bbox.width/2 + 2;
-                                          d.sy = d.oy = d.y + 5;
-                                        })
-                                        .style("font-family","Tahoma")
-                                        .style("fill","#34495e")
-                                        .style("stroke-width",0)
-                                        .style("display","none")
-                                        .attr("text-anchor", "middle");
+                        arcs.append("svg:text")
+                                  .attr('id',function(d,i) { return 'pieTextValueppt'+monthsId[i]; })                                         
+                                  .attr("x", function(d) {
+                                    var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
+                                    d.cx = Math.cos(a) * (radius/2+((radius/2)/2));
+                                    return d.x = /*(Math.cos(a) * (radius + 60))*/chart.arc.centroid(d)[0]>0?chart.arc.centroid(d)[0]+10:chart.arc.centroid(d)[0]-9;
+                                  })
+                                  .attr("y", function(d) {
+                                    var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
+                                    d.cy = Math.sin(a) * (radius/2+((radius/2)/2));
+                                    return d.y = /*(Math.sin(a) * (radius + 80))*/chart.arc.centroid(d)[1]+25;
+                                  })
+                                  .text(function(d) {
+                                    return d.data.value.toFixed(2); 
+                                  })
+                                  .each(function(d) {
+                                    var bbox = this.getBBox();
+                                    d.sx = d.x - bbox.width/2 - 2;
+                                    d.ox = d.x + bbox.width/2 + 2;
+                                    d.sy = d.oy = d.y + 5;
+                                  })
+                                  .style("font-family","Tahoma")
+                                  .style("fill","#34495e")
+                                  .style("stroke-width",0)
+                                  .style("display","none")
+                                  .attr("text-anchor", "middle");
 
-                              arcs.append("path")
-                                        .attr('id',function(d,i) { return 'pieLine'+monthsId[i]; })
-                                        .attr("class", "pointer")
-                                        .style("fill", "none")
-                                        .style("stroke", "black")
-                                       // .attr("marker-end", "url(#circ)")
-                                        .attr("d", function(d) {
-                                              if(d.cx > d.ox) {
-                                                return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
-                                              } else {
-                                                return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
-                                              }
-                                            })
-                                        .style("display",'none');
-                              return arcs;
-                      }
+                        arcs.append("path")
+                                  .attr('id',function(d,i) { return 'pieLineppt'+monthsId[i]; })
+                                  .attr("class", "pointer")
+                                  .style("fill", "none")
+                                  .style("stroke", "black")
+                                 // .attr("marker-end", "url(#circ)")
+                                  .attr("d", function(d) {
+                                        if(d.cx > d.ox) {
+                                          return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
+                                        } else {
+                                          return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
+                                        }
+                                      })
+                                  .style("display",'none');
+                          return arcs;
                   }
-                });
-                function mouseoverOnPie(d,i){
-                  for(var iterator5=0;iterator5<monthsId.length;iterator5++)
-                  {
-                    if(monthsId[iterator5] !== d.data.month){
-                        d3.select('#sliceId'+monthsId[iterator5])
-                            .style('opacity',0.3);
-                            // .style('stroke-width',3)
-                            // .style('stroke','gray');
-                        d3.select('#pieTextValue'+monthsId[iterator5])
-                            .style("display",'none');
+            }
+          });
+          function mouseoverOnPie(d,i){
+            for(var iterator5=0;iterator5<monthsId.length;iterator5++)
+            {
+              if(monthsId[iterator5] !== d.data.month){
+                  d3.select('#sliceIdppt'+monthsId[iterator5])
+                      .style('opacity',0.3);
+                      // .style('stroke-width',3)
+                      // .style('stroke','gray');
+                  d3.select('#pieTextValueppt'+monthsId[iterator5])
+                      .style("display",'none');
 
-                        d3.select('#pieLine'+monthsId[iterator5])
-                            .style("display",'none');
-                      }
-                      else{
-                        d3.select('#pieTextValue'+monthsId[iterator5])
-                          .style("display",'block');
+                  d3.select('#pieLineppt'+monthsId[iterator5])
+                      .style("display",'none');
+                }
+                else{
+                  d3.select('#pieTextValueppt'+monthsId[iterator5])
+                    .style("display",'block');
 
-                        d3.select('#pieLine'+monthsId[iterator5])
-                          .style("display",'block');
-                      }
-                  };
-                };
-                function mouseoutOfPie(d,i){
-                  for(var iterator6=0;iterator6<monthsId.length;iterator6++)
-                  {
-                    d3.select('#sliceId'+monthsId[iterator6])
-                        .style('opacity',1)
-                        // .style('stroke-width',1.5)
-                        // .style('stroke','#ffffff');
-                    d3.select('#pieTextValue'+monthsId[iterator6])
-                        .style("display",'none');
+                  d3.select('#pieLineppt'+monthsId[iterator5])
+                    .style("display",'block');
+                }
+            };
+          };
+          function mouseoutOfPie(d,i){
+            for(var iterator6=0;iterator6<monthsId.length;iterator6++)
+            {
+              d3.select('#sliceIdppt'+monthsId[iterator6])
+                  .style('opacity',1)
+                  // .style('stroke-width',1.5)
+                  // .style('stroke','#ffffff');
+              d3.select('#pieTextValueppt'+monthsId[iterator6])
+                  .style("display",'none');
 
-                    d3.select('#pieLine'+monthsId[iterator6])
-                        .style("display",'none');
-                  };
-                };
+              d3.select('#pieLineppt'+monthsId[iterator6])
+                  .style("display",'none');
+            };
+          };
         }
       });
-        var  w = window,
-                d = document,
-                e = d.documentElement,
-                g = d.getElementsByTagName('body')[0],
-                x = w.innerWidth || e.clientWidth || g.clientWidth,
-                y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+      var  w = window,
+              d = document,
+              e = d.documentElement,
+              g = d.getElementsByTagName('body')[0],
+              x = w.innerWidth || e.clientWidth || g.clientWidth,
+              y = w.innerHeight|| e.clientHeight|| g.clientHeight;
 
-        //call temp chart 
-        var xWidth = 0.3221,
-            yHeight = 0.7496,
-            circleTranslate = 2,
-            textOffsetSmall =40,
-            circleXTranslate = 1.6,
-            circleInnerRadius = 1.5;
-            if(640 <= x && x <= 768)
-            {
-                xWidth = 0.00111*x;
-                yHeight = 0.7496;
-                circleTranslate = 1.8;
-                textOffsetSmall = 80;
-                circleXTranslate = 0.00247*x;
-            };
-            if(550 <= x && x < 640)
-            {
-                xWidth = 0.00133*x;
-                yHeight = 0.7496;
-                circleTranslate = 1.8;
-                textOffsetSmall = 80;
-                circleXTranslate = 0.00234*x;
-            };
-            if(440 <= x && x < 550)
-             {
-                xWidth = 0.00175*x;
-                yHeight = 0.7496;
-                textOffsetSmall = 90;
-                circleTranslate = 1.8;
-                circleXTranslate = 0.0035*x;
-             };
-             if(320 <= x && x < 440)
-             {
-                xWidth = 0.00244*x;
-                yHeight = 0.67;
-                textOffsetSmall = 120;
-                circleTranslate = 2.2;
-                circleXTranslate = 0.00459*x;
-                circleInnerRadius = 1.64;
-             };
+      //call temp chart 
+      var xWidth = 0.3221,
+          yHeight = 0.7496,
+          circleTranslate = 2,
+          textOffsetSmall =40,
+          circleXTranslate = 1.6,
+          circleInnerRadius = 1.5;
+          if(640 <= x && x <= 768)
+          {
+              xWidth = 0.00111*x;
+              yHeight = 0.7496;
+              circleTranslate = 1.8;
+              textOffsetSmall = 80;
+              circleXTranslate = 0.00247*x;
+          };
+          if(550 <= x && x < 640)
+          {
+              xWidth = 0.00133*x;
+              yHeight = 0.7496;
+              circleTranslate = 1.8;
+              textOffsetSmall = 80;
+              circleXTranslate = 0.00234*x;
+          };
+          if(440 <= x && x < 550)
+           {
+              xWidth = 0.00175*x;
+              yHeight = 0.7496;
+              textOffsetSmall = 90;
+              circleTranslate = 1.8;
+              circleXTranslate = 0.0035*x;
+           };
+           if(320 <= x && x < 440)
+           {
+              xWidth = 0.00244*x;
+              yHeight = 0.67;
+              textOffsetSmall = 120;
+              circleTranslate = 2.2;
+              circleXTranslate = 0.00459*x;
+              circleInnerRadius = 1.64;
+           };
       //call ppt chart 
       var chart1 = d3.select("#piechart")
                       .attr('height', (yHeight*y)) //500 of 667
                       .attr('width', (xWidth*x)) //440 of 1366
                       .chart('piePptChart');
       chart1.draw(average_ppt);
-      function reSizeSvg(chartID){
-          var chart1 = $(chartID),
-            aspect = chart1.width() / chart1.height(),
-            container = chart1.parent();
-            $(window).on("resize", function() {
-
-                var targetWidth = container.width();
-                chart1.attr("width", targetWidth);
-                chart1.attr("height", Math.round(targetWidth / aspect));
-            }).trigger("resize");
-        }
-       // reSizeSvg("#piePptChartID");
     };
 
 //function for temp chart 
 function tempchart(){
-          //remove early created piechart dom element
-          d3.select(".pieChartSvg").remove();
-          //change lable text
-          d3.select('#label').text('Average Temperature');
-        	tempColors = ["#ff1400","#ff3e00","#ff6100","#ff8400","#ffc621","#ffdc76","#faff99","#e2ffd2","#ceffff","#9cf7ff","#73ceff","#64b2ff"];
-          var array=[],
-              color=[],
-         	    ppt_chart=[],
-              temp=[];
-          //calculate avg temp for pie chart
-        	for (var i=0;i<12;i++){
-        	 	temp[i]=avg_temp[i];
-        	}
-      	 	for (var i=0;i<12;i++){
-          		for (var j=i+1;j<12;j++){
-          			if(avg_temp[i]>avg_temp[j]){
-          				  ppt_chart[i]=avg_temp[i];
-            		}else{
-            				ppt_chart[i]=avg_temp[j];
-            				avg_temp[j]=avg_temp[i];
-            				avg_temp[i]=ppt_chart[i];
-      			    }
-      		    } 
-          		if(i==11)
-          			ppt_chart[i]=avg_temp[i];
-	        }
-        	for (var i=0;i<12;i++){
-        		for (var j=0;j<12;j++){
-        			if(ppt_chart[i]==temp[j]){
-        				    array[i]=j;
+        //remove early created piechart dom element
+        d3.select(".pieChartSvg").remove();
+        //change lable text
+        d3.select('#label').text('Average Temperature');
+      	tempColors = ["#ff1400","#ff3e00","#ff6100","#ff8400","#ffc621","#ffdc76","#faff99","#e2ffd2","#ceffff","#9cf7ff","#73ceff","#64b2ff"];
+        var color=[],
+       	    ppt_chart=[],
+            temp=[];
+        //calculate color based the avg temperature of the month for pie chart
+      	temp=avg_temp.slice(0);
+        ppt_chart = avg_temp.slice(0);
+        ppt_chart.sort(function(a,b){return b-a});
+
+      	for (var i=0;i<temp.length;i++){
+          var countAvgVal = 0;
+      		for (var j=0;j<ppt_chart.length;j++){
+            for(var z=0;z<temp.length;z++){if(temp[i] === temp[z] && i!==z && z<i){++countAvgVal;
+              console.log(countAvgVal,z,j,i);}}
+        			if(temp[i] === ppt_chart[j]){
+        				    color[i] = tempColors[j+countAvgVal];
+                    break;
         			}
-        		}
-        	}
-          for(i=0;i<12;i++){
-          	color[array[i]]=tempColors[i];
-            avg_temp[i]=temp[i];
-          }
-          console.log(color,array,tempColors,avg_temp,ppt_chart)
-          //make a layer for temperature pie chart elements
-          d3.chart('pieTempChart',{
-                  initialize: function(){
-                        var chart = this;
-            
-                        chart.w = +chart.base.attr('width');
-                        chart.h = +chart.base.attr('height');
-                        chart.arc = d3.svg.arc().outerRadius(radius);
-                        var monthsId=["January","February","March","April","May","June","July","August","September","October","November","December"];
-                        
-                        this.areas = {};
-                        chart.areas.piecharttemp = chart.base.append('svg')
-                                              .classed('pieChartSvg',true)
-                                              .attr('id','pieTempChartID')
-                                              .attr("width", chart.w)
-                                              .attr("height", chart.h)
-                                              // .attr('viewBox',"0 0 "+chart.w+" "+chart.h+"")
-                                              // .attr('preserveAspectRatio',"xMidYMid");
-                         chart.layer('pie2Layer', chart.areas.piecharttemp,{
-                            dataBind: function(data) {
-                              //make pie element for pie chart
-                              var pie = d3.layout.pie().sort(null).value(function(d) { return d.temp; });                              
-                              var chat = chart.areas.piecharttemp.data([data]) 
-                                          .append('g')
-                                          .attr("class","pietemp")
-                                          .attr("transform", "translate(" + circleXTranslate*radius + "," + circleTranslate*radius+ ")")
-                              //select slice class element to make pie chart  
-                              return chat.selectAll(".slice")
-                                        .data(pie);
-                            },
-                            insert: function(){ 
-                              //make g element as many as pie elements based on data
-                              return this.append("g");
-                            },
-                            events:{
-                                //enter event for pie chart while data enter into the early created element
-                                enter:function(){
-                                  var arcs = this.attr("class", "slice2")
-                                              .attr('id',function(d,i){return 'sliceId'+monthsId[i];})
-                                              .style("stroke-width",1.5)
-                                              .style("stroke","#ffffff")
-                                      //make line path for each pie element
-                                      arcs.append("svg:path")
-                                              .attr("fill", function(d, i) { return color[i]; } ) 
-                                              .attr("d", chart.arc)
-                                              .on('mouseover',mouseoverOnPie)
-                                              .on('mouseout',mouseoutOfPie);
-                                    //make text element and text for each pie element
-                                      arcs.append("svg:text")                                     
-                                            .attr("transform", function(d) {                    
-                                            d.innerRadius = circleTempInnerRadi*radius;
-                                            d.outerRadius = radius*2;
-                                            return "translate(" + (chart.arc.centroid(d)) + ")";        
+      		}
+      	};
+        //make a layer for temperature pie chart elements
+        d3.chart('pieTempChart',{
+                initialize: function(){
+                      var chart = this;
+          
+                      chart.w = +chart.base.attr('width');
+                      chart.h = +chart.base.attr('height');
+                      chart.arc = d3.svg.arc().outerRadius(radius);
+                      var monthsId=["January","February","March","April","May","June","July","August","September","October","November","December"];
+                      
+                      this.areas = {};
+                      chart.areas.piecharttemp = chart.base.append('svg')
+                                            .classed('pieChartSvg',true)
+                                            .attr('id','pieTempChartID')
+                                            .attr("width", chart.w)
+                                            .attr("height", chart.h)
+                                            // .attr('viewBox',"0 0 "+chart.w+" "+chart.h+"")
+                                            // .attr('preserveAspectRatio',"xMidYMid");
+                       chart.layer('pie2Layer', chart.areas.piecharttemp,{
+                          dataBind: function(data) {
+                            //make pie element for pie chart
+                            var pie = d3.layout.pie().sort(null).value(function(d) { return d.temp; });                              
+                            var chat = chart.areas.piecharttemp.data([data]) 
+                                        .append('g')
+                                        .attr("class","pietemp")
+                                        .attr("transform", "translate(" + circleXTranslate*radius + "," + circleTranslate*radius+ ")")
+                            //select slice class element to make pie chart  
+                            return chat.selectAll(".slice")
+                                      .data(pie);
+                          },
+                          insert: function(){ 
+                            //make g element as many as pie elements based on data
+                            return this.append("g");
+                          },
+                          events:{
+                              //enter event for pie chart while data enter into the early created element
+                              enter:function(){
+                                var arcs = this.attr("class", "slice2")
+                                            .attr('id',function(d,i){return 'sliceIdtemp'+monthsId[i];})
+                                            .style("stroke-width",1.5)
+                                            .style("stroke","#ffffff")
+                                    //make line path for each pie element
+                                    arcs.append("svg:path")
+                                            .attr("fill", function(d, i) { return color[i]; } ) 
+                                            .attr("d", chart.arc)
+                                            .on('mouseover',mouseoverOnPie)
+                                            .on('mouseout',mouseoutOfPie);
+                                  //make text element and text for each pie element
+                                    arcs.append("svg:text")                                     
+                                          .attr("transform", function(d) {                    
+                                          d.innerRadius = circleTempInnerRadi*radius;
+                                          d.outerRadius = radius*2;
+                                          return "translate(" + (chart.arc.centroid(d)) + ")";        
+                                        })
+                                          .attr("text-anchor", "middle")                          
+                                          .text(function(d, i) { return d.data.month; })
+                                          .style("font-family","Tahoma")
+                                          .style("stroke","#34495e")
+                                          .style("stroke-width",0); 
+                                    //make number in the form of text for each pie element
+                                    arcs.append("svg:text")   
+                                          .attr('id',function(d,i) { return 'pieTextValuetemp'+monthsId[i]; })                                         
+                                          .attr("x", function(d) {
+                                            var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
+                                            d.cx = Math.cos(a) * (radius/2+((radius/2)/2));
+                                            return d.x = /*(Math.cos(a) * (radius + 60))*/chart.arc.centroid(d)[0]-5;
                                           })
-                                            .attr("text-anchor", "middle")                          
-                                            .text(function(d, i) { return d.data.month; })
-                                            .style("font-family","Tahoma")
-                                            .style("stroke","#34495e")
-                                            .style("stroke-width",0); 
-                                      //make number in the form of text for each pie element
-                                      arcs.append("svg:text")   
-                                            .attr('id',function(d,i) { return 'pieTextValue'+monthsId[i]; })                                         
-                                            .attr("x", function(d) {
-                                              var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
-                                              d.cx = Math.cos(a) * (radius/2+((radius/2)/2));
-                                              return d.x = /*(Math.cos(a) * (radius + 60))*/chart.arc.centroid(d)[0]-5;
-                                            })
-                                            .attr("y", function(d) {
-                                              var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
-                                              d.cy = Math.sin(a) * (radius/2+((radius/2)/2));
-                                              return d.y = /*(Math.sin(a) * (radius + 70))*/chart.arc.centroid(d)[1]+25;
-                                            })
-                                            .text(function(d) {
-                                              return d.data.temp.toFixed(2); 
-                                            })
-                                            .each(function(d) {
-                                              var bbox = this.getBBox();
-                                              d.sx = d.x - bbox.width/2 - 2;
-                                              d.ox = d.x + bbox.width/2 + 2;
-                                              d.sy = d.oy = d.y + 5;
-                                            })
-                                            .style("font-family","Tahoma")
-                                            .style("fill","#34495e")
-                                            .style("stroke-width",0)
-                                            .style("display","none")
-                                            .attr("text-anchor", "middle");
+                                          .attr("y", function(d) {
+                                            var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
+                                            d.cy = Math.sin(a) * (radius/2+((radius/2)/2));
+                                            return d.y = /*(Math.sin(a) * (radius + 70))*/chart.arc.centroid(d)[1]+25;
+                                          })
+                                          .text(function(d) {
+                                            return d.data.temp.toFixed(2); 
+                                          })
+                                          .each(function(d) {
+                                            var bbox = this.getBBox();
+                                            d.sx = d.x - bbox.width/2 - 2;
+                                            d.ox = d.x + bbox.width/2 + 2;
+                                            d.sy = d.oy = d.y + 5;
+                                          })
+                                          .style("font-family","Tahoma")
+                                          .style("fill","#34495e")
+                                          .style("stroke-width",0)
+                                          .style("display","none")
+                                          .attr("text-anchor", "middle");
 
-                                    arcs.append("path")
-                                            .attr('id',function(d,i) { return 'pieLine'+monthsId[i]; })
-                                            .attr("class", "pointer")
-                                            .style("fill", "none")
-                                            .style("stroke", "black")
-                                           // .attr("marker-end", "url(#circ)")
-                                            .attr("d", function(d,i) {
-                                                  if(d.cx > d.ox) {
-                                                    return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
-                                                  } else {
-                                                    return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
-                                                  }
-                                                })
-                                            .style("display",'none');
-                                  return arcs;
-                                }
+                                  arcs.append("path")
+                                          .attr('id',function(d,i) { return 'pieLinetemp'+monthsId[i]; })
+                                          .attr("class", "pointer")
+                                          .style("fill", "none")
+                                          .style("stroke", "black")
+                                         // .attr("marker-end", "url(#circ)")
+                                          .attr("d", function(d,i) {
+                                                if(d.cx > d.ox) {
+                                                  return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
+                                                } else {
+                                                  return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
+                                                }
+                                              })
+                                          .style("display",'none');
+                                return arcs;
+                              }
+                          }
+                       });
+                      function mouseoverOnPie(d,i){
+                        for(var iterator3=0;iterator3<monthsId.length;iterator3++)
+                        {
+                          if(monthsId[iterator3] !== d.data.month){
+                              d3.select('#sliceIdtemp'+monthsId[iterator3])
+                                  .style('opacity',0.3);
+                                  // .style('stroke-width',3)
+                                  // .style('stroke','gray');
+                              d3.select('#pieTextValuetemp'+monthsId[iterator3])
+                                  .style("display",'none');
+
+                              d3.select('#pieLinetemp'+monthsId[iterator3])
+                                  .style("display",'none');
                             }
-                         });
-                        function mouseoverOnPie(d,i){
-                          for(var iterator3=0;iterator3<monthsId.length;iterator3++)
-                          {
-                            if(monthsId[iterator3] !== d.data.month){
-                                d3.select('#sliceId'+monthsId[iterator3])
-                                    .style('opacity',0.3);
-                                    // .style('stroke-width',3)
-                                    // .style('stroke','gray');
-                                d3.select('#pieTextValue'+monthsId[iterator3])
-                                    .style("display",'none');
+                            else{
+                              d3.select('#pieTextValuetemp'+monthsId[iterator3])
+                                .style("display",'block');
 
-                                d3.select('#pieLine'+monthsId[iterator3])
-                                    .style("display",'none');
-                              }
-                              else{
-                                d3.select('#pieTextValue'+monthsId[iterator3])
-                                  .style("display",'block');
-
-                                d3.select('#pieLine'+monthsId[iterator3])
-                                  .style("display",'block');
-                              }
-                          };
+                              d3.select('#pieLinetemp'+monthsId[iterator3])
+                                .style("display",'block');
+                            }
                         };
-                        function mouseoutOfPie(d,i){
-                          for(var iterator4=0;iterator4<monthsId.length;iterator4++)
-                          {
-                            d3.select('#sliceId'+monthsId[iterator4])
-                                .style('opacity',1)
-                                // .style('stroke-width',1.5)
-                                // .style('stroke','#ffffff');
-                            d3.select('#pieTextValue'+monthsId[iterator4])
-                                .style("display",'none');
+                      };
+                      function mouseoutOfPie(d,i){
+                        for(var iterator4=0;iterator4<monthsId.length;iterator4++)
+                        {
+                          d3.select('#sliceIdtemp'+monthsId[iterator4])
+                              .style('opacity',1)
+                              // .style('stroke-width',1.5)
+                              // .style('stroke','#ffffff');
+                          d3.select('#pieTextValuetemp'+monthsId[iterator4])
+                              .style("display",'none');
 
-                            d3.select('#pieLine'+monthsId[iterator4])
-                                .style("display",'none');
-                          };
+                          d3.select('#pieLinetemp'+monthsId[iterator4])
+                              .style("display",'none');
                         };
-                  }
-                });
+                      };
+                }
+              });
         var  w = window,
                 d = document,
                 e = d.documentElement,
@@ -1618,17 +1333,4 @@ function tempchart(){
                       .attr('width', (xWidth*x)) //440 of 1366
                       .chart('pieTempChart');
         chart2.draw(average_ppt);
-
-        function reSizeSvg(chartID){
-          var chart1 = $(chartID),
-            aspect = chart1.width() / chart1.height(),
-            container = chart1.parent();
-            $(window).on("resize", function() {
-
-                var targetWidth = container.width();
-                chart1.attr("width", targetWidth);
-                chart1.attr("height", Math.round(targetWidth / aspect));
-            }).trigger("resize");
-        }
-        //reSizeSvg("#pieTempChartID");
 };
