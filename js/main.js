@@ -763,86 +763,31 @@ function makechart(data){
                   data.pop();
       //call d3.chart function with data
       getInternShipChart.draw(data);
+      var temp=[],count=1;
+                  for(i=0;i<12;i++){
+                   temp.push(_.filter(data, function(object){ 
+                    if(object.time.getMonth()+1===count)
+                      return true; 
+                    else
+                      return false;
+                    }));
+                   count++;
+                   }
+      function findAverage(splitedArray,output_avg_ppt,output_avg_temp) {
+                  _.each(splitedArray,function(month_item,month_index){
+                    var avgppt=0,avgtemp=0;
+                    _.each(month_item,function(object){
+                      avgppt+=parseFloat(object.ppt);
+                      avgtemp+=parseFloat(object[maxTempVar])+parseFloat(object[minTempVar]);
 
-      //calculate data for pie charts.
-      var avgppt=[0,0,0,0,0,0,0,0,0,0,0,0],
-          avgtemp=[0,0,0,0,0,0,0,0,0,0,0,0];
-
-      for(i=0;i<data.length;i++){
-            if(i<31)
-            { 
-              avgppt[0]= parseFloat(data[i].ppt)+avgppt[0];
-              avgtemp[0]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[0];
-              avg_ppt[0]=avgppt[0]/31; 
-              avg_temp[0]=avgtemp[0]/(31*2);   }
-           else if((30<i)&&(i<59))
-            { 
-              avgppt[1]= parseFloat(data[i].ppt)+avgppt[1];
-              avgtemp[1]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[1];
-              avg_ppt[1]=(avgppt[1])/28;
-              avg_temp[1]=(avgtemp[1]/2)/28;   }
-            else if((58<i)&&(i<90))
-            { 
-              avgppt[2]= parseFloat(data[i].ppt)+avgppt[2];
-              avgtemp[2]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[2];
-              avg_ppt[2]=(avgppt[2])/31;  
-              avg_temp[2]=(avgtemp[2]/2)/31; }
-            else if((89<i)&&(i<120))
-            { 
-              avgppt[3]= parseFloat(data[i].ppt)+avgppt[3];
-              avgtemp[3]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[3];
-              avg_ppt[3]=(avgppt[3])/30;
-              avg_temp[3]=(avgtemp[3]/2)/30;   }
-            else if((119<i)&&(i<151))
-            { 
-              avgppt[4]= parseFloat(data[i].ppt)+avgppt[4];
-              avgtemp[4]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[4];
-              avg_ppt[4]=(avgppt[4])/31;
-              avg_temp[4]=(avgtemp[4]/2)/31;   }
-            else if((150<i)&&(i<181))
-            { 
-              avgppt[5]= parseFloat(data[i].ppt)+avgppt[5];
-              avgtemp[5]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[5];
-              avg_ppt[5]=avgppt[5]/30;
-              avg_temp[5]=avgtemp[5]/(30*2);   }
-            else if((180<i)&&(i<212))
-            { 
-              avgppt[6]= parseFloat(data[i].ppt)+avgppt[6];
-              avgtemp[6]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[6];
-              avg_ppt[6]=(avgppt[6])/31;
-              avg_temp[6]=(avgtemp[6]/2)/31;   }
-            else if((211<i)&&(i<243))
-            { 
-              avgppt[7]= parseFloat(data[i].ppt)+avgppt[7];
-              avgtemp[7]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[7];
-              avg_ppt[7]=(avgppt[7])/31;
-              avg_temp[7]=(avgtemp[7]/2)/31;   }
-            else if((242<i)&&(i<273))
-            { 
-              avgppt[8]= parseFloat(data[i].ppt)+avgppt[8];
-              avgtemp[8]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[8];
-              avg_ppt[8]=(avgppt[8])/30;
-              avg_temp[8]=(avgtemp[8]/2)/30;   }
-            else if((272<i)&&(i<304))
-            { 
-              avgppt[9]= parseFloat(data[i].ppt)+avgppt[9];
-              avgtemp[9]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[9];
-              avg_ppt[9]=(avgppt[9])/31;
-              avg_temp[9]=(avgtemp[9]/2)/31;   }
-            else if((303<i)&&(i<344))
-            { 
-              avgppt[10]= parseFloat(data[i].ppt)+avgppt[10];
-              avgtemp[10]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[10];
-              avg_ppt[10]=(avgppt[10])/30;
-              avg_temp[10]=(avgtemp[10]/2)/30;   }
-            else if((343<i)&&(i<365))
-            { 
-              avgppt[11]= parseFloat(data[i].ppt)+avgppt[11];
-              avgtemp[11]= parseFloat(data[i][maxTempVar])+parseFloat(data[i][minTempVar])+avgtemp[11];
-              avg_ppt[11]=(avgppt[11])/31;
-              avg_temp[11]=(avgtemp[11])/(31*2);   }
-        };        
-        if(average_ppt.length==0){
+                    })
+                    console.log(month_item.length)
+                    output_avg_ppt.push((avgppt)/month_item.length);
+                    output_avg_temp.push((avgtemp/2)/month_item.length);
+                  })
+                }
+      findAverage(temp,avg_ppt,avg_temp)
+      if(average_ppt.length==0){
             for(var i = 0; i < 12; i++) {
                 average_ppt.push({
                     month: months[i],
@@ -865,7 +810,7 @@ function pptchart(){
     //remove early created piechart dom element
     d3.select(".pieChartSvg").remove();
     //change lable text
-    d3.select('#label').text('Average Precipitation');
+    d3.select('#label').text('Total Monthly Precipitation (mm)');
     //calculate avg ppt for pie chart
     pptColors = ["#025f74","#025f74","#027a96","#0288a7","#03a3c8","#04bee9","#04ccfa","#24d3fc","#56ddfc","#89e7fd","#aaeefe","#ccf5fe"];
     var color=[],ppt_chart=[],ppt=[];
@@ -1119,7 +1064,7 @@ function tempchart(){
         //remove early created piechart dom element
         d3.select(".pieChartSvg").remove();
         //change lable text
-        d3.select('#label').text('Average Temperature');
+        d3.select('#label').text('Monthly Average Temperature (C)');
       	tempColors = ["#ff1400","#ff3e00","#ff6100","#ff8400","#ffc621","#ffdc76","#faff99","#e2ffd2","#ceffff","#9cf7ff","#73ceff","#64b2ff"];
         var color=[],
        	    ppt_chart=[],
