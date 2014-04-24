@@ -1,7 +1,7 @@
 function makechart(data){
       var time=[];
       if(average_ppt.length!=0){
-        average_ppt.length==0;
+        average_ppt.length=0;
       };      
       for(i=0;i<data.length;i++){
       	time[i]=data[i].time;
